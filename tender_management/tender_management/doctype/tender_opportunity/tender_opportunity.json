@@ -43,6 +43,7 @@
         "payment_receipt_proof",
         "doc_purchase_status",
         "tender_purchaser",
+        "doc_purchase_payment_entry",
         "tab_qualify",
         "sec_go_no_go",
         "bid_probability_score",
@@ -642,6 +643,13 @@
             "fieldtype": "Link",
             "label": "Tender Purchaser",
             "options": "User"
+        },
+        {
+            "fieldname": "doc_purchase_payment_entry",
+            "fieldtype": "Link",
+            "label": "Payment Entry",
+            "options": "Payment Entry",
+            "read_only": 1
         },
         {
             "fieldname": "sec_security",

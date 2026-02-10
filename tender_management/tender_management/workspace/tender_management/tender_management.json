@@ -41,7 +41,7 @@
             "label": "Top Customers"
         }
     ],
-    "content": "[{\"type\": \"header\", \"data\": {\"text\": \"Key Insights\", \"level\": 2}}, {\"type\": \"card\", \"data\": {\"card_name\": \"Total Active Tenders\", \"col\": 4}}, {\"type\": \"card\", \"data\": {\"card_name\": \"Total Won Value\", \"col\": 4}}, {\"type\": \"header\", \"data\": {\"text\": \"Performance & Pipeline\", \"level\": 2}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tender Pipeline Value\", \"col\": 8}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Win Loss Ratio\", \"col\": 4}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Active Bids per User\", \"col\": 12}}, {\"type\": \"header\", \"data\": {\"text\": \"Trends & Analysis\", \"level\": 2}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Monthly Publication Trend\", \"col\": 12}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Sector\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Bond Type Distribution\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Bid vs No-Bid\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Type\", \"col\": 6}}, {\"type\": \"header\", \"data\": {\"text\": \"Tender Registry\", \"level\": 3}}, {\"type\": \"shortcut\", \"data\": {\"link_to\": \"Tender Opportunity\", \"type\": \"DocType\", \"label\": \"Tenders\", \"icon\": \"list\", \"color\": \"Grey\"}}]",
+    "content": "[{\"type\": \"header\", \"data\": {\"text\": \"Key Insights\", \"level\": 2}}, {\"type\": \"card\", \"data\": {\"number_card_name\": \"Total Active Tenders\", \"col\": 4}}, {\"type\": \"card\", \"data\": {\"number_card_name\": \"Total Won Value\", \"col\": 4}}, {\"type\": \"header\", \"data\": {\"text\": \"Performance & Pipeline\", \"level\": 2}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tender Pipeline Value\", \"col\": 8}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Win Loss Ratio\", \"col\": 4}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Active Bids per User\", \"col\": 12}}, {\"type\": \"header\", \"data\": {\"text\": \"Trends & Analysis\", \"level\": 2}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Monthly Publication Trend\", \"col\": 12}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Sector\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Bond Type Distribution\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Bid vs No-Bid\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Type\", \"col\": 6}}, {\"type\": \"header\", \"data\": {\"text\": \"Tender Registry\", \"level\": 3}}, {\"type\": \"shortcut\", \"data\": {\"link_to\": \"Tender Opportunity\", \"type\": \"DocType\", \"label\": \"Tenders\", \"icon\": \"list\", \"color\": \"Grey\"}}]",
     "creation": "2026-02-09 19:46:54.558502",
     "custom_blocks": [],
     "docstatus": 0,
@@ -59,11 +59,11 @@
     "name": "Tender Management",
     "number_cards": [
         {
-            "card_name": "Total Active Tenders",
+            "number_card_name": "Total Active Tenders",
             "label": "Total Active Tenders"
         },
         {
-            "card_name": "Total Won Value",
+            "number_card_name": "Total Won Value",
             "label": "Total Won Value"
         }
     ],

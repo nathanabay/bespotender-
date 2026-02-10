@@ -16,6 +16,7 @@ def after_migrate():
     setup_enhanced_workflow()
     setup_bid_security_sync()
     setup_bid_security_accounting()
+    setup_document_purchase_payment()
     setup_notifications()
 
 def setup_module():
@@ -436,6 +437,78 @@ elif doc.status == "Released" and doc.journal_entry and not doc.release_journal_
             "doctype_event": "After Save",
             "script": script_content
         }).insert(ignore_permissions=True)
+
+def setup_document_purchase_payment():
+    """
+    Automate Payment Entry creation when doc_purchase_status changes to 'Funds Released'
+    """
+    script_name = "Auto Payment Entry - Document Purchase"
+    
+    script_content = """
+# AUTOMATE DOCUMENT PURCHASE PAYMENT ENTRY
+if doc.doc_purchase_status == "Funds Released" and doc.document_price > 0 and not doc.doc_purchase_payment_entry:
+    # Create Payment Entry
+    pe = frappe.new_doc("Payment Entry")
+    pe.payment_type = "Pay"
+    pe.posting_date = frappe.utils.nowdate()
+    pe.company = frappe.db.get_value("Company", {}, "name") or "BES"
+    
+    # Get default accounts
+    company = frappe.db.get_value("Company", {}, "name") or "BES"
+    
+    # Source: Bank Account (same as CPO)
+    pe.paid_from = "7868687686867 - cbe - BES"
+    pe.paid_from_account_currency = "ETB"
+    
+    # Destination: Expense Account (create if doesn't exist)
+    expense_account = "Tender Document Purchase - BES"
+    if not frappe.db.exists("Account", expense_account):
+        # If account doesn't exist, use a generic expense account
+        expense_account = frappe.db.get_value("Account", {
+            "company": company,
+            "account_type": "Expense Account",
+            "is_group": 0
+        }, "name")
+        if not expense_account:
+            frappe.throw("No suitable Expense Account found. Please create 'Tender Document Purchase - BES' account.")
+    
+    pe.paid_to = expense_account
+    pe.paid_to_account_currency = "ETB"
+    
+    # Amounts
+    pe.paid_amount = doc.document_price
+    pe.received_amount = doc.document_price
+    
+    # Reference details
+    pe.reference_no = doc.purchase_receipt_no or doc.name
+    pe.reference_date = doc.purchase_date or frappe.utils.nowdate()
+    pe.remarks = f"Auto-payment for tender document purchase: {doc.title}"
+    
+    # Insert and submit
+    pe.insert(ignore_permissions=True)
+    pe.submit()
+    
+    # Link back to Tender Opportunity
+    doc.db_set("doc_purchase_payment_entry", pe.name, update_modified=False)
+    frappe.msgprint(f"✔ Payment Entry {pe.name} created for document purchase")
+"""
+
+    if frappe.db.exists("Server Script", script_name):
+        scr = frappe.get_doc("Server Script", script_name)
+        scr.script = script_content
+        scr.save(ignore_permissions=True)
+        print(f"✔ Updated Server Script: {script_name}")
+    else:
+        frappe.get_doc({
+            "doctype": "Server Script",
+            "name": script_name,
+            "script_type": "DocType Event",
+            "reference_doctype": "Tender Opportunity",
+            "doctype_event": "After Save",
+            "script": script_content,
+            "disabled": 0
+        }).insert(ignore_permissions=True)
+        print(f"✔ Created Server Script: {script_name}")
 
 def setup_notifications():
     """
