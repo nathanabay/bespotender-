@@ -10,6 +10,12 @@
         "owner_user",
         "weighting",
         "status",
+        "key_message",
+        "customer_issues",
+        "proposed_solution_section",
+        "evidence_required",
+        "word_count_limit",
+        "complexity",
         "instructions"
     ],
     "fields": [
@@ -39,6 +45,40 @@
             "in_list_view": 1,
             "label": "Status",
             "options": "Pending\nDraft\nReview\nComplete"
+        },
+        {
+            "fieldname": "key_message",
+            "fieldtype": "Small Text",
+            "in_list_view": 1,
+            "label": "Key Message / Theme"
+        },
+        {
+            "fieldname": "customer_issues",
+            "fieldtype": "Small Text",
+            "label": "Customer Issues Addressed"
+        },
+        {
+            "fieldname": "proposed_solution_section",
+            "fieldtype": "Text Editor",
+            "label": "Proposed Solution (Section)"
+        },
+        {
+            "fieldname": "evidence_required",
+            "fieldtype": "Small Text",
+            "label": "Evidence / Case Studies Required"
+        },
+        {
+            "fieldname": "word_count_limit",
+            "fieldtype": "Int",
+            "label": "Word Count Limit"
+        },
+        {
+            "default": "Medium",
+            "fieldname": "complexity",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Complexity",
+            "options": "Low\nMedium\nHigh"
         },
         {
             "fieldname": "instructions",

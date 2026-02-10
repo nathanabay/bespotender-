@@ -85,8 +85,10 @@
         "payment_terms_negotiated",
         "team_capacity_check",
         "sec_capture_plan",
-        "capture_plan",
-        "proposed_solution_summary",
+        "customer_pain_points",
+        "solution_overview",
+        "value_proposition",
+        "executive_summary_themes",
         "tab_proposal",
         "sec_planner",
         "proposal_sections",
@@ -534,14 +536,24 @@
             "label": "Capture Plan"
         },
         {
-            "fieldname": "capture_plan",
+            "fieldname": "customer_pain_points",
             "fieldtype": "Text Editor",
-            "label": "Capture Plan Analysis"
+            "label": "Customer Pain Points"
         },
         {
-            "fieldname": "proposed_solution_summary",
+            "fieldname": "solution_overview",
             "fieldtype": "Text Editor",
-            "label": "Proposed Solution Summary"
+            "label": "Solution Overview"
+        },
+        {
+            "fieldname": "value_proposition",
+            "fieldtype": "Text Editor",
+            "label": "Value Proposition"
+        },
+        {
+            "fieldname": "executive_summary_themes",
+            "fieldtype": "Text Editor",
+            "label": "Executive Summary Themes"
         },
         {
             "fieldname": "tab_proposal",
