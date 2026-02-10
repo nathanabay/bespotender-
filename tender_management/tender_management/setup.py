@@ -5,11 +5,13 @@ import json
 def after_install():
     setup_module()
     setup_dashboard_charts()
+    setup_number_cards()
     setup_workspace()
 
 def after_migrate():
     setup_module()
     setup_dashboard_charts()
+    setup_number_cards()
     setup_workspace()
     setup_enhanced_workflow()
     setup_bid_security_sync()
@@ -140,22 +142,57 @@ def upsert_dashboard_chart(name, doct):
             doc.update(doct)
             doc.save(ignore_permissions=True)
 
+def setup_number_cards():
+    # 1. Total Active Tenders
+    card_1 = "Total Active Tenders"
+    if not frappe.db.exists("Number Card", card_1):
+        frappe.get_doc({
+            "doctype": "Number Card",
+            "name": card_1,
+            "label": "Total Active Tenders",
+            "document_type": "Tender Opportunity",
+            "function": "Count",
+            "is_public": 1,
+            "show_percentage_stats": 1,
+            "stats_time_interval": "Month",
+            "filters_json": json.dumps([["Tender Opportunity", "status", "!=", "Completed"]]),
+            "module": "Tender Management"
+        }).insert(ignore_permissions=True)
+
+    # 2. Total Won Value
+    card_2 = "Total Won Value"
+    if not frappe.db.exists("Number Card", card_2):
+        frappe.get_doc({
+            "doctype": "Number Card",
+            "name": card_2,
+            "label": "Total Won Value",
+            "document_type": "Tender Opportunity",
+            "function": "Sum",
+            "aggregate_function_based_on": "final_bid_price",
+            "is_public": 1,
+            "show_percentage_stats": 1,
+            "stats_time_interval": "Month",
+            "filters_json": json.dumps([["Tender Opportunity", "workflow_state", "=", "Won"]]),
+            "module": "Tender Management"
+        }).insert(ignore_permissions=True)
+
 def setup_workspace():
     workspace_name = "Tender Management"
-    old_workspace = "Tender Dashboard"
     
-    # Remove old workspace if exists
-    if frappe.db.exists("Workspace", old_workspace):
-        frappe.delete_doc("Workspace", old_workspace, ignore_permissions=True)
-        print(f"✔ Deleted old workspace: {old_workspace}")
-
     ws_content = [
-        {"type": "header", "data": {"text": "Tender Performance Overview", "level": 2}},
-        {"type": "chart", "data": {"chart_name": "Tender Pipeline Value", "col": 12}},
-        {"type": "chart", "data": {"chart_name": "Win Loss Ratio", "col": 6}},
-        {"type": "chart", "data": {"chart_name": "Tenders by Sector", "col": 6}},
+        {"type": "header", "data": {"text": "Key Insights", "level": 2}},
+        {"type": "card", "data": {"card_name": "Total Active Tenders", "col": 4}},
+        {"type": "card", "data": {"card_name": "Total Won Value", "col": 4}},
+        {"type": "header", "data": {"text": "Performance & Pipeline", "level": 2}},
+        {"type": "chart", "data": {"chart_name": "Tender Pipeline Value", "col": 8}},
+        {"type": "chart", "data": {"chart_name": "Win Loss Ratio", "col": 4}},
+        {"type": "chart", "data": {"chart_name": "Active Bids per User", "col": 12}},
+        {"type": "header", "data": {"text": "Trends & Analysis", "level": 2}},
         {"type": "chart", "data": {"chart_name": "Monthly Publication Trend", "col": 12}},
+        {"type": "chart", "data": {"chart_name": "Tenders by Sector", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Bond Type Distribution", "col": 6}},
+        {"type": "chart", "data": {"chart_name": "Bid vs No-Bid", "col": 6}},
+        {"type": "chart", "data": {"chart_name": "Tenders by Type", "col": 6}},
         {"type": "header", "data": {"text": "Tender Registry", "level": 3}},
         {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey"}}
     ]
@@ -163,9 +200,17 @@ def setup_workspace():
     charts = [
         {"chart_name": "Tender Pipeline Value", "label": "Tender Pipeline Value"},
         {"chart_name": "Win Loss Ratio", "label": "Win Loss Ratio"},
-        {"chart_name": "Tenders by Sector", "label": "Tenders by Sector"},
+        {"chart_name": "Active Bids per User", "label": "Active Bids per User"},
         {"chart_name": "Monthly Publication Trend", "label": "Monthly Publication Trend"},
-        {"chart_name": "Bond Type Distribution", "label": "Bond Type Distribution"}
+        {"chart_name": "Tenders by Sector", "label": "Tenders by Sector"},
+        {"chart_name": "Bond Type Distribution", "label": "Bond Type Distribution"},
+        {"chart_name": "Bid vs No-Bid", "label": "Bid vs No-Bid"},
+        {"chart_name": "Tenders by Type", "label": "Tenders by Type"}
+    ]
+
+    number_cards = [
+        {"card_name": "Total Active Tenders", "label": "Total Active Tenders"},
+        {"card_name": "Total Won Value", "label": "Total Won Value"}
     ]
 
     shortcuts = [
@@ -182,8 +227,10 @@ def setup_workspace():
         "icon": "folder",
         "public": 1,
         "charts": charts,
+        "number_cards": number_cards,
         "shortcuts": shortcuts,
-        "content": json.dumps(ws_content)
+        "content": json.dumps(ws_content),
+        "is_hidden": 0
     }
 
     if not frappe.db.exists("Workspace", workspace_name):
@@ -191,7 +238,6 @@ def setup_workspace():
     else:
         doc = frappe.get_doc("Workspace", workspace_name)
         doc.update(ws_doc)
-        
         doc.save(ignore_permissions=True)
 
 def setup_enhanced_workflow():
