@@ -31,6 +31,7 @@ function apply_wf_logic(frm) {
     // Hide specialized tabs by default
     frm.set_df_property('tab_decision', 'hidden', 1);
     frm.set_df_property('tab_procurement', 'hidden', 1);
+    frm.set_df_property('tab_bid_bond', 'hidden', 1);
     frm.set_df_property('tab_proposal', 'hidden', 1);
     frm.set_df_property('tab_analysis', 'hidden', 1);
 
@@ -40,6 +41,11 @@ function apply_wf_logic(frm) {
 
     if (state === "Approved to Bid" || state === "Tender Purchased" || state === "Bid Bond Issued" || state === "Technical Preparation" || state === "Financial Preparation" || state === "Ready for Submission" || state === "Submitted" || state === "Won" || state === "Lost") {
         frm.set_df_property('tab_procurement', 'hidden', 0);
+    }
+
+    // Show Bid Bond tab after tender is purchased
+    if (state === "Tender Purchased" || state === "Bid Bond Issued" || state === "Technical Preparation" || state === "Financial Preparation" || state === "Ready for Submission" || state === "Submitted" || state === "Won" || state === "Lost") {
+        frm.set_df_property('tab_bid_bond', 'hidden', 0);
     }
 
     if (state === "Bid Bond Issued" || state === "Technical Preparation" || state === "Financial Preparation" || state === "Ready for Submission" || state === "Submitted" || state === "Won" || state === "Lost") {
