@@ -14,8 +14,13 @@ class TenderOpportunity(Document):
                 frappe.throw(_("Purchase Date and Receipt Number are required to transition to 'Tender Purchased'"))
         
         if state == "Bid Bond Issued":
-            if not self.bond_number or not self.bank_name:
-                frappe.throw(_("Bond Number and Bank Name are required to transition to 'Bid Bond Issued'"))
+            if not self.bid_security_request:
+                frappe.throw(_("Please link a 'Bid Security Request' before transitioning to 'Bid Bond Issued'"))
+            
+            # Check if the request is actually issued
+            status = frappe.db.get_value("Bid Security Request", self.bid_security_request, "status")
+            if status != "Issued":
+                frappe.throw(_("The linked Bid Security Request must be 'Issued' before proceeding."))
         
         if state == "Ready for Submission":
             if not self.technical_proposal or not self.financial_proposal_doc:
