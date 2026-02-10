@@ -401,56 +401,21 @@ def setup_enhanced_workflow():
     print(f"✔ Workflow {wf_name} updated successfully")
 
 def setup_bid_security_sync():
+    """
+    DISABLED: This legacy script created old Bid Security records.
+    We now use Bid Security Request with auto-creation from Tender Opportunity.
+    Keeping this function to disable any existing server scripts.
+    """
     script_name = "Auto-Create Bid Security"
     
-    script_content = """
-# Only run if there is a Bond Amount
-if doc.bond_amount and doc.bond_amount > 0:
-    # CHECK EXISTING
-    existing = frappe.db.get_value("Bid Security", {"tender": doc.name}, "name")
-
-    if existing:
-        # UPDATE
-        security = frappe.get_doc("Bid Security", existing)
-        security.amount = doc.bond_amount
-        security.cpo_number = doc.bond_number
-        security.expiry_date = doc.bond_expiry
-        security.bank = doc.bank_name
-        security.status = doc.bond_status or "Active"
-        security.save(ignore_permissions=True)
-        
-        # Link back if not linked
-        if doc.linked_bid_security != existing:
-            doc.db_set("linked_bid_security", existing, update_modified=False)
-    else:
-        # CREATE
-        if doc.bank_name and doc.bond_number:
-            new_sec = frappe.get_doc({
-                "doctype": "Bid Security",
-                "tender": doc.name,
-                "amount": doc.bond_amount,
-                "cpo_number": doc.bond_number,
-                "expiry_date": doc.bond_expiry or frappe.utils.add_days(frappe.utils.nowdate(), 30),
-                "bank": doc.bank_name,
-                "status": doc.bond_status or "Active"
-            })
-            new_sec.insert(ignore_permissions=True)
-            doc.db_set("linked_bid_security", new_sec.name, update_modified=False)
-"""
-
+    # Disable the old script if it exists
     if frappe.db.exists("Server Script", script_name):
         scr = frappe.get_doc("Server Script", script_name)
-        scr.script = script_content
+        scr.disabled = 1
         scr.save(ignore_permissions=True)
+        print(f"✔ Disabled legacy Server Script: {script_name}")
     else:
-        frappe.get_doc({
-            "doctype": "Server Script",
-            "name": script_name,
-            "script_type": "DocType Event",
-            "reference_doctype": "Tender Opportunity",
-            "doctype_event": "After Save",
-            "script": script_content
-        }).insert(ignore_permissions=True)
+        print(f"✔ Legacy Server Script not found: {script_name}")
 
 def setup_bid_security_accounting():
     script_name = "Automate CPO Journal Entry"
