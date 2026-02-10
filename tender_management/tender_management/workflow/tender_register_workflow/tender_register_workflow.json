@@ -149,6 +149,14 @@
             "next_state": "Lost",
             "send_email_to_creator": 0,
             "state": "Negotiation"
+        },
+        {
+            "action": "Regret",
+            "allow_self_approval": 1,
+            "allowed": "System Manager",
+            "next_state": "Lost",
+            "send_email_to_creator": 0,
+            "state": "Submitted"
         }
     ],
     "workflow_name": "Tender Register Workflow",
