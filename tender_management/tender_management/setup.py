@@ -323,6 +323,8 @@ if doc.amount > 0 and doc.status == "Active" and not doc.journal_entry:
     je.voucher_type = "Bank Entry"
     je.company = frappe.db.get_value("Company", {}, "name") or "BES" # Default to first company
     je.posting_date = frappe.utils.nowdate()
+    je.cheque_no = doc.cpo_number
+    je.cheque_date = frappe.utils.nowdate()
     je.user_remark = f"CPO Issuance for Tender: {doc.tender} (Ref: {doc.cpo_number})"
     
     # Debit: Earnest Money
@@ -352,6 +354,8 @@ elif doc.status == "Released" and doc.journal_entry and not doc.release_journal_
     je.voucher_type = "Bank Entry"
     je.company = frappe.db.get_value("Company", {}, "name") or "BES"
     je.posting_date = frappe.utils.nowdate()
+    je.cheque_no = doc.cpo_number
+    je.cheque_date = frappe.utils.nowdate()
     je.user_remark = f"CPO Release for Tender: {doc.tender}"
     
     # Debit: Bank
