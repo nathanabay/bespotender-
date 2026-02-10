@@ -542,7 +542,7 @@ def setup_document_purchase_payment():
 if doc.doc_purchase_status == "Funds Released" and doc.document_price > 0 and not doc.doc_purchase_payment_entry:
     # Create Payment Entry
     pe = frappe.new_doc("Payment Entry")
-    pe.payment_type = "Pay"
+    pe.payment_type = "Internal Transfer"  # Changed from "Pay" to avoid party requirement
     pe.posting_date = frappe.utils.nowdate()
     pe.company = frappe.db.get_value("Company", {}, "name") or "BES"
     
@@ -554,7 +554,7 @@ if doc.doc_purchase_status == "Funds Released" and doc.document_price > 0 and no
     pe.paid_from_account_currency = "ETB"
     
     # Destination: Expense Account (create if doesn't exist)
-    expense_account = "Tender Document Purchase - BES"
+    expense_account = f"Tender Document Purchase - {company}"
     if not frappe.db.exists("Account", expense_account):
         # If account doesn't exist, use a generic expense account
         expense_account = frappe.db.get_value("Account", {
@@ -578,12 +578,13 @@ if doc.doc_purchase_status == "Funds Released" and doc.document_price > 0 and no
     pe.remarks = f"Auto-payment for tender document purchase: {doc.title}"
     
     # Insert and submit
-    pe.insert(ignore_permissions=True)
+    pe.flags.ignore_permissions = True
+    pe.insert()
     pe.submit()
     
     # Link back to Tender Opportunity
     doc.db_set("doc_purchase_payment_entry", pe.name, update_modified=False)
-    frappe.msgprint(f"✔ Payment Entry {pe.name} created for document purchase")
+    frappe.msgprint(f"✔ Payment Entry {pe.name} created for document purchase", alert=True, indicator="green")
 """
 
     if frappe.db.exists("Server Script", script_name):
