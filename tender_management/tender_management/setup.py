@@ -118,8 +118,19 @@ def upsert_dashboard_chart(name, doct):
         frappe.get_doc(doct).insert(ignore_permissions=True)
     else:
         doc = frappe.get_doc("Dashboard Chart", name)
-        doc.update(doct)
-        doc.save(ignore_permissions=True)
+        
+        # If chart_type is changing, we must recreate it as it's a fixed field
+        if doct.get("chart_type") and doc.chart_type != doct["chart_type"]:
+            frappe.delete_doc("Dashboard Chart", name, ignore_permissions=True)
+            frappe.get_doc(doct).insert(ignore_permissions=True)
+            print(f"✔ Recreated Dashboard Chart: {name}")
+        else:
+            # Avoid setting fixed fields again
+            if "chart_type" in doct:
+                del doct["chart_type"]
+                
+            doc.update(doct)
+            doc.save(ignore_permissions=True)
 
 def setup_workspace():
     workspace_name = "Tender Management"
