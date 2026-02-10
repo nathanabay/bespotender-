@@ -29,7 +29,8 @@ def notify_chatwoot(content, conversation_id=None):
     }
 
     try:
-        response = requests.post(url, headers=get_headers(), data=data, timeout=10)
+        # Use json=data to automatically set Content-Type and dump JSON
+        response = requests.post(url, headers=get_headers(), json=data, timeout=10)
         if response.status_code == 200:
             return {"status": "success", "id": response.json().get('id')}
         else:
@@ -45,9 +46,16 @@ def notify_email(subject, message, recipients=None):
     Standardize email sending with consistent branding/footer.
     """
     if not recipients:
-        # Default to Tender Managers if no recipients
-        recipients = [u.email for u in frappe.get_all("User", filters={"enabled": 1}, fields=["email"]) 
-                     if "Tender Manager" in [r.role for r in frappe.get_doc("User", u.name).roles]]
+        # Optimized query to find users with "Tender Manager" role
+        recipients = frappe.get_all(
+            "Has Role", 
+            filters={"role": "Tender Manager", "parenttype": "User"}, 
+            fields=["parent"]
+        )
+        # Fetch emails for these users
+        if recipients:
+            user_names = [r.parent for r in recipients]
+            recipients = [u.email for u in frappe.get_all("User", filters={"name": ["in", user_names], "enabled": 1}, fields=["email"])]
 
     if not recipients:
         return
