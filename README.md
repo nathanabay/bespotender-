@@ -1,41 +1,59 @@
-### Tender Management
+# Tender Management
 
-tender
+**Tender Management** is a Frappe application designed to streamline the entire tender process, from identification to outcome analysis. It helps organizations track opportunities, manage deadlines, assess risks, and analyze results to improve win rates.
 
-### Installation
+## Features
+
+### 🎯 Tender Opportunity Lifecycle
+Track the complete journey of a tender:
+*   **Identification**: Record initial details like sector, client, and critical dates.
+*   **Buying the Document**: Manage payment requests and receipts for tender documents.
+*   **Bid Security**: Track various types of bonds (CPO, Bank Guarantee), amounts, and expiry dates.
+*   **Proposal Development**: Collaborate on technical and financial proposals, costing, and margin analysis.
+*   **Submission**: Ensure timely submission with automated deadline reminders.
+*   **Outcome**: Record whether the tender was Won, Lost, or Cancelled, including reasons for loss.
+
+### 📊 Decision Matrix (Go / No-Go)
+Make data-driven decisions on whether to bid:
+*   **Bid Probability Score**: Automatically calculated score based on customizable factors.
+*   **Strategic Alignment**: Assess fit with organizational goals.
+*   **Resource Availability**: Ensure team capacity.
+
+### 🔔 Smart Notifications
+Stay informed with integrated alerts:
+*   **Chatwoot Integration**: Get real-time updates on new tenders and workflow changes directly in your support dashboard.
+*   **Email Alerts**: Critical status changes (e.g., "Approved to Bid") trigger instant emails to key stakeholders.
+*   **Deadline Reminders**: Daily scheduled jobs check for upcoming deadlines (2 days out) to prevent last-minute rushes.
+
+### 🛡 Risk Management
+Proactively identify and mitigate risks:
+*   **Risk Categorization**: Technical, Commercial, and Financial risk assessments (Low/Medium/High).
+*   **Competition Analysis**: Track known competitors and the intensity of competition.
+
+## Installation
 
 You can install this app using the [bench](https://github.com/frappe/bench) CLI:
 
 ```bash
-cd $PATH_TO_YOUR_BENCH
-bench get-app $URL_OF_THIS_REPO --branch develop
+bench get-app https://github.com/bespo-et/bespotender-
 bench install-app tender_management
 ```
 
-### Contributing
+## Configuration
 
-This app uses `pre-commit` for code formatting and linting. Please [install pre-commit](https://pre-commit.com/#installation) and enable it for this repository:
+### Notifications Setup
 
-```bash
-cd apps/tender_management
-pre-commit install
-```
+The app uses **Chatwoot** for notifications. Ensure the following constants are configured in `tender_management/utils/notifications.py` or through Site Configuration (recommended for production):
 
-Pre-commit is configured to use the following tools for checking and formatting your code:
+*   `CW_URL`: Your Chatwoot instance URL.
+*   `CW_TOKEN`: API Access Token.
+*   `CW_ACCOUNT_ID`: Your Chatwoot Account ID.
 
-- ruff
-- eslint
-- prettier
-- pyupgrade
+### Scheduled Jobs
 
-### CI
+The system automatically schedules:
+*   `daily`: Checks for tenders with a submission deadline in 2 days and workflow state not terminal (e.g., Submitted/Won/Lost).
 
-This app can use GitHub Actions for CI. The following workflows are configured:
+## License
 
-- CI: Installs this app and runs unit tests on every push to `develop` branch.
-- Linters: Runs [Frappe Semgrep Rules](https://github.com/frappe/semgrep-rules) and [pip-audit](https://pypi.org/project/pip-audit/) on every pull request.
-
-
-### License
-
-mit
+MIT

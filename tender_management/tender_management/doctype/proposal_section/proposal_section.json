@@ -1,0 +1,57 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "creation": "2026-02-10 12:30:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "section_name",
+        "owner_user",
+        "weighting",
+        "status",
+        "instructions"
+    ],
+    "fields": [
+        {
+            "fieldname": "section_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Section Name",
+            "reqd": 1
+        },
+        {
+            "fieldname": "owner_user",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Owner",
+            "options": "User"
+        },
+        {
+            "fieldname": "weighting",
+            "fieldtype": "Percent",
+            "label": "Weighting"
+        },
+        {
+            "default": "Pending",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Pending\nDraft\nReview\nComplete"
+        },
+        {
+            "fieldname": "instructions",
+            "fieldtype": "Small Text",
+            "label": "Instructions"
+        }
+    ],
+    "istable": 1,
+    "links": [],
+    "modified": "2026-02-10 12:30:00.000000",
+    "modified_by": "Administrator",
+    "module": "Tender Management",
+    "name": "Proposal Section",
+    "owner": "Administrator",
+    "permissions": []
+}

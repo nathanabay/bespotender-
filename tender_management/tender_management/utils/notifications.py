@@ -71,7 +71,7 @@ def notify_tender_update(doc, method=None):
         notify_chatwoot(msg)
         
         # Email Alert for Critical States
-        if doc.workflow_state in ["Approved to Bid", "Rejected"]:
+        if doc.workflow_state in ["Plan", "Lost"]:
             notify_email(
                 subject=f"Tender Alert: {doc.workflow_state} - {doc.name}",
                 message=f"The tender <b>{doc.title}</b> has been changed to state: <b>{doc.workflow_state}</b>."
@@ -84,7 +84,7 @@ def send_daily_deadline_reminders():
     upcoming = frappe.get_all("Tender Opportunity", 
                              filters={
                                  "submission_deadline": ["between", [frappe.utils.nowdate(), frappe.utils.add_days(frappe.utils.nowdate(), 2)]],
-                                 "workflow_state": ["not in", ["Submitted", "Won", "Lost", "Rejected"]]
+                                 "workflow_state": ["not in", ["Submitted", "Negotiation", "Won", "Lost"]]
                              },
                              fields=["name", "title", "submission_deadline"])
 
