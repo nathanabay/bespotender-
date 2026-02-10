@@ -712,6 +712,12 @@
             "label": "Bond Number"
         },
         {
+            "fieldname": "bank_name",
+            "fieldtype": "Data",
+            "label": "Bank Name",
+            "read_only": 1
+        },
+        {
             "fetch_from": "bid_security_request.journal_entry",
             "fieldname": "cpo_journal_entry",
             "fieldtype": "Read Only",
