@@ -10,6 +10,7 @@ def after_install():
 
 def after_migrate():
     setup_module()
+    setup_accounts()
     setup_dashboard_charts()
     setup_number_cards()
     setup_workspace()
@@ -28,6 +29,48 @@ def setup_module():
             "title": "Tender Management",
             "package": "tender_management"
         }).insert(ignore_permissions=True)
+
+def setup_accounts():
+    """
+    Create required accounts for tender management automation
+    """
+    # Get default company
+    company = frappe.db.get_value("Company", {}, "name") or "BES"
+    
+    # Create Tender Document Purchase expense account
+    account_name = f"Tender Document Purchase - {company}"
+    
+    if not frappe.db.exists("Account", account_name):
+        # Find parent expense account
+        parent_account = frappe.db.get_value("Account", {
+            "company": company,
+            "account_name": "Indirect Expenses",
+            "is_group": 1
+        }, "name")
+        
+        # If no "Indirect Expenses", try "Expenses"
+        if not parent_account:
+            parent_account = frappe.db.get_value("Account", {
+                "company": company,
+                "root_type": "Expense",
+                "is_group": 1
+            }, "name")
+        
+        if parent_account:
+            frappe.get_doc({
+                "doctype": "Account",
+                "account_name": "Tender Document Purchase",
+                "parent_account": parent_account,
+                "is_group": 0,
+                "company": company,
+                "account_type": "Expense Account",
+                "root_type": "Expense"
+            }).insert(ignore_permissions=True)
+            print(f"✔ Created Account: {account_name}")
+        else:
+            print(f"⚠ Could not create account {account_name}: No suitable parent account found")
+    else:
+        print(f"✔ Account already exists: {account_name}")
 
 def setup_dashboard_charts():
     # 1. Pipeline Value Chart
