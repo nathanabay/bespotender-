@@ -57,9 +57,8 @@ function apply_wf_logic(frm) {
     frm.set_df_property('purchase_date', 'reqd', (state === "Tender Purchased"));
     frm.set_df_property('purchase_receipt_no', 'reqd', (state === "Tender Purchased"));
 
-    frm.set_df_property('bond_type', 'reqd', (state === "Bid Bond Issued"));
-    frm.set_df_property('bond_number', 'reqd', (state === "Bid Bond Issued"));
-    frm.set_df_property('bank_name', 'reqd', (state === "Bid Bond Issued"));
+    // For Bid Bond Issued, require the Bid Security Request link instead of individual fields
+    frm.set_df_property('bid_security_request', 'reqd', (state === "Bid Bond Issued"));
 
     frm.set_df_property('technical_proposal', 'reqd', (state === "Ready for Submission"));
     frm.set_df_property('financial_proposal_doc', 'reqd', (state === "Ready for Submission"));
