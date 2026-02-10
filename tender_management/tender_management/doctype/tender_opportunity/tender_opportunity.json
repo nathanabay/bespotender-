@@ -107,8 +107,9 @@
         "bank_name",
         "bond_expiry",
         "bond_validity_days",
+        "bid_security_request",
         "bond_status",
-        "linked_bid_security",
+        "bond_number",
         "cpo_journal_entry",
         "sec_costing",
         "estimated_cost",
@@ -685,13 +686,6 @@
             "fieldname": "bond_validity_days",
             "fieldtype": "Int",
             "label": "Validity (Days)"
-        },
-        {
-            "fieldname": "linked_bid_security",
-            "fieldtype": "Link",
-            "label": "Linked Bid Security",
-            "options": "Bid Security",
-            "read_only": 1
         },
         {
             "fieldname": "bid_security_request",
