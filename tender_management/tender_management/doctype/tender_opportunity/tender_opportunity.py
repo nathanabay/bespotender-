@@ -65,11 +65,12 @@ class TenderOpportunity(Document):
             bsr.required_date = self.submission_deadline or frappe.utils.nowdate()
             bsr.insert(ignore_permissions=True)
             
-            # Link back to tender
-            self.bid_security_request = bsr.name
+            # Link back to tender using db_set to avoid recursive validation
+            self.db_set('bid_security_request', bsr.name, update_modified=False)
             
             frappe.msgprint(_("Bid Security Request {0} created automatically").format(bsr.name), alert=True, indicator="green")
             
         except Exception as e:
-            frappe.log_error(f"Failed to auto-create Bid Security Request: {str(e)}")
-            frappe.msgprint(_("Could not create Bid Security Request automatically. Please create manually."), alert=True)
+            error_msg = str(e)
+            frappe.log_error(f"BSR Auto-Creation Error for {self.name}: {error_msg}", "BSR Auto-Creation")
+            frappe.msgprint(_("Error: {0}. Please create Bid Security Request manually.").format(error_msg), alert=True, indicator="red")
