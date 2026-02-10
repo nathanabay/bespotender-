@@ -657,6 +657,43 @@
             "label": "Bid Security (CPO)"
         },
         {
+            "fieldname": "bond_type",
+            "fieldtype": "Select",
+            "label": "Bond Type",
+            "options": "\nCPO\nBank Guarantee\nInsurance Bond\nPerformance Bond"
+        },
+        {
+            "fieldname": "bond_amount",
+            "fieldtype": "Currency",
+            "label": "Bond Amount"
+        },
+        {
+            "fieldname": "bond_percentage",
+            "fieldtype": "Percent",
+            "label": "Bond Percentage"
+        },
+        {
+            "fieldname": "col_break_security",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "bond_expiry",
+            "fieldtype": "Date",
+            "label": "Bond Expiry"
+        },
+        {
+            "fieldname": "bond_validity_days",
+            "fieldtype": "Int",
+            "label": "Validity (Days)"
+        },
+        {
+            "fieldname": "linked_bid_security",
+            "fieldtype": "Link",
+            "label": "Linked Bid Security",
+            "options": "Bid Security",
+            "read_only": 1
+        },
+        {
             "fieldname": "bid_security_request",
             "fieldtype": "Link",
             "label": "Bid Security Request",
