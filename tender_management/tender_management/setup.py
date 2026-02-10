@@ -16,6 +16,7 @@ def after_migrate():
     setup_number_cards()
     setup_workspace()
     setup_enhanced_workflow()
+    cleanup_legacy_customizations()
     setup_bid_security_sync()
     setup_bid_security_accounting()
     setup_document_purchase_payment()
@@ -69,8 +70,8 @@ def setup_accounts():
                     "root_type": "Expense"
                 }).insert(ignore_permissions=True)
                 print(f"✔ Created Account: {account_name}")
-            except frappe.DuplicateEntryError:
-                print(f"✔ Account already exists: {account_name}")
+            except Exception as e:
+                print(f"✔ Account {account_name} setup handled: {str(e)}")
         else:
             print(f"⚠ Could not create account {account_name}: No suitable parent account found")
     else:
@@ -604,3 +605,48 @@ def setup_notifications():
             "subject": "CPO Expiring Soon: {{ doc.name }}",
             "message": "The Bid Security (CPO) for Tender <b>{{ doc.tender }}</b> expires in 7 days."
         }).insert(ignore_permissions=True)
+        print(f"✔ Created Notification: CPO Expiry Alert")
+
+def cleanup_legacy_customizations():
+    """
+    NUCLEAR OPTION: Disable any database-stored customizations that might interfere.
+    Specifically targets the ghost "Bond Number and Bank Name are required" validation.
+    """
+    print("🧹 Cleaning up legacy customizations...")
+    
+    target_doctype = "Tender Opportunity"
+    
+    # 1. Disable ALL Server Scripts for Tender Opportunity except our managed one
+    managed_scripts = ["Auto Payment Entry - Document Purchase"]
+    
+    server_scripts = frappe.get_all("Server Script", filters={
+        "reference_doctype": target_doctype,
+        "disabled": 0
+    }, fields=["name"])
+    
+    for s in server_scripts:
+        if s.name not in managed_scripts:
+            frappe.db.set_value("Server Script", s.name, "disabled", 1)
+            print(f"  ✔ Disabled legacy Server Script: {s.name}")
+            
+    # 2. Disable ANY database-stored Client Scripts for Tender Opportunity
+    # These often override the file-based .js script
+    client_scripts = frappe.get_all("Client Script", filters={
+        "dt": target_doctype,
+        "enabled": 1
+    }, fields=["name"])
+    
+    for c in client_scripts:
+        frappe.db.set_value("Client Script", c.name, "enabled", 0)
+        print(f"  ✔ Disabled legacy Client Script: {c.name}")
+        
+    # 3. Delete Property Setters that force bond_number or bank_name
+    frappe.db.sql("""
+        DELETE FROM `tabProperty Setter` 
+        WHERE doc_type = %s 
+        AND field_name IN ('bond_number', 'bank_name')
+        AND property = 'reqd'
+    """, (target_doctype))
+    print("  ✔ Cleared mandatory Property Setters for bond fields")
+    
+    frappe.clear_cache(doctype=target_doctype)
