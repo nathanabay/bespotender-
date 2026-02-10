@@ -13,6 +13,7 @@
         "title",
         "organization",
         "sector",
+        "tender_type",
         "workflow_state",
         "status",
         "col_break_header",
@@ -181,6 +182,13 @@
             "fieldtype": "Select",
             "label": "Sector",
             "options": "\nConstruction\nElectro-Mechanical\nMaintenance\nWater Works\nGeneral Supply",
+            "reqd": 1
+        },
+        {
+            "fieldname": "tender_type",
+            "fieldtype": "Select",
+            "label": "Tender Type",
+            "options": "\nRequest for Proposal (RFP)\nRequest for Quotation (RFQ)\nRequest for Tender (RFT)\nExpression of Interest (EOI)\nUnsolicited Proposal\nPrequalification Questionnaire (PQQ)\nInvitation to Tender (ITT)",
             "reqd": 1
         },
         {

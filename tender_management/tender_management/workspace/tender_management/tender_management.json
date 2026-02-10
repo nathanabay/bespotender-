@@ -1,70 +1,95 @@
 {
- "charts": [
-  {
-   "chart_name": "Tender Pipeline Value",
-   "label": "Tender Pipeline Value"
-  },
-  {
-   "chart_name": "Win Loss Ratio",
-   "label": "Win Loss Ratio"
-  },
-  {
-   "chart_name": "Tenders by Sector",
-   "label": "Tenders by Sector"
-  },
-  {
-   "chart_name": "Monthly Publication Trend",
-   "label": "Monthly Publication Trend"
-  },
-  {
-   "chart_name": "Bond Type Distribution",
-   "label": "Bond Type Distribution"
-  }
- ],
- "content": "[{\"type\": \"header\", \"data\": {\"text\": \"Tender Performance Overview\", \"level\": 2}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tender Pipeline Value\", \"col\": 12}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Win Loss Ratio\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Sector\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Monthly Publication Trend\", \"col\": 12}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Bond Type Distribution\", \"col\": 6}}, {\"type\": \"header\", \"data\": {\"text\": \"Tender Registry\", \"level\": 3}}, {\"type\": \"shortcut\", \"data\": {\"link_to\": \"Tender Opportunity\", \"type\": \"DocType\", \"label\": \"Tenders\", \"icon\": \"list\", \"color\": \"Grey\"}}]",
- "creation": "2026-02-09 19:46:54.558502",
- "custom_blocks": [],
- "docstatus": 0,
- "doctype": "Workspace",
- "hide_custom": 0,
- "icon": "folder",
- "idx": 0,
- "indicator_color": "green",
- "is_hidden": 0,
- "label": "Tender Management",
- "links": [],
- "modified": "2026-02-09 21:11:59.830499",
- "modified_by": "Administrator",
- "module": "Tender Management",
- "name": "Tender Management",
- "number_cards": [],
- "owner": "Administrator",
- "public": 1,
- "quick_lists": [],
- "roles": [
-  {
-   "role": "System Manager"
-  },
-  {
-   "role": "Tender Director"
-  },
-  {
-   "role": "Tender Manager"
-  },
-  {
-   "role": "Tender User"
-  }
- ],
- "sequence_id": 0.0,
- "shortcuts": [
-  {
-   "color": "Grey",
-   "doc_view": "",
-   "icon": "list",
-   "label": "Tenders",
-   "link_to": "Tender Opportunity",
-   "type": "DocType"
-  }
- ],
- "title": "Tender Management"
+    "charts": [
+        {
+            "chart_name": "Tender Pipeline Value",
+            "label": "Tender Pipeline Value"
+        },
+        {
+            "chart_name": "Win Loss Ratio",
+            "label": "Win Loss Ratio"
+        },
+        {
+            "chart_name": "Tenders by Sector",
+            "label": "Tenders by Sector"
+        },
+        {
+            "chart_name": "Monthly Publication Trend",
+            "label": "Monthly Publication Trend"
+        },
+        {
+            "chart_name": "Bond Type Distribution",
+            "label": "Bond Type Distribution"
+        },
+        {
+            "chart_name": "Tenders by Type",
+            "label": "Tenders by Type"
+        },
+        {
+            "chart_name": "Tenders by Status",
+            "label": "Tenders by Status"
+        },
+        {
+            "chart_name": "Top Customers",
+            "label": "Top Customers"
+        },
+        {
+            "chart_name": "Bid vs No-Bid",
+            "label": "Bid vs No-Bid"
+        }
+    ],
+    "content": "[{\"type\": \"header\", \"data\": {\"text\": \"Key Insights\", \"level\": 2}}, {\"type\": \"card\", \"data\": {\"card_name\": \"Total Active Tenders\", \"col\": 4}}, {\"type\": \"card\", \"data\": {\"card_name\": \"Total Won Value\", \"col\": 4}}, {\"type\": \"header\", \"data\": {\"text\": \"Tender Performance Overview\", \"level\": 2}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tender Pipeline Value\", \"col\": 12}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Win Loss Ratio\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Bid vs No-Bid\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Type\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Status\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Top Customers\", \"col\": 12}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Tenders by Sector\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Bond Type Distribution\", \"col\": 6}}, {\"type\": \"chart\", \"data\": {\"chart_name\": \"Monthly Publication Trend\", \"col\": 12}}, {\"type\": \"header\", \"data\": {\"text\": \"Tender Registry\", \"level\": 3}}, {\"type\": \"shortcut\", \"data\": {\"link_to\": \"Tender Opportunity\", \"type\": \"DocType\", \"label\": \"Tenders\", \"icon\": \"list\", \"color\": \"Grey\"}}]",
+    "creation": "2026-02-09 19:46:54.558502",
+    "custom_blocks": [],
+    "docstatus": 0,
+    "doctype": "Workspace",
+    "hide_custom": 0,
+    "icon": "folder",
+    "idx": 0,
+    "indicator_color": "green",
+    "is_hidden": 0,
+    "label": "Tender Management",
+    "links": [],
+    "modified": "2026-02-09 21:11:59.830499",
+    "modified_by": "Administrator",
+    "module": "Tender Management",
+    "name": "Tender Management",
+    "number_cards": [
+        {
+            "card_name": "Total Active Tenders",
+            "label": "Total Active Tenders"
+        },
+        {
+            "card_name": "Total Won Value",
+            "label": "Total Won Value"
+        }
+    ],
+    "owner": "Administrator",
+    "public": 1,
+    "quick_lists": [],
+    "roles": [
+        {
+            "role": "System Manager"
+        },
+        {
+            "role": "Tender Director"
+        },
+        {
+            "role": "Tender Manager"
+        },
+        {
+            "role": "Tender User"
+        }
+    ],
+    "sequence_id": 0.0,
+    "shortcuts": [
+        {
+            "color": "Grey",
+            "doc_view": "",
+            "icon": "list",
+            "label": "Tenders",
+            "link_to": "Tender Opportunity",
+            "type": "DocType"
+        }
+    ],
+    "title": "Tender Management"
 }
