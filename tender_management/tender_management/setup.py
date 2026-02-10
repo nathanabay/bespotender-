@@ -57,16 +57,19 @@ def setup_accounts():
             }, "name")
         
         if parent_account:
-            frappe.get_doc({
-                "doctype": "Account",
-                "account_name": "Tender Document Purchase",
-                "parent_account": parent_account,
-                "is_group": 0,
-                "company": company,
-                "account_type": "Expense Account",
-                "root_type": "Expense"
-            }).insert(ignore_permissions=True)
-            print(f"✔ Created Account: {account_name}")
+            try:
+                frappe.get_doc({
+                    "doctype": "Account",
+                    "account_name": "Tender Document Purchase",
+                    "parent_account": parent_account,
+                    "is_group": 0,
+                    "company": company,
+                    "account_type": "Expense Account",
+                    "root_type": "Expense"
+                }).insert(ignore_permissions=True)
+                print(f"✔ Created Account: {account_name}")
+            except frappe.DuplicateEntryError:
+                print(f"✔ Account already exists: {account_name}")
         else:
             print(f"⚠ Could not create account {account_name}: No suitable parent account found")
     else:
