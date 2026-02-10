@@ -1,0 +1,125 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "format:BS-{tender}-{####}",
+    "creation": "2026-02-09 18:08:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "tender",
+        "amount",
+        "cpo_number",
+        "bank",
+        "expiry_date",
+        "status",
+        "journal_entry",
+        "release_journal_entry",
+        "amended_from"
+    ],
+    "fields": [
+        {
+            "fieldname": "tender",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Tender",
+            "options": "Tender Opportunity",
+            "reqd": 1
+        },
+        {
+            "fieldname": "amount",
+            "fieldtype": "Currency",
+            "in_list_view": 1,
+            "label": "Amount",
+            "options": "tender:currency"
+        },
+        {
+            "fieldname": "cpo_number",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "CPO / Reference No"
+        },
+        {
+            "fieldname": "bank",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Bank / Insurer"
+        },
+        {
+            "fieldname": "expiry_date",
+            "fieldtype": "Date",
+            "in_list_view": 1,
+            "label": "Expiry Date"
+        },
+        {
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Status",
+            "options": "Active\nReleased\nForfeited",
+            "default": "Active"
+        },
+        {
+            "fieldname": "journal_entry",
+            "fieldtype": "Link",
+            "label": "Journal Entry",
+            "options": "Journal Entry",
+            "read_only": 1
+        },
+        {
+            "fieldname": "release_journal_entry",
+            "fieldtype": "Link",
+            "label": "Release Journal Entry",
+            "options": "Journal Entry",
+            "read_only": 1
+        },
+        {
+            "fieldname": "amended_from",
+            "fieldtype": "Link",
+            "label": "Amended From",
+            "no_copy": 1,
+            "options": "Bid Security",
+            "print_hide": 1,
+            "read_only": 1,
+            "search_index": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2026-02-09 18:08:00.000000",
+    "modified_by": "Administrator",
+    "module": "Tender Management",
+    "name": "Bid Security",
+    "naming_rule": "Expression",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "submit": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "email": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Tender Manager",
+            "share": 1,
+            "submit": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
+}

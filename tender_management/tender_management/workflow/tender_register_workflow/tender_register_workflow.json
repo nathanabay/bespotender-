@@ -1,0 +1,216 @@
+{
+ "creation": "2026-02-03 10:48:45.950258",
+ "docstatus": 0,
+ "doctype": "Workflow",
+ "document_type": "Tender Opportunity",
+ "idx": 0,
+ "is_active": 0,
+ "modified": "2026-02-03 10:48:45.950258",
+ "modified_by": "Administrator",
+ "name": "Tender Register Workflow",
+ "override_status": 0,
+ "owner": "Administrator",
+ "send_email_alert": 0,
+ "states": [
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Draft",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Under Evaluation",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Approved to Bid",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Tender Purchased",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Bid Bond Issued",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Technical Preparation",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Financial Preparation",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "0",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Ready for Submission",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "1",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Submitted",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "1",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Under Client Evaluation",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "1",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Won",
+   "update_field": "workflow_state"
+  },
+  {
+   "allow_edit": "System Manager",
+   "avoid_status_override": 0,
+   "doc_status": "2",
+   "is_optional_state": 0,
+   "send_email": 1,
+   "state": "Lost",
+   "update_field": "workflow_state"
+  }
+ ],
+ "transitions": [
+  {
+   "action": "Start Evaluation",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Under Evaluation",
+   "send_email_to_creator": 0,
+   "state": "Draft"
+  },
+  {
+   "action": "Approve Go",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Approved to Bid",
+   "send_email_to_creator": 0,
+   "state": "Under Evaluation"
+  },
+  {
+   "action": "Confirm Purchase",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Tender Purchased",
+   "send_email_to_creator": 0,
+   "state": "Approved to Bid"
+  },
+  {
+   "action": "Issue Bond",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Bid Bond Issued",
+   "send_email_to_creator": 0,
+   "state": "Tender Purchased"
+  },
+  {
+   "action": "Start Technical",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Technical Preparation",
+   "send_email_to_creator": 0,
+   "state": "Bid Bond Issued"
+  },
+  {
+   "action": "Start Financial",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Financial Preparation",
+   "send_email_to_creator": 0,
+   "state": "Technical Preparation"
+  },
+  {
+   "action": "Finalize",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Ready for Submission",
+   "send_email_to_creator": 0,
+   "state": "Financial Preparation"
+  },
+  {
+   "action": "Submit Bid",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Submitted",
+   "send_email_to_creator": 0,
+   "state": "Ready for Submission"
+  },
+  {
+   "action": "Client Review",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Under Client Evaluation",
+   "send_email_to_creator": 0,
+   "state": "Submitted"
+  },
+  {
+   "action": "Award Tender",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Won",
+   "send_email_to_creator": 0,
+   "state": "Under Client Evaluation"
+  },
+  {
+   "action": "Regret",
+   "allow_self_approval": 1,
+   "allowed": "System Manager",
+   "next_state": "Lost",
+   "send_email_to_creator": 0,
+   "state": "Under Client Evaluation"
+  }
+ ],
+ "workflow_name": "Tender Register Workflow",
+ "workflow_state_field": "workflow_state"
+}

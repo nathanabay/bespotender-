@@ -1,0 +1,23 @@
+{
+ "content": "",
+ "creation": "2026-02-04 20:30:00.000000",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-02-04 20:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "Tender Management",
+ "name": "tender-board",
+ "owner": "Administrator",
+ "page_name": "tender-board",
+ "roles": [
+  {
+   "role": "Tender Manager"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "standard": "Yes",
+ "title": "Tender Command Center"
+}

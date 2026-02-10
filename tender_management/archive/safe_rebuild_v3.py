@@ -1,0 +1,62 @@
+import frappe
+import json
+
+def run():
+    print("--- 🏗️ SAFE WORKSPACE REBUILD (FINAL ATTEMPT) ---")
+
+    ws_name = "Tender Management"
+
+    # 1. DELETE BROKEN WORKSPACE
+    frappe.db.sql("DELETE FROM `tabWorkspace` WHERE name = %s", (ws_name,))
+    
+    # 2. CREATE A SIMPLE TEST CHART
+    chart_name = "Total Tenders Test"
+    if frappe.db.exists("Dashboard Chart", chart_name):
+        frappe.delete_doc("Dashboard Chart", chart_name, force=True)
+
+    frappe.get_doc({
+        "doctype": "Dashboard Chart",
+        "chart_name": chart_name,
+        "chart_type": "Group By",
+        "group_by_based_on": "workflow_state", 
+        "document_type": "Tender Opportunity",
+        "type": "Bar",
+        "timeseries": 0,
+        "is_public": 1,
+        "color": "#3498db",
+        "filters_json": "[]" # <--- THE FIX: Empty JSON list to satisfy validation
+    }).insert(ignore_permissions=True)
+    print("✔ Created Safe Test Chart")
+
+    # 3. BUILD SAFE WORKSPACE
+    ws_content = [
+        {"type": "header", "data": {"text": "Tender Console", "level": 2}},
+        {"type": "chart", "data": {"chart_name": chart_name, "col": 12}},
+        {"type": "header", "data": {"text": "Lists", "level": 2}},
+        {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tender Registry", "icon": "list", "color": "Blue"}},
+        {"type": "shortcut", "data": {"link_to": "Tender Bid", "type": "DocType", "label": "Bids", "icon": "users", "color": "Purple"}},
+        {"type": "shortcut", "data": {"link_to": "Bid Security", "type": "DocType", "label": "Bid Bonds", "icon": "lock", "color": "Orange"}}
+    ]
+
+    doc = frappe.get_doc({
+        "doctype": "Workspace",
+        "name": ws_name,
+        "label": "Tender Management",
+        "title": "Tender Management",
+        "module": "Tender Management",
+        "public": 1,
+        "is_standard": 0,
+        "content": json.dumps(ws_content)
+    })
+    doc.insert(ignore_permissions=True)
+    print("✔ Rebuilt Workspace (Safe Mode)")
+
+    # 4. RE-ENABLE CLIENT SCRIPTS
+    frappe.db.sql("UPDATE `tabClient Script` SET enabled=1 WHERE module='Tender Management'")
+    
+    frappe.db.commit()
+    frappe.clear_cache()
+    print("--- ✅ REBUILD COMPLETE ---")
+
+if __name__ == "__main__":
+    run()

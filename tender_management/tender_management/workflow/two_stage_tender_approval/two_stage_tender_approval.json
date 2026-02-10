@@ -1,0 +1,207 @@
+{
+    "creation": "2026-02-05 20:36:32.837890",
+    "docstatus": 0,
+    "doctype": "Workflow",
+    "document_type": "Tender Opportunity",
+    "idx": 0,
+    "is_active": 1,
+    "modified": "2026-02-10 12:00:00.000000",
+    "modified_by": "Administrator",
+    "name": "Two-Stage Tender Approval",
+    "override_status": 0,
+    "owner": "Administrator",
+    "send_email_alert": 0,
+    "states": [
+        {
+            "allow_edit": "Tender User",
+            "avoid_status_override": 0,
+            "doc_status": "0",
+            "is_optional_state": 0,
+            "send_email": 0,
+            "state": "Draft",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "0",
+            "is_optional_state": 0,
+            "send_email": 1,
+            "state": "Capture Plan",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Director",
+            "avoid_status_override": 0,
+            "doc_status": "0",
+            "is_optional_state": 0,
+            "send_email": 1,
+            "state": "Bid / No Bid",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "0",
+            "is_optional_state": 0,
+            "send_email": 1,
+            "state": "Plan Proposal",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "0",
+            "is_optional_state": 0,
+            "send_email": 0,
+            "state": "Kick Off Meeting",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "0",
+            "is_optional_state": 0,
+            "send_email": 0,
+            "state": "Develop Proposal",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "1",
+            "is_optional_state": 0,
+            "send_email": 1,
+            "state": "Evaluation Period",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "1",
+            "is_optional_state": 0,
+            "send_email": 1,
+            "state": "Won",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "1",
+            "is_optional_state": 0,
+            "send_email": 1,
+            "state": "Lost",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender User",
+            "avoid_status_override": 0,
+            "doc_status": "2",
+            "is_optional_state": 0,
+            "send_email": 1,
+            "state": "Rejected",
+            "update_field": "workflow_state"
+        },
+        {
+            "allow_edit": "Tender Manager",
+            "avoid_status_override": 0,
+            "doc_status": "1",
+            "is_optional_state": 0,
+            "send_email": 0,
+            "state": "Lessons Learned",
+            "update_field": "workflow_state"
+        }
+    ],
+    "transitions": [
+        {
+            "action": "Submit for Analysis",
+            "allow_self_approval": 1,
+            "allowed": "Tender User",
+            "next_state": "Capture Plan",
+            "send_email_to_creator": 0,
+            "state": "Draft"
+        },
+        {
+            "action": "Request Decision",
+            "allow_self_approval": 1,
+            "allowed": "Tender Manager",
+            "next_state": "Bid / No Bid",
+            "send_email_to_creator": 0,
+            "state": "Capture Plan"
+        },
+        {
+            "action": "Approve (Go)",
+            "allow_self_approval": 1,
+            "allowed": "Tender Director",
+            "next_state": "Plan Proposal",
+            "send_email_to_creator": 0,
+            "state": "Bid / No Bid"
+        },
+        {
+            "action": "Reject (No-Go)",
+            "allow_self_approval": 1,
+            "allowed": "Tender Director",
+            "next_state": "Rejected",
+            "send_email_to_creator": 0,
+            "state": "Bid / No Bid"
+        },
+        {
+            "action": "Mobilize Team",
+            "allow_self_approval": 1,
+            "allowed": "Tender Manager",
+            "next_state": "Kick Off Meeting",
+            "send_email_to_creator": 0,
+            "state": "Plan Proposal"
+        },
+        {
+            "action": "Start Development",
+            "allow_self_approval": 1,
+            "allowed": "Tender Manager",
+            "next_state": "Develop Proposal",
+            "send_email_to_creator": 0,
+            "state": "Kick Off Meeting"
+        },
+        {
+            "action": "Submit Bid",
+            "allow_self_approval": 1,
+            "allowed": "Tender Manager",
+            "next_state": "Evaluation Period",
+            "send_email_to_creator": 0,
+            "state": "Develop Proposal"
+        },
+        {
+            "action": "Award (Win)",
+            "allow_self_approval": 1,
+            "allowed": "Tender Director",
+            "next_state": "Won",
+            "send_email_to_creator": 0,
+            "state": "Evaluation Period"
+        },
+        {
+            "action": "Regret (Loss)",
+            "allow_self_approval": 1,
+            "allowed": "Tender Director",
+            "next_state": "Lost",
+            "send_email_to_creator": 0,
+            "state": "Evaluation Period"
+        },
+        {
+            "action": "Complete Debrief",
+            "allow_self_approval": 1,
+            "allowed": "Tender Manager",
+            "next_state": "Lessons Learned",
+            "send_email_to_creator": 0,
+            "state": "Won"
+        },
+        {
+            "action": "Complete Debrief",
+            "allow_self_approval": 1,
+            "allowed": "Tender Manager",
+            "next_state": "Lessons Learned",
+            "send_email_to_creator": 0,
+            "state": "Lost"
+        }
+    ],
+    "workflow_name": "Two-Stage Tender Approval",
+    "workflow_state_field": "workflow_state"
+}

@@ -83,7 +83,8 @@ app_license = "mit"
 # ------------
 
 # before_install = "tender_management.install.before_install"
-# after_install = "tender_management.install.after_install"
+after_install = "tender_management.tender_management.setup.after_install"
+after_migrate = "tender_management.tender_management.setup.after_migrate"
 
 # Uninstallation
 # ------------
@@ -137,34 +138,20 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"Tender Opportunity": {
+		"on_update": "tender_management.tender_management.utils.notifications.notify_tender_update",
+	}
+}
 
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"tender_management.tasks.all"
-# 	],
-# 	"daily": [
-# 		"tender_management.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"tender_management.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"tender_management.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"tender_management.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	"daily": [
+		"tender_management.tender_management.utils.notifications.send_daily_deadline_reminders"
+	],
+}
 
 # Testing
 # -------
