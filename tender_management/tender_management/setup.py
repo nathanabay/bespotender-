@@ -209,8 +209,8 @@ def setup_workspace():
     ]
 
     number_cards = [
-        {"card_name": "Total Active Tenders", "label": "Total Active Tenders"},
-        {"card_name": "Total Won Value", "label": "Total Won Value"}
+        {"number_card_name": "Total Active Tenders", "label": "Total Active Tenders"},
+        {"number_card_name": "Total Won Value", "label": "Total Won Value"}
     ]
 
     shortcuts = [
