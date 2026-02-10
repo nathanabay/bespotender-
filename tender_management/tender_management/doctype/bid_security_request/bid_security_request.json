@@ -1,0 +1,203 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "naming_series:",
+    "creation": "2026-02-10 17:35:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "section_break_jcdq",
+        "naming_series",
+        "tender_opportunity",
+        "organization",
+        "type",
+        "status",
+        "section_break_bank",
+        "bank_account",
+        "amount",
+        "validity_period_days",
+        "required_date",
+        "section_break_iso",
+        "security_number",
+        "expiry_date",
+        "journal_entry",
+        "section_break_workflow",
+        "prepared_by",
+        "checked_by",
+        "approved_by",
+        "amended_from"
+    ],
+    "fields": [
+        {
+            "fieldname": "section_break_jcdq",
+            "fieldtype": "Section Break",
+            "label": "Transaction Details"
+        },
+        {
+            "fieldname": "naming_series",
+            "fieldtype": "Select",
+            "label": "Series",
+            "options": "BSR-.YYYY.-.####",
+            "reqd": 1
+        },
+        {
+            "fieldname": "tender_opportunity",
+            "fieldtype": "Link",
+            "in_list_view": 1,
+            "label": "Tender Opportunity",
+            "options": "Tender Opportunity",
+            "reqd": 1
+        },
+        {
+            "fetch_from": "tender_opportunity.organization",
+            "fieldname": "organization",
+            "fieldtype": "Data",
+            "label": "Organization",
+            "read_only": 1
+        },
+        {
+            "default": "CPO",
+            "fieldname": "type",
+            "fieldtype": "Select",
+            "label": "Security Type",
+            "options": "CPO\nBank Guarantee\nInsurance Bond\nLetter of Credit",
+            "reqd": 1
+        },
+        {
+            "default": "Draft",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Status",
+            "options": "Draft\nRequested\nIssued\nReturned\nForfeited",
+            "reqd": 1
+        },
+        {
+            "fieldname": "section_break_bank",
+            "fieldtype": "Section Break",
+            "label": "Bank & Value"
+        },
+        {
+            "fieldname": "bank_account",
+            "fieldtype": "Link",
+            "label": "Source Bank Account",
+            "options": "Account",
+            "reqd": 1
+        },
+        {
+            "fieldname": "amount",
+            "fieldtype": "Currency",
+            "in_list_view": 1,
+            "label": "Amount",
+            "reqd": 1
+        },
+        {
+            "default": "90",
+            "fieldname": "validity_period_days",
+            "fieldtype": "Int",
+            "label": "Validity (Days)",
+            "reqd": 1
+        },
+        {
+            "fieldname": "required_date",
+            "fieldtype": "Date",
+            "label": "Required By Date",
+            "reqd": 1
+        },
+        {
+            "fieldname": "section_break_iso",
+            "fieldtype": "Section Break",
+            "label": "Issuance Details"
+        },
+        {
+            "fieldname": "security_number",
+            "fieldtype": "Data",
+            "label": "Security / CPO Number"
+        },
+        {
+            "fieldname": "expiry_date",
+            "fieldtype": "Date",
+            "label": "Expiry Date"
+        },
+        {
+            "fieldname": "journal_entry",
+            "fieldtype": "Link",
+            "label": "Journal Entry (Auto)",
+            "options": "Journal Entry",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_break_workflow",
+            "fieldtype": "Section Break",
+            "label": "ISO 9001 Workflow"
+        },
+        {
+            "fieldname": "prepared_by",
+            "fieldtype": "Link",
+            "label": "Prepared By",
+            "options": "User",
+            "reqd": 1
+        },
+        {
+            "fieldname": "checked_by",
+            "fieldtype": "Link",
+            "label": "Checked By",
+            "options": "User"
+        },
+        {
+            "fieldname": "approved_by",
+            "fieldtype": "Link",
+            "label": "Approved By",
+            "options": "User"
+        },
+        {
+            "fieldname": "amended_from",
+            "fieldtype": "Link",
+            "label": "Amended From",
+            "no_copy": 1,
+            "options": "Bid Security Request",
+            "print_hide": 1,
+            "read_only": 1
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2026-02-10 17:35:00.000000",
+    "modified_by": "Administrator",
+    "module": "Tender Management",
+    "name": "Bid Security Request",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "submit": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Tender Manager",
+            "share": 1,
+            "submit": 1,
+            "write": 1
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
+}

@@ -649,65 +649,28 @@
             "label": "Bid Security (CPO)"
         },
         {
-            "fieldname": "bond_type",
-            "fieldtype": "Select",
-            "label": "Bond Type",
-            "options": "CPO\nBank Guarantee\nInsurance Bond\nLetter of Credit"
+            "fieldname": "bid_security_request",
+            "fieldtype": "Link",
+            "label": "Bid Security Request",
+            "options": "Bid Security Request"
         },
         {
-            "fieldname": "bond_amount",
-            "fieldtype": "Currency",
-            "label": "Bond Amount"
+            "fetch_from": "bid_security_request.status",
+            "fieldname": "bond_status",
+            "fieldtype": "Read Only",
+            "label": "Bond Status"
         },
         {
-            "fieldname": "bond_percentage",
-            "fieldtype": "Percent",
-            "label": "Bond Percentage"
-        },
-        {
-            "fieldname": "col_break_security",
-            "fieldtype": "Column Break"
-        },
-        {
+            "fetch_from": "bid_security_request.security_number",
             "fieldname": "bond_number",
-            "fieldtype": "Data",
+            "fieldtype": "Read Only",
             "label": "Bond Number"
         },
         {
-            "fieldname": "bank_name",
-            "fieldtype": "Data",
-            "label": "Bank Name"
-        },
-        {
-            "fieldname": "bond_expiry",
-            "fieldtype": "Date",
-            "label": "Bond Expiry",
-            "read_only": 1
-        },
-        {
-            "fieldname": "bond_validity_days",
-            "fieldtype": "Int",
-            "label": "Bond Validity (Days)"
-        },
-        {
-            "fieldname": "bond_status",
-            "fieldtype": "Select",
-            "label": "Bond Status",
-            "options": "Pending\nActive\nReleased\nForfeited",
-            "default": "Pending"
-        },
-        {
-            "fieldname": "linked_bid_security",
-            "fieldtype": "Link",
-            "label": "Linked Bid Security",
-            "options": "Bid Security",
-            "read_only": 1
-        },
-        {
+            "fetch_from": "bid_security_request.journal_entry",
             "fieldname": "cpo_journal_entry",
-            "fieldtype": "Link",
-            "label": "CPO Journal Entry",
-            "options": "Journal Entry"
+            "fieldtype": "Read Only",
+            "label": "CPO Journal Entry"
         },
         {
             "fieldname": "sec_costing",
