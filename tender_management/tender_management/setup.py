@@ -119,8 +119,14 @@ def upsert_dashboard_chart(name, doct):
     else:
         doc = frappe.get_doc("Dashboard Chart", name)
         
-        # If chart_type is changing, we must recreate it as it's a fixed field
+        # If chart_type or document_type is changing, we must recreate it as they are fixed fields
+        recreate = False
         if doct.get("chart_type") and doc.chart_type != doct["chart_type"]:
+            recreate = True
+        if doct.get("document_type") and doc.document_type != doct["document_type"]:
+            recreate = True
+            
+        if recreate:
             frappe.delete_doc("Dashboard Chart", name, ignore_permissions=True)
             frappe.get_doc(doct).insert(ignore_permissions=True)
             print(f"✔ Recreated Dashboard Chart: {name}")
@@ -128,6 +134,8 @@ def upsert_dashboard_chart(name, doct):
             # Avoid setting fixed fields again
             if "chart_type" in doct:
                 del doct["chart_type"]
+            if "document_type" in doct:
+                del doct["document_type"]
                 
             doc.update(doct)
             doc.save(ignore_permissions=True)
