@@ -12,6 +12,12 @@ frappe.ui.form.on('Tender Opportunity', {
                 add_comment(frm);
             }, __('Collaborate'));
 
+            frm.add_custom_button(__('Create Default Tasks'), function () {
+                frm.call('create_standard_tasks').then(() => {
+                    frm.reload_doc();
+                });
+            }, __('Collaborate'));
+
             // Document Generation button
             frm.add_custom_button(__('Generate Document'), function () {
                 generate_document_dialog(frm);

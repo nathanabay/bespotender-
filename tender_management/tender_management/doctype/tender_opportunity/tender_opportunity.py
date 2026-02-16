@@ -10,22 +10,31 @@ class TenderOpportunity(Document):
 
     def after_insert(self):
         self.create_standard_tasks()
-        
+
+    @frappe.whitelist()
     def create_standard_tasks(self):
         """Create standard tasks for new tender opportunity"""
         import frappe.utils
-        
+
         # Define standard tasks with relative due dates
         tasks = [
             {"title": "Review Tender Requirements", "priority": "High", "days": 2, "description": "Review the tender document and identify key requirements (eligibility, technical, financial)."},
             {"title": "Bid/No-Bid Decision", "priority": "High", "days": 3, "description": "Conduct risk analysis, cost-benefit analysis, and make a formal bid/no-bid decision."},
             {"title": "Prepare Technical Proposal", "priority": "Medium", "days": 7, "description": "Draft the technical response, methodology, and compliance matrix."},
             {"title": "Prepare Financial Proposal", "priority": "Medium", "days": 7, "description": "Calculate costs, prepare BOQ, and determine final pricing strategy."},
-            {"title": "Obtain Bid Security", "priority": "High", "days": 5, "description": "Request and obtain the bid bond (CPO/Bank Guarantee) from the bank."}
+            {"title": "Obtain Bid Security", "priority": "High", "days": 5, "description": "Request and obtain the bid bond (CPO/Bank Guarantee) from the bank."},
+            {"title": "Final Quality Review", "priority": "Medium", "days": 10, "description": "Conduct a final quality review of the proposal documents and compliance check."},
+            {"title": "Submission Confirmation", "priority": "High", "days": 12, "description": "Submit the proposal and obtain submission confirmation/receipt."}
         ]
-        
+
         created_count = 0
+        skipped_count = 0
         for task_data in tasks:
+            # Skip if task with same title already exists for this tender
+            if frappe.db.exists("Tender Task", {"tender": self.name, "title": task_data["title"]}):
+                skipped_count += 1
+                continue
+
             try:
                 task = frappe.new_doc("Tender Task")
                 task.tender = self.name
@@ -34,14 +43,19 @@ class TenderOpportunity(Document):
                 task.priority = task_data["priority"]
                 task.status = "Open"
                 task.due_date = frappe.utils.add_days(frappe.utils.nowdate(), task_data["days"])
-                task.assigned_to = self.owner
+                task.assigned_to = self.owner or frappe.session.user
                 task.insert(ignore_permissions=True)
                 created_count += 1
             except Exception as e:
                 frappe.log_error(f"Failed to auto-create task {task_data['title']}: {str(e)}", "Tender Task Auto-Creation")
-        
+
         if created_count > 0:
-            frappe.msgprint(_("{0} Standard Tender Tasks Created").format(created_count), alert=True)
+            msg = _("{0} Standard Tender Tasks Created").format(created_count)
+            if skipped_count > 0:
+                msg += _(" ({0} skipped as they already exist)").format(skipped_count)
+            frappe.msgprint(msg, alert=True, indicator="green")
+        elif skipped_count > 0 and frappe.request:
+            frappe.msgprint(_("All {0} standard tasks already exist.").format(skipped_count), alert=True)
 
     def validate_state_requirements(self):
         state = self.workflow_state
