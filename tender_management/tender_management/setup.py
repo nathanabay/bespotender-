@@ -279,13 +279,11 @@ def setup_workspace():
         {"type": "header", "data": {"text": "Key Insights", "level": 2, "col": 12}},
         {"type": "card", "data": {"card_name": "Total Active Tenders", "col": 4}},
         {"type": "card", "data": {"card_name": "Total Won Value", "col": 4}},
-        {"type": "break", "data": {"col": 12}},
         
         {"type": "header", "data": {"text": "Performance & Pipeline", "level": 2, "col": 12}},
         {"type": "chart", "data": {"chart_name": "Tender Pipeline Value", "col": 8}},
         {"type": "chart", "data": {"chart_name": "Win Loss Ratio", "col": 4}},
         {"type": "chart", "data": {"chart_name": "Active Bids per User", "col": 12}},
-        {"type": "break", "data": {"col": 12}},
         
         {"type": "header", "data": {"text": "Trends & Analysis", "level": 2, "col": 12}},
         {"type": "chart", "data": {"chart_name": "Monthly Publication Trend", "col": 12}},
@@ -293,7 +291,6 @@ def setup_workspace():
         {"type": "chart", "data": {"chart_name": "Bond Type Distribution", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Bid vs No-Bid", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Tenders by Type", "col": 6}},
-        {"type": "break", "data": {"col": 12}},
         
         {"type": "header", "data": {"text": "Quick Actions", "level": 3, "col": 12}},
         {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey", "col": 3}},
@@ -302,11 +299,9 @@ def setup_workspace():
         {"type": "shortcut", "data": {"link_to": "Bid Decision Matrix", "type": "DocType", "label": "Bid Decisions", "icon": "milestone", "color": "Purple", "col": 3}},
         {"type": "shortcut", "data": {"link_to": "Cost Estimation", "type": "DocType", "label": "Cost Estimations", "icon": "calculator", "color": "Green", "col": 3}},
         {"type": "shortcut", "data": {"link_to": "Document Template", "type": "DocType", "label": "Templates", "icon": "file", "color": "Cyan", "col": 3}},
-        {"type": "break", "data": {"col": 12}},
         
         {"type": "header", "data": {"text": "Contract Management", "level": 3, "col": 12}},
         {"type": "shortcut", "data": {"link_to": "Performance Bond", "type": "DocType", "label": "Performance Bonds", "icon": "shield", "color": "Red", "col": 3}},
-        {"type": "break", "data": {"col": 12}},
         
         {"type": "header", "data": {"text": "Intelligence", "level": 3, "col": 12}},
         {"type": "shortcut", "data": {"link_to": "Competitor", "type": "DocType", "label": "Competitors", "icon": "users", "color": "Yellow", "col": 3}}
