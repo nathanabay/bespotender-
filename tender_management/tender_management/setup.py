@@ -265,7 +265,7 @@ def setup_number_cards():
             "function": "Count",
             "is_public": 1,
             "show_percentage_stats": 1,
-            "stats_time_interval": "Month",
+            "stats_time_interval": "Monthly",
             "filters_json": json.dumps([["Tender Opportunity", "status", "!=", "Completed"]]),
             "module": "Tender Management"
         }).insert(ignore_permissions=True)
@@ -282,7 +282,7 @@ def setup_number_cards():
             "aggregate_function_based_on": "final_bid_price",
             "is_public": 1,
             "show_percentage_stats": 1,
-            "stats_time_interval": "Month",
+            "stats_time_interval": "Monthly",
         }).insert(ignore_permissions=True)
 
     # 3. My Open Tasks
@@ -296,7 +296,7 @@ def setup_number_cards():
             "function": "Count",
             "is_public": 1,
             "show_percentage_stats": 1,
-            "stats_time_interval": "Month",
+            "stats_time_interval": "Monthly",
             "filters_json": json.dumps([["Tender Task", "status", "in", ["Open", "In Progress"]], ["Tender Task", "assigned_to", "=", "frappe.session.user"]]),
             "module": "Tender Management"
         }).insert(ignore_permissions=True)
