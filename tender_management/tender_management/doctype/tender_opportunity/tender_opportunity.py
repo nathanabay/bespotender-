@@ -91,7 +91,7 @@ class TenderOpportunity(Document):
         # Create the Bid Security Request
         try:
             bsr = frappe.new_doc("Bid Security Request")
-            bsr.tender_opportunity = self.name
+            bsr.tender = self.name
             bsr.type = self.bond_type or "CPO"
             bsr.amount = self.bond_amount
             bsr.validity_period_days = self.bond_validity_days or 90

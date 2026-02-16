@@ -41,7 +41,7 @@
             "reqd": 1
         },
         {
-            "fieldname": "tender_opportunity",
+            "fieldname": "tender",
             "fieldtype": "Link",
             "in_list_view": 1,
             "label": "Tender Opportunity",

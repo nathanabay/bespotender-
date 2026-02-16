@@ -6,7 +6,11 @@ def get_data(data=None):
         "transactions": [
             {
                 "label": _("Activities"),
-                "items": ["Tender Task", "Tender Comment"]
+                "items": ["Tender Task"]
+            },
+            {
+                "label": _("Bid Security"),
+                "items": ["Bid Security", "Bid Security Request"]
             },
             {
                 "label": _("Decision & Planning"),

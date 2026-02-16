@@ -38,7 +38,7 @@ class BidSecurityRequest(Document):
 			"account": bid_bond_account,
 			"debit_in_account_currency": self.amount,
 			"party_type": "Data", # If linked to Customer/Supplier, change this
-			"party": self.tender_opportunity, # Linking to Tender Opp if possible, or keeping empty
+			"party": self.tender, # Linking to Tender Opp if possible, or keeping empty
 			"reference_type": "Bid Security Request",
 			"reference_name": self.name
 		})
