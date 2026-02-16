@@ -3,6 +3,7 @@
 
 import frappe
 from frappe.model.document import Document
+from frappe.utils.pdf import get_pdf
 import re
 
 class DocumentTemplate(Document):
@@ -34,6 +35,17 @@ class DocumentTemplate(Document):
 			content = re.sub(pattern, value, content, flags=re.IGNORECASE)
 		
 		return content
+
+@frappe.whitelist()
+def download_pdf(html, filename="document.pdf"):
+	"""
+	Generate and download PDF from HTML content
+	"""
+	pdf_content = get_pdf(html)
+	
+	frappe.response.filename = filename
+	frappe.response.filecontent = pdf_content
+	frappe.response.type = "download"
 
 @frappe.whitelist()
 def generate_from_template(template_name, tender_name):

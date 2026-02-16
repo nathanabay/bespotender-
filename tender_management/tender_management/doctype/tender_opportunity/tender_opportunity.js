@@ -223,11 +223,20 @@ function show_generated_document(content) {
         ],
         primary_action_label: __('Download PDF'),
         primary_action: function () {
-            // In real implementation, this would convert to PDF
-            frappe.show_alert({
-                message: __('PDF generation feature coming soon'),
-                indicator: 'blue'
-            });
+            // Trigger PDF download via POST
+            let form = $(`<form action="${frappe.request_url}" method="POST" target="_blank">
+                <input type="hidden" name="cmd" value="tender_management.tender_management.doctype.document_template.document_template.download_pdf">
+                <input type="hidden" name="html">
+                <input type="hidden" name="filename" value="${frm.doc.name}_Proposal.pdf">
+                <input type="hidden" name="csrf_token" value="${frappe.csrf_token}">
+            </form>`);
+
+            form.find('input[name="html"]').val(content);
+            $('body').append(form);
+            form.submit();
+            form.remove();
+
+            d.hide();
         }
     });
 
