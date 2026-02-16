@@ -274,31 +274,42 @@ def setup_number_cards():
 def setup_workspace():
     workspace_name = "Tender Management"
     
+    # Define the layout using the block format expected by Frappe Workspace
     ws_content = [
-        {"type": "header", "data": {"text": "Key Insights", "level": 2}},
+        {"type": "header", "data": {"text": "Key Insights", "level": 2, "col": 12}},
         {"type": "card", "data": {"card_name": "Total Active Tenders", "col": 4}},
         {"type": "card", "data": {"card_name": "Total Won Value", "col": 4}},
-        {"type": "header", "data": {"text": "Performance & Pipeline", "level": 2}},
+        {"type": "break", "data": {"col": 12}},
+        
+        {"type": "header", "data": {"text": "Performance & Pipeline", "level": 2, "col": 12}},
         {"type": "chart", "data": {"chart_name": "Tender Pipeline Value", "col": 8}},
         {"type": "chart", "data": {"chart_name": "Win Loss Ratio", "col": 4}},
         {"type": "chart", "data": {"chart_name": "Active Bids per User", "col": 12}},
-        {"type": "header", "data": {"text": "Trends & Analysis", "level": 2}},
+        {"type": "break", "data": {"col": 12}},
+        
+        {"type": "header", "data": {"text": "Trends & Analysis", "level": 2, "col": 12}},
         {"type": "chart", "data": {"chart_name": "Monthly Publication Trend", "col": 12}},
         {"type": "chart", "data": {"chart_name": "Tenders by Sector", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Bond Type Distribution", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Bid vs No-Bid", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Tenders by Type", "col": 6}},
-        {"type": "header", "data": {"text": "Quick Actions", "level": 3}},
-        {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey"}},
-        {"type": "shortcut", "data": {"link_to": "Tender Task", "type": "DocType", "label": "Tasks", "icon": "check", "color": "Blue"}},
-        {"type": "shortcut", "data": {"link_to": "tender-calendar", "type": "Page", "label": "Calendar View", "icon": "calendar", "color": "Orange"}},
-        {"type": "shortcut", "data": {"link_to": "Bid Decision Matrix", "type": "DocType", "label": "Bid Decisions", "icon": "milestone", "color": "Purple"}},
-        {"type": "shortcut", "data": {"link_to": "Cost Estimation", "type": "DocType", "label": "Cost Estimations", "icon": "calculator", "color": "Green"}},
-        {"type": "shortcut", "data": {"link_to": "Document Template", "type": "DocType", "label": "Templates", "icon": "file", "color": "Cyan"}},
-        {"type": "header", "data": {"text": "Contract Management", "level": 3}},
-        {"type": "shortcut", "data": {"link_to": "Performance Bond", "type": "DocType", "label": "Performance Bonds", "icon": "shield", "color": "Red"}},
-        {"type": "header", "data": {"text": "Intelligence", "level": 3}},
-        {"type": "shortcut", "data": {"link_to": "Competitor", "type": "DocType", "label": "Competitors", "icon": "users", "color": "Yellow"}}
+        {"type": "break", "data": {"col": 12}},
+        
+        {"type": "header", "data": {"text": "Quick Actions", "level": 3, "col": 12}},
+        {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey", "col": 3}},
+        {"type": "shortcut", "data": {"link_to": "Tender Task", "type": "DocType", "label": "Tasks", "icon": "check", "color": "Blue", "col": 3}},
+        {"type": "shortcut", "data": {"link_to": "tender-calendar", "type": "Page", "label": "Calendar View", "icon": "calendar", "color": "Orange", "col": 3}},
+        {"type": "shortcut", "data": {"link_to": "Bid Decision Matrix", "type": "DocType", "label": "Bid Decisions", "icon": "milestone", "color": "Purple", "col": 3}},
+        {"type": "shortcut", "data": {"link_to": "Cost Estimation", "type": "DocType", "label": "Cost Estimations", "icon": "calculator", "color": "Green", "col": 3}},
+        {"type": "shortcut", "data": {"link_to": "Document Template", "type": "DocType", "label": "Templates", "icon": "file", "color": "Cyan", "col": 3}},
+        {"type": "break", "data": {"col": 12}},
+        
+        {"type": "header", "data": {"text": "Contract Management", "level": 3, "col": 12}},
+        {"type": "shortcut", "data": {"link_to": "Performance Bond", "type": "DocType", "label": "Performance Bonds", "icon": "shield", "color": "Red", "col": 3}},
+        {"type": "break", "data": {"col": 12}},
+        
+        {"type": "header", "data": {"text": "Intelligence", "level": 3, "col": 12}},
+        {"type": "shortcut", "data": {"link_to": "Competitor", "type": "DocType", "label": "Competitors", "icon": "users", "color": "Yellow", "col": 3}}
     ]
 
     charts = [
@@ -346,10 +357,12 @@ def setup_workspace():
 
     if not frappe.db.exists("Workspace", workspace_name):
         frappe.get_doc(ws_doc).insert(ignore_permissions=True)
+        print(f"✔ Created Workspace: {workspace_name}")
     else:
         doc = frappe.get_doc("Workspace", workspace_name)
         doc.update(ws_doc)
         doc.save(ignore_permissions=True)
+        print(f"✔ Updated Workspace: {workspace_name}")
 
 def setup_enhanced_workflow():
     wf_name = "Two-Stage Tender Approval"
