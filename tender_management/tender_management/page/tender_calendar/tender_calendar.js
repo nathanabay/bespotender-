@@ -1,5 +1,5 @@
 frappe.pages['tender-calendar'].on_page_load = function (wrapper) {
-	console.log("📅 Tender Calendar: Page Load Triggered");
+	console.log("📅 Tender Calendar (v5): Page Load Triggered");
 	var page = frappe.ui.make_app_page({
 		parent: wrapper,
 		title: 'Tender Calendar',
