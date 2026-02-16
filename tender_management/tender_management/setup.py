@@ -300,6 +300,10 @@ def setup_workspace():
         {"type": "shortcut", "data": {"shortcut_name": "Cost Estimations", "col": 3}},
         {"type": "shortcut", "data": {"shortcut_name": "Templates", "col": 3}},
         
+        {"type": "header", "data": {"text": "Task Overview", "level": 3, "col": 12}},
+        {"type": "chart", "data": {"chart_name": "Tasks by Status", "col": 6}},
+        {"type": "card", "data": {"card_name": "My Open Tasks", "col": 6}},
+
         {"type": "header", "data": {"text": "Contract Management", "level": 3, "col": 12}},
         {"type": "shortcut", "data": {"shortcut_name": "Performance Bonds", "col": 3}},
         
@@ -315,12 +319,14 @@ def setup_workspace():
         {"chart_name": "Tenders by Sector", "label": "Tenders by Sector"},
         {"chart_name": "Bond Type Distribution", "label": "Bond Type Distribution"},
         {"chart_name": "Bid vs No-Bid", "label": "Bid vs No-Bid"},
-        {"chart_name": "Tenders by Type", "label": "Tenders by Type"}
+        {"chart_name": "Tenders by Type", "label": "Tenders by Type"},
+        {"chart_name": "Tasks by Status", "label": "Tasks by Status", "chart_type": "Donut", "document_type": "Tender Task", "based_on": "status"}
     ]
 
     number_cards = [
         {"number_card_name": "Total Active Tenders", "label": "Total Active Tenders"},
-        {"number_card_name": "Total Won Value", "label": "Total Won Value"}
+        {"number_card_name": "Total Won Value", "label": "Total Won Value"},
+        {"number_card_name": "My Open Tasks", "label": "My Open Tasks", "document_type": "Tender Task", "function": "Count", "filters_json": '[["Tender Task","status","in",["Open","In Progress"]],["Tender Task","assigned_to","=","frappe.session.user"]]'}
     ]
 
     shortcuts = [
