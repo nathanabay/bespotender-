@@ -96,6 +96,9 @@
         "compliance_matrix_complete",
         "formatting_check",
         "submission_format_validated",
+        "quotation_ref",
+        "sec_boq",
+        "items",
         "tab_files",
         "sec_all_files",
         "full_tender_document",
@@ -104,11 +107,6 @@
         "payment_receipt_proof",
         "generated_documents",
         "tab_bid_bond",
-        "tab_collaborate",
-        "sec_team",
-        "team_members",
-        "sec_comments",
-        "comments",
         "sec_security",
         "bond_type",
         "bond_amount",
@@ -121,7 +119,14 @@
         "bond_number",
         "bank_name",
         "cpo_journal_entry",
-        "bond_number",
+        "sec_purchase",
+        "document_price",
+        "purchase_date",
+        "col_break_purchase",
+        "purchase_receipt_no",
+        "doc_purchase_status",
+        "tender_purchaser",
+        "doc_purchase_payment_entry",
         "sec_costing",
         "estimated_cost",
         "margin_percentage",
@@ -130,9 +135,11 @@
         "budget_source",
         "project_duration_months",
         "payment_terms",
-        "quotation_ref",
-        "sec_boq",
-        "items",
+        "tab_collaborate",
+        "sec_team",
+        "team_members",
+        "sec_comments",
+        "comments",
         "tab_outcome",
         "sec_negotiation",
         "clarification_questions",
@@ -228,12 +235,6 @@
             "fieldname": "url",
             "fieldtype": "Data",
             "label": "Tender Link"
-        },
-        {
-            "allow_on_submit": 1,
-            "fieldname": "full_tender_document",
-            "fieldtype": "Attach",
-            "label": "Full Tender Document (PDF)"
         },
         {
             "fieldname": "source_evidence",
@@ -565,11 +566,6 @@
             "label": "Executive Summary Themes"
         },
         {
-            "fieldname": "tab_bid_bond",
-            "fieldtype": "Tab Break",
-            "label": "Bid Bond"
-        },
-        {
             "fieldname": "tab_proposal",
             "fieldtype": "Tab Break",
             "label": "Proposal"
@@ -615,6 +611,23 @@
             "label": "Submission Format Validated (Hard/Soft Copy)?"
         },
         {
+            "fieldname": "quotation_ref",
+            "fieldtype": "Link",
+            "label": "Linked Quotation",
+            "options": "Quotation"
+        },
+        {
+            "fieldname": "sec_boq",
+            "fieldtype": "Section Break",
+            "label": "BOQ / Items"
+        },
+        {
+            "fieldname": "items",
+            "fieldtype": "Table",
+            "label": "Items",
+            "options": "Tender BOQ Item"
+        },
+        {
             "fieldname": "tab_files",
             "fieldtype": "Tab Break",
             "label": "Tender Files"
@@ -625,28 +638,20 @@
             "label": "Tender Documents"
         },
         {
-            "fieldname": "sec_purchase",
-            "fieldtype": "Section Break",
-            "label": "Document Purchase"
+            "allow_on_submit": 1,
+            "fieldname": "full_tender_document",
+            "fieldtype": "Attach",
+            "label": "Full Tender Document (PDF)"
         },
         {
-            "fieldname": "document_price",
-            "fieldtype": "Currency",
-            "label": "Purchase Price"
+            "fieldname": "technical_proposal",
+            "fieldtype": "Attach",
+            "label": "Technical Proposal"
         },
         {
-            "fieldname": "purchase_date",
-            "fieldtype": "Date",
-            "label": "Purchase Date"
-        },
-        {
-            "fieldname": "col_break_purchase",
-            "fieldtype": "Column Break"
-        },
-        {
-            "fieldname": "purchase_receipt_no",
-            "fieldtype": "Data",
-            "label": "Receipt No"
+            "fieldname": "financial_proposal_doc",
+            "fieldtype": "Attach",
+            "label": "Financial Proposal (File)"
         },
         {
             "allow_on_submit": 1,
@@ -655,24 +660,15 @@
             "label": "Purchase Receipt (Scan)"
         },
         {
-            "default": "Pending Assignment",
-            "fieldname": "doc_purchase_status",
-            "fieldtype": "Select",
-            "label": "Purchase Status",
-            "options": "Pending Assignment\nPending Request\nFinance Review\nFunds Released\nCompleted"
+            "fieldname": "generated_documents",
+            "fieldtype": "Table",
+            "label": "Generated Documents",
+            "options": "Tender Generated Document"
         },
         {
-            "fieldname": "tender_purchaser",
-            "fieldtype": "Link",
-            "label": "Tender Purchaser",
-            "options": "User"
-        },
-        {
-            "fieldname": "doc_purchase_payment_entry",
-            "fieldtype": "Link",
-            "label": "Payment Entry",
-            "options": "Payment Entry",
-            "read_only": 1
+            "fieldname": "tab_bid_bond",
+            "fieldtype": "Tab Break",
+            "label": "Bid Bond"
         },
         {
             "fieldname": "sec_security",
@@ -740,6 +736,50 @@
             "label": "CPO Journal Entry"
         },
         {
+            "fieldname": "sec_purchase",
+            "fieldtype": "Section Break",
+            "label": "Document Purchase"
+        },
+        {
+            "fieldname": "document_price",
+            "fieldtype": "Currency",
+            "label": "Purchase Price"
+        },
+        {
+            "fieldname": "purchase_date",
+            "fieldtype": "Date",
+            "label": "Purchase Date"
+        },
+        {
+            "fieldname": "col_break_purchase",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "purchase_receipt_no",
+            "fieldtype": "Data",
+            "label": "Receipt No"
+        },
+        {
+            "default": "Pending Assignment",
+            "fieldname": "doc_purchase_status",
+            "fieldtype": "Select",
+            "label": "Purchase Status",
+            "options": "Pending Assignment\nPending Request\nFinance Review\nFunds Released\nCompleted"
+        },
+        {
+            "fieldname": "tender_purchaser",
+            "fieldtype": "Link",
+            "label": "Tender Purchaser",
+            "options": "User"
+        },
+        {
+            "fieldname": "doc_purchase_payment_entry",
+            "fieldtype": "Link",
+            "label": "Payment Entry",
+            "options": "Payment Entry",
+            "read_only": 1
+        },
+        {
             "fieldname": "sec_costing",
             "fieldtype": "Section Break",
             "label": "Budget & Costing"
@@ -779,46 +819,31 @@
             "label": "Payment Terms"
         },
         {
-            "fieldname": "sec_proposal_docs",
+            "fieldname": "tab_collaborate",
+            "fieldtype": "Tab Break",
+            "label": "Collaborate"
+        },
+        {
+            "fieldname": "sec_team",
             "fieldtype": "Section Break",
-            "label": "Proposal Documents"
+            "label": "Tender Team"
         },
         {
-            "fieldname": "technical_proposal",
-            "fieldtype": "Attach",
-            "label": "Technical Proposal"
-        },
-        {
-            "fieldname": "financial_proposal_doc",
-            "fieldtype": "Attach",
-            "label": "Financial Proposal (File)"
-        },
-        {
-            "fieldname": "generated_documents",
+            "fieldname": "team_members",
             "fieldtype": "Table",
-            "label": "Generated Documents",
-            "options": "Tender Generated Document"
+            "label": "Team Members",
+            "options": "Tender Team Member"
         },
         {
-            "fieldname": "col_break_proposal_docs",
-            "fieldtype": "Column Break"
-        },
-        {
-            "fieldname": "quotation_ref",
-            "fieldtype": "Link",
-            "label": "Linked Quotation",
-            "options": "Quotation"
-        },
-        {
-            "fieldname": "sec_boq",
+            "fieldname": "sec_comments",
             "fieldtype": "Section Break",
-            "label": "BOQ / Items"
+            "label": "Discussion & Comments"
         },
         {
-            "fieldname": "items",
+            "fieldname": "comments",
             "fieldtype": "Table",
-            "label": "Items",
-            "options": "Tender BOQ Item"
+            "label": "Comments",
+            "options": "Tender Comment"
         },
         {
             "fieldname": "tab_outcome",
@@ -945,33 +970,6 @@
             "fieldtype": "Select",
             "label": "Forecast Quarter",
             "options": "Q1\nQ2\nQ3\nQ4"
-        },
-        {
-            "fieldname": "tab_collaborate",
-            "fieldtype": "Tab Break",
-            "label": "Collaborate"
-        },
-        {
-            "fieldname": "sec_team",
-            "fieldtype": "Section Break",
-            "label": "Tender Team"
-        },
-        {
-            "fieldname": "team_members",
-            "fieldtype": "Table",
-            "label": "Team Members",
-            "options": "Tender Team Member"
-        },
-        {
-            "fieldname": "sec_comments",
-            "fieldtype": "Section Break",
-            "label": "Discussion & Comments"
-        },
-        {
-            "fieldname": "comments",
-            "fieldtype": "Table",
-            "label": "Comments",
-            "options": "Tender Comment"
         }
     ],
     "grid_page_length": 50,
