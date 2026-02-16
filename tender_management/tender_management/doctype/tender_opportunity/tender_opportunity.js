@@ -268,3 +268,13 @@ function create_performance_bond(frm) {
 function manage_milestones(frm) {
     frappe.msgprint(__('Milestone management will be added as a child table in the Tender Opportunity form.'));
 }
+frappe.ui.form.on('Tender Generated Document', {
+    print_pdf: function (frm, cdt, cdn) {
+        let row = frappe.get_doc(cdt, cdn);
+        if (row.file) {
+            window.open(row.file, '_blank');
+        } else {
+            frappe.msgprint(__('No PDF file found for this document.'));
+        }
+    }
+});
