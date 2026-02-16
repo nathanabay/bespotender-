@@ -98,11 +98,18 @@ function show_team_dialog(frm) {
 			</table>
 			<hr>
 			<h4>Tasks</h4>
-			<button class="btn btn-primary btn-sm" onclick="create_tender_task('${frm.doc.name}')">Create New Task</button>
+			<button class="btn btn-primary btn-sm btn-create-task">Create New Task</button>
 		</div>
 	`;
 
     d.fields_dict.team_html.$wrapper.html(html);
+
+    // Bind event for task creation using delegates to avoid scope issues
+    d.fields_dict.team_html.$wrapper.on('click', '.btn-create-task', function () {
+        create_tender_task(frm.doc.name);
+        d.hide(); // Optional: hide dialog after opening new task form
+    });
+
     d.show();
 }
 
