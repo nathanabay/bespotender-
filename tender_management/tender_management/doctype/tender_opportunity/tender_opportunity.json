@@ -43,6 +43,14 @@
         "site_visit_date",
         "pre_bid_meeting_date",
         "decision_date",
+        "sec_purchase",
+        "document_price",
+        "purchase_date",
+        "col_break_purchase",
+        "purchase_receipt_no",
+        "doc_purchase_status",
+        "tender_purchaser",
+        "doc_purchase_payment_entry",
         "tab_qualify",
         "sec_go_no_go",
         "bid_probability_score",
@@ -67,6 +75,14 @@
         "customer_relationship",
         "sec_competition",
         "competitors",
+        "sec_costing",
+        "estimated_cost",
+        "margin_percentage",
+        "final_bid_price",
+        "col_break_costing",
+        "budget_source",
+        "project_duration_months",
+        "payment_terms",
         "tab_plan",
         "sec_kickoff",
         "kickoff_meeting_notes",
@@ -113,22 +129,6 @@
         "bond_number",
         "bank_name",
         "cpo_journal_entry",
-        "sec_purchase",
-        "document_price",
-        "purchase_date",
-        "col_break_purchase",
-        "purchase_receipt_no",
-        "doc_purchase_status",
-        "tender_purchaser",
-        "doc_purchase_payment_entry",
-        "sec_costing",
-        "estimated_cost",
-        "margin_percentage",
-        "final_bid_price",
-        "col_break_costing",
-        "budget_source",
-        "project_duration_months",
-        "payment_terms",
         "tab_collaborate",
         "sec_team",
         "team_members",
@@ -348,6 +348,50 @@
             "label": "Decision Date"
         },
         {
+            "fieldname": "sec_purchase",
+            "fieldtype": "Section Break",
+            "label": "Document Purchase"
+        },
+        {
+            "fieldname": "document_price",
+            "fieldtype": "Currency",
+            "label": "Purchase Price"
+        },
+        {
+            "fieldname": "purchase_date",
+            "fieldtype": "Date",
+            "label": "Purchase Date"
+        },
+        {
+            "fieldname": "col_break_purchase",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "purchase_receipt_no",
+            "fieldtype": "Data",
+            "label": "Receipt No"
+        },
+        {
+            "default": "Pending Assignment",
+            "fieldname": "doc_purchase_status",
+            "fieldtype": "Select",
+            "label": "Purchase Status",
+            "options": "Pending Assignment\nPending Request\nFinance Review\nFunds Released\nCompleted"
+        },
+        {
+            "fieldname": "tender_purchaser",
+            "fieldtype": "Link",
+            "label": "Tender Purchaser",
+            "options": "User"
+        },
+        {
+            "fieldname": "doc_purchase_payment_entry",
+            "fieldtype": "Link",
+            "label": "Payment Entry",
+            "options": "Payment Entry",
+            "read_only": 1
+        },
+        {
             "fieldname": "tab_qualify",
             "fieldtype": "Tab Break",
             "label": "Qualify"
@@ -480,6 +524,45 @@
             "fieldtype": "Table",
             "label": "Competitors",
             "options": "Tender Competitor"
+        },
+        {
+            "fieldname": "sec_costing",
+            "fieldtype": "Section Break",
+            "label": "Budget & Costing"
+        },
+        {
+            "fieldname": "estimated_cost",
+            "fieldtype": "Currency",
+            "label": "Estimated Cost"
+        },
+        {
+            "fieldname": "margin_percentage",
+            "fieldtype": "Percent",
+            "label": "Margin %"
+        },
+        {
+            "fieldname": "final_bid_price",
+            "fieldtype": "Currency",
+            "label": "Final Bid Price"
+        },
+        {
+            "fieldname": "col_break_costing",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "budget_source",
+            "fieldtype": "Data",
+            "label": "Budget Source"
+        },
+        {
+            "fieldname": "project_duration_months",
+            "fieldtype": "Int",
+            "label": "Duration (Months)"
+        },
+        {
+            "fieldname": "payment_terms",
+            "fieldtype": "Data",
+            "label": "Payment Terms"
         },
         {
             "fieldname": "tab_plan",
@@ -730,89 +813,6 @@
             "label": "CPO Journal Entry"
         },
         {
-            "fieldname": "sec_purchase",
-            "fieldtype": "Section Break",
-            "label": "Document Purchase"
-        },
-        {
-            "fieldname": "document_price",
-            "fieldtype": "Currency",
-            "label": "Purchase Price"
-        },
-        {
-            "fieldname": "purchase_date",
-            "fieldtype": "Date",
-            "label": "Purchase Date"
-        },
-        {
-            "fieldname": "col_break_purchase",
-            "fieldtype": "Column Break"
-        },
-        {
-            "fieldname": "purchase_receipt_no",
-            "fieldtype": "Data",
-            "label": "Receipt No"
-        },
-        {
-            "default": "Pending Assignment",
-            "fieldname": "doc_purchase_status",
-            "fieldtype": "Select",
-            "label": "Purchase Status",
-            "options": "Pending Assignment\nPending Request\nFinance Review\nFunds Released\nCompleted"
-        },
-        {
-            "fieldname": "tender_purchaser",
-            "fieldtype": "Link",
-            "label": "Tender Purchaser",
-            "options": "User"
-        },
-        {
-            "fieldname": "doc_purchase_payment_entry",
-            "fieldtype": "Link",
-            "label": "Payment Entry",
-            "options": "Payment Entry",
-            "read_only": 1
-        },
-        {
-            "fieldname": "sec_costing",
-            "fieldtype": "Section Break",
-            "label": "Budget & Costing"
-        },
-        {
-            "fieldname": "estimated_cost",
-            "fieldtype": "Currency",
-            "label": "Estimated Cost"
-        },
-        {
-            "fieldname": "margin_percentage",
-            "fieldtype": "Percent",
-            "label": "Margin %"
-        },
-        {
-            "fieldname": "final_bid_price",
-            "fieldtype": "Currency",
-            "label": "Final Bid Price"
-        },
-        {
-            "fieldname": "col_break_costing",
-            "fieldtype": "Column Break"
-        },
-        {
-            "fieldname": "budget_source",
-            "fieldtype": "Data",
-            "label": "Budget Source"
-        },
-        {
-            "fieldname": "project_duration_months",
-            "fieldtype": "Int",
-            "label": "Duration (Months)"
-        },
-        {
-            "fieldname": "payment_terms",
-            "fieldtype": "Data",
-            "label": "Payment Terms"
-        },
-        {
             "fieldname": "tab_collaborate",
             "fieldtype": "Tab Break",
             "label": "Collaborate"
@@ -970,7 +970,7 @@
     "index_web_pages_for_search": 1,
     "is_submittable": 1,
     "links": [],
-    "modified": "2026-02-16 19:42:00.000000",
+    "modified": "2026-02-16 19:54:00.000000",
     "modified_by": "Administrator",
     "module": "Tender Management",
     "name": "Tender Opportunity",
