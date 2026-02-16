@@ -128,6 +128,7 @@
         "sec_proposal_docs",
         "technical_proposal",
         "financial_proposal_doc",
+        "generated_documents",
         "col_break_proposal_docs",
         "quotation_ref",
         "sec_boq",
@@ -781,6 +782,12 @@
             "fieldname": "financial_proposal_doc",
             "fieldtype": "Attach",
             "label": "Financial Proposal (File)"
+        },
+        {
+            "fieldname": "generated_documents",
+            "fieldtype": "Table",
+            "label": "Generated Documents",
+            "options": "Tender Generated Document"
         },
         {
             "fieldname": "col_break_proposal_docs",

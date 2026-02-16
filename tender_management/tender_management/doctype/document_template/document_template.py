@@ -37,12 +37,37 @@ class DocumentTemplate(Document):
 		return content
 
 @frappe.whitelist()
-def download_pdf(html, filename="document.pdf"):
+def download_pdf(html, tender_name, template_name, filename="document.pdf"):
 	"""
-	Generate and download PDF from HTML content
+	Generate and download PDF from HTML content and link it to the tender
 	"""
+	import frappe.utils
 	pdf_content = get_pdf(html)
 	
+	# Save to File DocType
+	file_doc = frappe.get_doc({
+		"doctype": "File",
+		"file_name": filename,
+		"attached_to_doctype": "Tender Opportunity",
+		"attached_to_name": tender_name,
+		"content": pdf_content,
+		"is_private": 1
+	})
+	file_doc.insert(ignore_permissions=True)
+	
+	# Add to Tender Opportunity child table
+	try:
+		tender = frappe.get_doc("Tender Opportunity", tender_name)
+		tender.append("generated_documents", {
+			"template": template_name,
+			"file": file_doc.file_url,
+			"generated_by": frappe.session.user,
+			"date": frappe.utils.now_datetime()
+		})
+		tender.save(ignore_permissions=True)
+	except Exception as e:
+		frappe.log_error(f"Failed to link generated document: {str(e)}", "Document Generation")
+
 	frappe.response.filename = filename
 	frappe.response.filecontent = pdf_content
 	frappe.response.type = "download"

@@ -195,8 +195,8 @@ function generate_document_dialog(frm) {
                             },
                             callback: function (r) {
                                 if (r.message) {
-                                    // Show generated content in a dialog
-                                    show_generated_document(r.message);
+                                    // Show generated content with template info
+                                    show_generated_document(frm, r.message, values.template);
                                 }
                             }
                         });
@@ -211,7 +211,7 @@ function generate_document_dialog(frm) {
     });
 }
 
-function show_generated_document(content) {
+function show_generated_document(frm, content, template_name) {
     let d = new frappe.ui.Dialog({
         title: 'Generated Document',
         size: 'large',
@@ -223,10 +223,12 @@ function show_generated_document(content) {
         ],
         primary_action_label: __('Download PDF'),
         primary_action: function () {
-            // Trigger PDF download via POST
-            let form = $(`<form action="${frappe.request_url}" method="POST" target="_blank">
+            // Trigger PDF download via POST to site root
+            let form = $(`<form action="/" method="POST" target="_blank">
                 <input type="hidden" name="cmd" value="tender_management.tender_management.doctype.document_template.document_template.download_pdf">
                 <input type="hidden" name="html">
+                <input type="hidden" name="tender_name" value="${frm.doc.name}">
+                <input type="hidden" name="template_name" value="${template_name}">
                 <input type="hidden" name="filename" value="${frm.doc.name}_Proposal.pdf">
                 <input type="hidden" name="csrf_token" value="${frappe.csrf_token}">
             </form>`);
