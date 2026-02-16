@@ -45,7 +45,7 @@ function initialize_calendar(wrapper, page) {
 		events: function (info, successCallback, failureCallback) {
 			console.log("📅 Tender Calendar: Fetching events for range", info.startStr, "to", info.endStr);
 			frappe.call({
-				method: 'tender_management.page.tender_calendar.tender_calendar.get_calendar_events',
+				method: 'tender_management.tender_management.page.tender_calendar.tender_calendar.get_calendar_events',
 				args: {
 					start: info.startStr,
 					end: info.endStr
