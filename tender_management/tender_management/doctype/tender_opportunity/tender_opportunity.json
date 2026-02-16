@@ -164,16 +164,6 @@
             "label": "Identify"
         },
         {
-            "fieldname": "tab_files",
-            "fieldtype": "Tab Break",
-            "label": "Tender Files"
-        },
-        {
-            "fieldname": "sec_all_files",
-            "fieldtype": "Section Break",
-            "label": "Tender Documents"
-        },
-        {
             "fieldname": "sec_header",
             "fieldtype": "Section Break"
         },
@@ -623,6 +613,16 @@
             "fieldname": "submission_format_validated",
             "fieldtype": "Check",
             "label": "Submission Format Validated (Hard/Soft Copy)?"
+        },
+        {
+            "fieldname": "tab_files",
+            "fieldtype": "Tab Break",
+            "label": "Tender Files"
+        },
+        {
+            "fieldname": "sec_all_files",
+            "fieldtype": "Section Break",
+            "label": "Tender Documents"
         },
         {
             "fieldname": "sec_purchase",
