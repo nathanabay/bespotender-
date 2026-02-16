@@ -744,17 +744,37 @@ def create_default_document_templates():
             "template_name": "Technical Proposal Cover Letter",
             "category": "Cover Letter",
             "content": """
-<div style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <p>To: <strong>{{organization}}</strong></p>
-    <p>Subject: <strong>Technical Proposal for {{tender_title}} (Ref: {{tender_number}})</strong></p>
-    <br>
-    <p>Dear Sir/Madam,</p>
-    <p>We are pleased to submit our Technical Proposal for the above-referenced tender. Our team at <strong>{{company_name}}</strong> has carefully reviewed the requirements and developed a comprehensive solution tailored to your objectives.</p>
-    <p>Our proposal highlights our technical expertise, methodological approach, and commitment to delivering high-quality results within the specified timeframe.</p>
-    <p>We look forward to the possibility of collaborating with you on this important project.</p>
-    <br>
-    <p>Sincerely,</p>
-    <p>The Bid Management Team<br><strong>{{company_name}}</strong></p>
+<div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; height: 900px; position: relative; padding: 120px 80px; background-color: #ffffff; color: #000000;">
+    <!-- Red Vertical Accent Stripe -->
+    <div style="position: absolute; left: 0; top: 400px; bottom: 80px; width: 35px; background-color: #C62828;"></div>
+    
+    <div style="margin-left: 60px;">
+        <!-- Company Name Header -->
+        <div style="font-size: 22px; font-weight: 500; margin-bottom: 60px; text-transform: uppercase; letter-spacing: 3px; color: #333333;">
+            {{company_name}}
+        </div>
+        
+        <!-- Main Title -->
+        <div style="font-size: 84px; font-weight: 900; color: #C62828; margin-bottom: 80px; line-height: 0.95; text-transform: uppercase; letter-spacing: -2px;">
+            TECHNICAL<br>PROPOSAL
+        </div>
+        
+        <!-- Project & Contact Details -->
+        <div style="font-size: 16px; text-transform: uppercase; letter-spacing: 2px;">
+            <div style="margin-bottom: 15px; font-weight: bold; color: #000000;">
+                PROJECT: {{tender_title}}
+            </div>
+            <div style="margin-bottom: 60px; color: #555555;">
+                PREPARED FOR: {{organization}}
+            </div>
+            
+            <div style="margin-top: 200px; font-size: 14px; line-height: 1.8; color: #444444;">
+                <strong>{{company_name}}</strong><br>
+                ADDIS ABABA, ETHIOPIA<br>
+                DATE: {{submission_deadline}}
+            </div>
+        </div>
+    </div>
 </div>
             """
         },
@@ -823,5 +843,12 @@ def create_default_document_templates():
             except Exception as e:
                 print(f"  ⚠ Error seeding template {template_data['template_name']}: {str(e)}")
         else:
-            print(f"  ✔ Template already exists: {template_data['template_name']}")
+            # Update content for default templates to ensure the latest design is applied
+            doc = frappe.get_doc("Document Template", template_data["template_name"])
+            if doc.content != template_data["content"]:
+                doc.content = template_data["content"]
+                doc.save(ignore_permissions=True)
+                print(f"  ✔ Updated Template content: {template_data['template_name']}")
+            else:
+                print(f"  ✔ Template already exists: {template_data['template_name']}")
 
