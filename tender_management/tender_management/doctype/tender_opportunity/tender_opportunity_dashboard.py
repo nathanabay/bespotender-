@@ -10,7 +10,7 @@ def get_data(data=None):
             },
             {
                 "label": _("Decision & Planning"),
-                "items": ["Bid Decision Matrix", "Cost Estimation", "Document Template"]
+                "items": ["Bid Decision Matrix", "Cost Estimation"]
             },
             {
                 "label": _("Contract Management"),
