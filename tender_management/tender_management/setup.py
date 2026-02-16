@@ -210,6 +210,20 @@ def setup_dashboard_charts():
     }
     upsert_dashboard_chart(chart_5, chart_doc_5)
 
+    # 6. Tasks by Status
+    chart_6 = "Tasks by Status"
+    chart_doc_6 = {
+        "doctype": "Dashboard Chart",
+        "chart_name": chart_6,
+        "chart_type": "Donut",
+        "document_type": "Tender Task",
+        "based_on": "status",
+        "is_public": 1,
+        "filters_json": "[]",
+        "module": "Tender Management"
+    }
+    upsert_dashboard_chart(chart_6, chart_doc_6)
+
 def upsert_dashboard_chart(name, doct):
     if not frappe.db.exists("Dashboard Chart", name):
         frappe.get_doc(doct).insert(ignore_permissions=True)
@@ -267,7 +281,21 @@ def setup_number_cards():
             "is_public": 1,
             "show_percentage_stats": 1,
             "stats_time_interval": "Month",
-            "filters_json": json.dumps([["Tender Opportunity", "workflow_state", "=", "Won"]]),
+        }).insert(ignore_permissions=True)
+
+    # 3. My Open Tasks
+    card_3 = "My Open Tasks"
+    if not frappe.db.exists("Number Card", card_3):
+        frappe.get_doc({
+            "doctype": "Number Card",
+            "name": card_3,
+            "label": "My Open Tasks",
+            "document_type": "Tender Task",
+            "function": "Count",
+            "is_public": 1,
+            "show_percentage_stats": 1,
+            "stats_time_interval": "Month",
+            "filters_json": json.dumps([["Tender Task", "status", "in", ["Open", "In Progress"]], ["Tender Task", "assigned_to", "=", "frappe.session.user"]]),
             "module": "Tender Management"
         }).insert(ignore_permissions=True)
 
