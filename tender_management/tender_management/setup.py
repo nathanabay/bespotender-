@@ -293,18 +293,18 @@ def setup_workspace():
         {"type": "chart", "data": {"chart_name": "Tenders by Type", "col": 6}},
         
         {"type": "header", "data": {"text": "Quick Actions", "level": 3, "col": 12}},
-        {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey", "col": 3}},
-        {"type": "shortcut", "data": {"link_to": "Tender Task", "type": "DocType", "label": "Tasks", "icon": "check", "color": "Blue", "col": 3}},
-        {"type": "shortcut", "data": {"link_to": "tender-calendar", "type": "Page", "label": "Calendar View", "icon": "calendar", "color": "Orange", "col": 3}},
-        {"type": "shortcut", "data": {"link_to": "Bid Decision Matrix", "type": "DocType", "label": "Bid Decisions", "icon": "milestone", "color": "Purple", "col": 3}},
-        {"type": "shortcut", "data": {"link_to": "Cost Estimation", "type": "DocType", "label": "Cost Estimations", "icon": "calculator", "color": "Green", "col": 3}},
-        {"type": "shortcut", "data": {"link_to": "Document Template", "type": "DocType", "label": "Templates", "icon": "file", "color": "Cyan", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Tenders", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Tasks", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Calendar View", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Bid Decisions", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Cost Estimations", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Templates", "col": 3}},
         
         {"type": "header", "data": {"text": "Contract Management", "level": 3, "col": 12}},
-        {"type": "shortcut", "data": {"link_to": "Performance Bond", "type": "DocType", "label": "Performance Bonds", "icon": "shield", "color": "Red", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Performance Bonds", "col": 3}},
         
         {"type": "header", "data": {"text": "Intelligence", "level": 3, "col": 12}},
-        {"type": "shortcut", "data": {"link_to": "Competitor", "type": "DocType", "label": "Competitors", "icon": "users", "color": "Yellow", "col": 3}}
+        {"type": "shortcut", "data": {"shortcut_name": "Competitors", "col": 3}}
     ]
 
     charts = [
