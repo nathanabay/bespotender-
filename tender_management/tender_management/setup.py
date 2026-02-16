@@ -7,6 +7,7 @@ def after_install():
     setup_dashboard_charts()
     setup_number_cards()
     setup_workspace()
+    create_default_document_templates()
 
 def after_migrate():
     setup_module()
@@ -21,6 +22,7 @@ def after_migrate():
     setup_bid_security_accounting()
     setup_document_purchase_payment()
     setup_notifications()
+    create_default_document_templates()
 
 def setup_module():
     if not frappe.db.exists("Module Def", "Tender Management"):
@@ -730,3 +732,96 @@ def cleanup_legacy_customizations():
 
     frappe.clear_cache(doctype=target_doctype)
     print(f"  ✔ Cache cleared for {target_doctype}")
+
+def create_default_document_templates():
+    """
+    Seed professional default templates for document generation
+    """
+    print("📄 Seeding default Document Templates...")
+    
+    templates = [
+        {
+            "template_name": "Technical Proposal Cover Letter",
+            "category": "Cover Letter",
+            "content": """
+<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <p>To: <strong>{{organization}}</strong></p>
+    <p>Subject: <strong>Technical Proposal for {{tender_title}} (Ref: {{tender_number}})</strong></p>
+    <br>
+    <p>Dear Sir/Madam,</p>
+    <p>We are pleased to submit our Technical Proposal for the above-referenced tender. Our team at <strong>{{company_name}}</strong> has carefully reviewed the requirements and developed a comprehensive solution tailored to your objectives.</p>
+    <p>Our proposal highlights our technical expertise, methodological approach, and commitment to delivering high-quality results within the specified timeframe.</p>
+    <p>We look forward to the possibility of collaborating with you on this important project.</p>
+    <br>
+    <p>Sincerely,</p>
+    <p>The Bid Management Team<br><strong>{{company_name}}</strong></p>
+</div>
+            """
+        },
+        {
+            "template_name": "Financial Proposal Cover Letter",
+            "category": "Cover Letter",
+            "content": """
+<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <p>To: <strong>{{organization}}</strong></p>
+    <p>Subject: <strong>Financial Proposal for {{tender_title}} (Ref: {{tender_number}})</strong></p>
+    <br>
+    <p>Dear Sir/Madam,</p>
+    <p>We are pleased to submit our Financial Proposal for <strong>{{tender_title}}</strong>. Having analyzed the technical requirements, we have prepared a competitive pricing structure that ensures maximum value for investment.</p>
+    <p>Our total bid price is <strong>{{final_bid_price}}</strong>, which includes all applicable taxes and costs as detailed in the BOQ.</p>
+    <p>This financial proposal remains valid until <strong>{{submission_deadline}}</strong>.</p>
+    <br>
+    <p>Sincerely,</p>
+    <p>Finance Department<br><strong>{{company_name}}</strong></p>
+</div>
+            """
+        },
+        {
+            "template_name": "Standard Executive Summary",
+            "category": "Executive Summary",
+            "content": """
+<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2>Executive Summary: {{tender_title}}</h2>
+    <hr>
+    <p><strong>{{company_name}}</strong> is proud to submit this bid for the <strong>{{tender_title}}</strong>. With extensive experience in the <strong>{{sector}}</strong> sector, we bring a unique combination of innovation, efficiency, and proven performance.</p>
+    <h3>Key Value Propositions:</h3>
+    <ul>
+        <li><strong>Proven Track Record:</strong> Successfully delivered similar projects in {{sector}}.</li>
+        <li><strong>Technical Excellence:</strong> Utilization of state-of-the-art methodologies and expert personnel.</li>
+        <li><strong>Cost Efficiency:</strong> Strategic resource allocation to ensure competitive pricing.</li>
+    </ul>
+    <p>Our goal is to assist <strong>{{organization}}</strong> in achieving its project milestones with zero compromise on quality.</p>
+</div>
+            """
+        },
+        {
+            "template_name": "Technical Methodology Template",
+            "category": "Methodology",
+            "content": """
+<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2>Proposed Methodology for {{tender_title}}</h2>
+    <p>Our execution plan for <strong>{{tender_title}}</strong> is divided into four critical phases:</p>
+    <ol>
+        <li><strong>Initiation & Planning:</strong> Risk assessment, resource mobilization, and detailed scheduling.</li>
+        <li><strong>Execution Phase:</strong> Deployment of technical teams and implementation of core modules.</li>
+        <li><strong>Quality Assurance:</strong> Rigorous testing and compliance verification against {{organization}} standards.</li>
+        <li><strong>Closure & Handover:</strong> Final reporting, documentation, and knowledge transfer.</li>
+    </ol>
+    <p>Our methodology ensures that every deliverable meets the highest professional standards.</p>
+</div>
+            """
+        }
+    ]
+
+    for template_data in templates:
+        if not frappe.db.exists("Document Template", template_data["template_name"]):
+            try:
+                template_data["doctype"] = "Document Template"
+                template_data["is_active"] = 1
+                frappe.get_doc(template_data).insert(ignore_permissions=True)
+                print(f"  ✔ Created Template: {template_data['template_name']}")
+            except Exception as e:
+                print(f"  ⚠ Error seeding template {template_data['template_name']}: {str(e)}")
+        else:
+            print(f"  ✔ Template already exists: {template_data['template_name']}")
+
