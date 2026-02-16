@@ -1,0 +1,113 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "field:template_name",
+    "creation": "2026-02-16 16:01:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "template_name",
+        "category",
+        "column_break_1",
+        "is_active",
+        "section_break_1",
+        "content",
+        "section_break_2",
+        "placeholders_help",
+        "section_break_3",
+        "usage_notes"
+    ],
+    "fields": [
+        {
+            "fieldname": "template_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Template Name",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "fieldname": "category",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Category",
+            "options": "\nCover Letter\nTechnical Proposal\nFinancial Proposal\nExecutive Summary\nCompany Profile\nCompliance Matrix\nMethodology\nQuality Plan\nContract Terms",
+            "reqd": 1
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "1",
+            "fieldname": "is_active",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Active"
+        },
+        {
+            "fieldname": "section_break_1",
+            "fieldtype": "Section Break",
+            "label": "Template Content"
+        },
+        {
+            "description": "Use placeholders like {{tender_title}}, {{organization}}, {{submission_deadline}}, etc.",
+            "fieldname": "content",
+            "fieldtype": "HTML Editor",
+            "label": "Content",
+            "reqd": 1
+        },
+        {
+            "fieldname": "section_break_2",
+            "fieldtype": "Section Break",
+            "label": "Available Placeholders"
+        },
+        {
+            "default": "Available placeholders:\\n{{tender_title}} - Tender title\\n{{organization}} - Client organization\\n{{tender_number}} - Tender reference number\\n{{submission_deadline}} - Submission deadline\\n{{final_bid_price}} - Final bid price\\n{{sector}} - Tender sector\\n{{tender_type}} - Type of tender\\n{{company_name}} - Your company name",
+            "fieldname": "placeholders_help",
+            "fieldtype": "Text",
+            "label": "Placeholder Guide",
+            "read_only": 1
+        },
+        {
+            "fieldname": "section_break_3",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "usage_notes",
+            "fieldtype": "Small Text",
+            "label": "Usage Notes"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-02-16 16:01:00.000000",
+    "modified_by": "Administrator",
+    "module": "Tender Management",
+    "name": "Document Template",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Tender Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "read": 1,
+            "role": "Tender User"
+        }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
+}

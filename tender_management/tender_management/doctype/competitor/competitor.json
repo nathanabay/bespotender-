@@ -1,0 +1,141 @@
+{
+    "actions": [],
+    "allow_rename": 1,
+    "autoname": "field:competitor_name",
+    "creation": "2026-02-16 16:00:00.000000",
+    "doctype": "DocType",
+    "engine": "InnoDB",
+    "field_order": [
+        "competitor_name",
+        "company_type",
+        "sector",
+        "column_break_1",
+        "contact_person",
+        "phone",
+        "email",
+        "website",
+        "section_break_1",
+        "strengths",
+        "weaknesses",
+        "typical_pricing_strategy",
+        "section_break_2",
+        "notes"
+    ],
+    "fields": [
+        {
+            "fieldname": "competitor_name",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Competitor Name",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "fieldname": "company_type",
+            "fieldtype": "Select",
+            "label": "Company Type",
+            "options": "\nLocal\nInternational\nJoint Venture"
+        },
+        {
+            "fieldname": "sector",
+            "fieldtype": "Select",
+            "label": "Primary Sector",
+            "options": "\nConstruction\nElectro-Mechanical\nMaintenance\nWater Works\nGeneral Supply\nConsulting"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "contact_person",
+            "fieldtype": "Data",
+            "label": "Contact Person"
+        },
+        {
+            "fieldname": "phone",
+            "fieldtype": "Data",
+            "label": "Phone"
+        },
+        {
+            "fieldname": "email",
+            "fieldtype": "Data",
+            "label": "Email",
+            "options": "Email"
+        },
+        {
+            "fieldname": "website",
+            "fieldtype": "Data",
+            "label": "Website",
+            "options": "URL"
+        },
+        {
+            "fieldname": "section_break_1",
+            "fieldtype": "Section Break",
+            "label": "Intelligence"
+        },
+        {
+            "fieldname": "strengths",
+            "fieldtype": "Small Text",
+            "label": "Known Strengths"
+        },
+        {
+            "fieldname": "weaknesses",
+            "fieldtype": "Small Text",
+            "label": "Known Weaknesses"
+        },
+        {
+            "fieldname": "typical_pricing_strategy",
+            "fieldtype": "Select",
+            "label": "Pricing Strategy",
+            "options": "\nAggressive (Low Price)\nCompetitive (Market Rate)\nPremium (High Quality Focus)"
+        },
+        {
+            "fieldname": "section_break_2",
+            "fieldtype": "Section Break"
+        },
+        {
+            "fieldname": "notes",
+            "fieldtype": "Text Editor",
+            "label": "Notes"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-02-16 16:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Tender Management",
+    "name": "Competitor",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Tender User",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Tender Manager",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 1,
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "track_changes": 1
+}

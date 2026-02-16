@@ -1,0 +1,63 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-16 15:55:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "role",
+  "column_break_1",
+  "assigned_date",
+  "responsibilities"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Team Member",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "role",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Role",
+   "options": "\nTechnical Lead\nFinancial Analyst\nLegal Reviewer\nProposal Manager\nProject Manager\nSubject Matter Expert\nQuality Reviewer",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "assigned_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Assigned Date"
+  },
+  {
+   "fieldname": "responsibilities",
+   "fieldtype": "Small Text",
+   "label": "Responsibilities"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-16 15:55:00.000000",
+ "modified_by": "Administrator",
+ "module": "Tender Management",
+ "name": "Tender Team Member",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

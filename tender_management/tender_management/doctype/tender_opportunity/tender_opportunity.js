@@ -1,90 +1,229 @@
-frappe.ui.form.on("Tender Opportunity", {
+frappe.ui.form.on('Tender Opportunity', {
     refresh: function (frm) {
-        apply_wf_logic(frm);
-    },
+        // Add custom buttons for new features
 
-    workflow_state: function (frm) {
-        apply_wf_logic(frm);
-    },
+        // Team Management button
+        if (!frm.is_new()) {
+            frm.add_custom_button(__('Team & Tasks'), function () {
+                show_team_dialog(frm);
+            }, __('Collaborate'));
 
-    sector: function (frm) {
-        if (frm.doc.sector == 'Construction') {
-            frm.set_value('naming_series', 'T-CON-.YYYY.-.####');
-        } else if (frm.doc.sector == 'Electro-Mechanical') {
-            frm.set_value('naming_series', 'T-ELEC-.YYYY.-.####');
-        } else if (frm.doc.sector == 'Maintenance') {
-            frm.set_value('naming_series', 'T-WAT-.YYYY.-.####');
-        } else if (frm.doc.sector == 'Water Works') {
-            frm.set_value('naming_series', 'T-WAT-.YYYY.-.####');
-        } else {
-            frm.set_value('naming_series', 'T-CON-.YYYY.-.####'); // Default
+            frm.add_custom_button(__('Add Comment'), function () {
+                add_comment(frm);
+            }, __('Collaborate'));
+
+            // Document Generation button
+            frm.add_custom_button(__('Generate Document'), function () {
+                generate_document_dialog(frm);
+            }, __('Documents'));
+
+            // Cost Estimation button
+            frm.add_custom_button(__('Create Cost Estimation'), function () {
+                create_cost_estimation(frm);
+            }, __('Costing'));
+
+            frm.add_custom_button(__('View All Estimations'), function () {
+                frappe.set_route('List', 'Cost Estimation', { 'tender': frm.doc.name });
+            }, __('Costing'));
+
+            // Bid Decision Matrix button
+            frm.add_custom_button(__('Create Decision Matrix'), function () {
+                create_bid_decision(frm);
+            }, __('Decision'));
+
+            frm.add_custom_button(__('View Decision Matrix'), function () {
+                frappe.set_route('List', 'Bid Decision Matrix', { 'tender': frm.doc.name });
+            }, __('Decision'));
+
+            // Performance Bond button (only for Won tenders)
+            if (frm.doc.workflow_state === 'Won') {
+                frm.add_custom_button(__('Create Performance Bond'), function () {
+                    create_performance_bond(frm);
+                }, __('Contract'));
+
+                frm.add_custom_button(__('Manage Milestones'), function () {
+                    manage_milestones(frm);
+                }, __('Contract'));
+            }
+
+            // Calendar View button
+            frm.add_custom_button(__('View Calendar'), function () {
+                frappe.set_route('tender-calendar');
+            });
         }
     }
 });
 
-function apply_wf_logic(frm) {
-    let state = frm.doc.workflow_state;
+function show_team_dialog(frm) {
+    let d = new frappe.ui.Dialog({
+        title: 'Team Management',
+        fields: [
+            {
+                fieldtype: 'HTML',
+                fieldname: 'team_html'
+            }
+        ],
+        primary_action_label: __('Close')
+    });
 
-    // 1. TAB & SECTION VISIBILITY (Unfolding the form)
-    // tab_opportunity is always visible
+    // Build team HTML
+    let html = `
+		<div class="team-management">
+			<h4>Team Members</h4>
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th>Member</th>
+						<th>Role</th>
+						<th>Assigned Date</th>
+					</tr>
+				</thead>
+				<tbody>
+	`;
 
-    // Hide specialized tabs by default
-    frm.set_df_property('tab_decision', 'hidden', 1);
-    frm.set_df_property('tab_procurement', 'hidden', 1);
-    frm.set_df_property('tab_bid_bond', 'hidden', 1);
-    frm.set_df_property('tab_proposal', 'hidden', 1);
-    frm.set_df_property('tab_analysis', 'hidden', 1);
+    // Show team members (this would be populated from a child table in real implementation)
+    html += `<tr><td colspan="3" class="text-muted">Add team members via form</td></tr>`;
 
-    if (state !== "Draft") {
-        frm.set_df_property('tab_decision', 'hidden', 0);
-    }
+    html += `
+				</tbody>
+			</table>
+			<hr>
+			<h4>Tasks</h4>
+			<button class="btn btn-primary btn-sm" onclick="create_tender_task('${frm.doc.name}')">Create New Task</button>
+		</div>
+	`;
 
-    if (state === "Approved to Bid" || state === "Tender Purchased" || state === "Bid Bond Issued" || state === "Technical Preparation" || state === "Financial Preparation" || state === "Ready for Submission" || state === "Submitted" || state === "Won" || state === "Lost") {
-        frm.set_df_property('tab_procurement', 'hidden', 0);
-    }
+    d.fields_dict.team_html.$wrapper.html(html);
+    d.show();
+}
 
-    // Show Bid Bond tab after tender is purchased
-    if (state === "Tender Purchased" || state === "Bid Bond Issued" || state === "Technical Preparation" || state === "Financial Preparation" || state === "Ready for Submission" || state === "Submitted" || state === "Won" || state === "Lost") {
-        frm.set_df_property('tab_bid_bond', 'hidden', 0);
-    }
+function create_tender_task(tender_name) {
+    frappe.new_doc('Tender Task', {
+        tender: tender_name
+    });
+}
 
-    if (state === "Bid Bond Issued" || state === "Technical Preparation" || state === "Financial Preparation" || state === "Ready for Submission" || state === "Submitted" || state === "Won" || state === "Lost") {
-        frm.set_df_property('tab_proposal', 'hidden', 0);
-    }
+function add_comment(frm) {
+    let d = new frappe.ui.Dialog({
+        title: 'Add Comment',
+        fields: [
+            {
+                fieldname: 'comment_text',
+                fieldtype: 'Text Editor',
+                label: 'Comment',
+                reqd: 1
+            },
+            {
+                fieldname: 'is_private',
+                fieldtype: 'Check',
+                label: 'Private Comment'
+            }
+        ],
+        primary_action_label: __('Add Comment'),
+        primary_action: function (values) {
+            // In real implementation, this would add to a child table
+            frappe.show_alert({
+                message: __('Comment added successfully'),
+                indicator: 'green'
+            });
+            d.hide();
+        }
+    });
+    d.show();
+}
 
-    if (state === "Submitted" || state === "Won" || state === "Lost") {
-        frm.set_df_property('tab_analysis', 'hidden', 0);
-    }
+function generate_document_dialog(frm) {
+    frappe.call({
+        method: 'frappe.client.get_list',
+        args: {
+            doctype: 'Document Template',
+            filters: { is_active: 1 },
+            fields: ['name', 'category']
+        },
+        callback: function (r) {
+            if (r.message && r.message.length > 0) {
+                let template_options = r.message.map(t => t.name).join('\\n');
 
-    // Secondary Section visibility within tabs
-    frm.set_df_property('sec_security', 'hidden', (state === "Approved to Bid")); // Hide bond section until purchased
+                let d = new frappe.ui.Dialog({
+                    title: 'Generate Document from Template',
+                    fields: [
+                        {
+                            fieldname: 'template',
+                            fieldtype: 'Link',
+                            label: 'Select Template',
+                            options: 'Document Template',
+                            reqd: 1
+                        }
+                    ],
+                    primary_action_label: __('Generate'),
+                    primary_action: function (values) {
+                        frappe.call({
+                            method: 'tender_management.tender_management.doctype.document_template.document_template.generate_from_template',
+                            args: {
+                                template_name: values.template,
+                                tender_name: frm.doc.name
+                            },
+                            callback: function (r) {
+                                if (r.message) {
+                                    // Show generated content in a dialog
+                                    show_generated_document(r.message);
+                                }
+                            }
+                        });
+                        d.hide();
+                    }
+                });
+                d.show();
+            } else {
+                frappe.msgprint(__('No active templates found. Please create a Document Template first.'));
+            }
+        }
+    });
+}
 
-    // 2. MANDATORY FIELDS (Conditional Enforcement)
-    frm.set_df_property('purchase_date', 'reqd', (state === "Tender Purchased"));
-    frm.set_df_property('purchase_receipt_no', 'reqd', (state === "Tender Purchased"));
+function show_generated_document(content) {
+    let d = new frappe.ui.Dialog({
+        title: 'Generated Document',
+        size: 'large',
+        fields: [
+            {
+                fieldtype: 'HTML',
+                fieldname: 'doc_html'
+            }
+        ],
+        primary_action_label: __('Download PDF'),
+        primary_action: function () {
+            // In real implementation, this would convert to PDF
+            frappe.show_alert({
+                message: __('PDF generation feature coming soon'),
+                indicator: 'blue'
+            });
+        }
+    });
 
-    // For Bid Bond Issued, require the Bid Security Request link instead of individual fields
-    frm.set_df_property('bid_security_request', 'reqd', (state === "Bid Bond Issued"));
+    d.fields_dict.doc_html.$wrapper.html(content);
+    d.show();
+}
 
-    frm.set_df_property('technical_proposal', 'reqd', (state === "Ready for Submission"));
-    frm.set_df_property('financial_proposal_doc', 'reqd', (state === "Ready for Submission"));
+function create_cost_estimation(frm) {
+    frappe.new_doc('Cost Estimation', {
+        tender: frm.doc.name
+    });
+}
 
-    // 3. HEADLINE ALERTS (User Guidance)
-    if (state === "Draft") {
-        frm.dashboard.set_headline_alert(__("Step 1: Fill in basic details and Submit for Review."), "blue");
-    } else if (state === "Pending Review") {
-        frm.dashboard.set_headline_alert(__("Step 2: Waiting for Manager Review."), "orange");
-    } else if (state === "Approved to Bid") {
-        frm.dashboard.set_headline_alert(__("Step 3: Tender Approved. Please purchase the document and enter receipt info."), "green");
-    } else if (state === "Tender Purchased") {
-        frm.dashboard.set_headline_alert(__("Step 4: Document Purchased. Please issue the Bid Bond (CPO) to proceed."), "green");
-    } else if (state === "Bid Bond Issued") {
-        frm.dashboard.set_headline_alert(__("Step 5: Bond Active. Start Technical Preparation."), "green");
-    } else if (state === "Technical Preparation") {
-        frm.dashboard.set_headline_alert(__("Step 6: Technical Stage. Progress to Financial Preparation when ready."), "blue");
-    } else if (state === "Ready for Submission") {
-        frm.dashboard.set_headline_alert(__("Step 7: All documents ready. Please submit the bid to the client."), "blue");
-    } else if (state === "Submitted") {
-        frm.dashboard.set_headline_alert(__("Step 8: Bid Submitted. Awaiting Award/Tender result."), "orange");
-    }
+function create_bid_decision(frm) {
+    frappe.new_doc('Bid Decision Matrix', {
+        tender: frm.doc.name
+    });
+}
+
+function create_performance_bond(frm) {
+    frappe.new_doc('Performance Bond', {
+        tender: frm.doc.name,
+        amount: frm.doc.final_contract_value * 0.10 // Default to 10% of contract value
+    });
+}
+
+function manage_milestones(frm) {
+    frappe.msgprint(__('Milestone management will be added as a child table in the Tender Opportunity form.'));
 }

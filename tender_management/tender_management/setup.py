@@ -288,8 +288,17 @@ def setup_workspace():
         {"type": "chart", "data": {"chart_name": "Bond Type Distribution", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Bid vs No-Bid", "col": 6}},
         {"type": "chart", "data": {"chart_name": "Tenders by Type", "col": 6}},
-        {"type": "header", "data": {"text": "Tender Registry", "level": 3}},
-        {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey"}}
+        {"type": "header", "data": {"text": "Quick Actions", "level": 3}},
+        {"type": "shortcut", "data": {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey"}},
+        {"type": "shortcut", "data": {"link_to": "Tender Task", "type": "DocType", "label": "Tasks", "icon": "check", "color": "Blue"}},
+        {"type": "shortcut", "data": {"link_to": "tender-calendar", "type": "Page", "label": "Calendar View", "icon": "calendar", "color": "Orange"}},
+        {"type": "shortcut", "data": {"link_to": "Bid Decision Matrix", "type": "DocType", "label": "Bid Decisions", "icon": "milestone", "color": "Purple"}},
+        {"type": "shortcut", "data": {"link_to": "Cost Estimation", "type": "DocType", "label": "Cost Estimations", "icon": "calculator", "color": "Green"}},
+        {"type": "shortcut", "data": {"link_to": "Document Template", "type": "DocType", "label": "Templates", "icon": "file", "color": "Cyan"}},
+        {"type": "header", "data": {"text": "Contract Management", "level": 3}},
+        {"type": "shortcut", "data": {"link_to": "Performance Bond", "type": "DocType", "label": "Performance Bonds", "icon": "shield", "color": "Red"}},
+        {"type": "header", "data": {"text": "Intelligence", "level": 3}},
+        {"type": "shortcut", "data": {"link_to": "Competitor", "type": "DocType", "label": "Competitors", "icon": "users", "color": "Yellow"}}
     ]
 
     charts = [
@@ -309,7 +318,14 @@ def setup_workspace():
     ]
 
     shortcuts = [
-        {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey"}
+        {"link_to": "Tender Opportunity", "type": "DocType", "label": "Tenders", "icon": "list", "color": "Grey"},
+        {"link_to": "Tender Task", "type": "DocType", "label": "Tasks", "icon": "check", "color": "Blue"},
+        {"link_to": "tender-calendar", "type": "Page", "label": "Calendar View", "icon": "calendar", "color": "Orange"},
+        {"link_to": "Bid Decision Matrix", "type": "DocType", "label": "Bid Decisions", "icon": "milestone", "color": "Purple"},
+        {"link_to": "Cost Estimation", "type": "DocType", "label": "Cost Estimations", "icon": "calculator", "color": "Green"},
+        {"link_to": "Document Template", "type": "DocType", "label": "Templates", "icon": "file", "color": "Cyan"},
+        {"link_to": "Performance Bond", "type": "DocType", "label": "Performance Bonds", "icon": "shield", "color": "Red"},
+        {"link_to": "Competitor", "type": "DocType", "label": "Competitors", "icon": "users", "color": "Yellow"}
     ]
 
     ws_doc = {
