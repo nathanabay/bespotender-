@@ -19,7 +19,6 @@
         "col_break_header",
         "tender_number",
         "url",
-        "full_tender_document",
         "source_evidence",
         "driver_name",
         "sec_esg",
@@ -40,7 +39,6 @@
         "purchase_date",
         "col_break_purchase",
         "purchase_receipt_no",
-        "payment_receipt_proof",
         "doc_purchase_status",
         "tender_purchaser",
         "doc_purchase_payment_entry",
@@ -98,6 +96,13 @@
         "compliance_matrix_complete",
         "formatting_check",
         "submission_format_validated",
+        "tab_files",
+        "sec_all_files",
+        "full_tender_document",
+        "technical_proposal",
+        "financial_proposal_doc",
+        "payment_receipt_proof",
+        "generated_documents",
         "tab_bid_bond",
         "tab_collaborate",
         "sec_team",
@@ -125,11 +130,6 @@
         "budget_source",
         "project_duration_months",
         "payment_terms",
-        "sec_proposal_docs",
-        "technical_proposal",
-        "financial_proposal_doc",
-        "generated_documents",
-        "col_break_proposal_docs",
         "quotation_ref",
         "sec_boq",
         "items",
@@ -162,6 +162,16 @@
             "fieldname": "tab_identify",
             "fieldtype": "Tab Break",
             "label": "Identify"
+        },
+        {
+            "fieldname": "tab_files",
+            "fieldtype": "Tab Break",
+            "label": "Tender Files"
+        },
+        {
+            "fieldname": "sec_all_files",
+            "fieldtype": "Section Break",
+            "label": "Tender Documents"
         },
         {
             "fieldname": "sec_header",
