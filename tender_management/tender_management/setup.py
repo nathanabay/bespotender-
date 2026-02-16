@@ -215,9 +215,11 @@ def setup_dashboard_charts():
     chart_doc_6 = {
         "doctype": "Dashboard Chart",
         "chart_name": chart_6,
-        "chart_type": "Donut",
+        "chart_type": "Group By",
         "document_type": "Tender Task",
-        "based_on": "status",
+        "group_by_based_on": "status",
+        "aggregate_function": "Count",
+        "type": "Donut",
         "is_public": 1,
         "filters_json": "[]",
         "module": "Tender Management"
