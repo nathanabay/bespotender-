@@ -99,6 +99,11 @@
         "formatting_check",
         "submission_format_validated",
         "tab_bid_bond",
+        "tab_collaborate",
+        "sec_team",
+        "team_members",
+        "sec_comments",
+        "comments",
         "sec_security",
         "bond_type",
         "bond_amount",
@@ -923,6 +928,33 @@
             "fieldtype": "Select",
             "label": "Forecast Quarter",
             "options": "Q1\nQ2\nQ3\nQ4"
+        },
+        {
+            "fieldname": "tab_collaborate",
+            "fieldtype": "Tab Break",
+            "label": "Collaborate"
+        },
+        {
+            "fieldname": "sec_team",
+            "fieldtype": "Section Break",
+            "label": "Tender Team"
+        },
+        {
+            "fieldname": "team_members",
+            "fieldtype": "Table",
+            "label": "Team Members",
+            "options": "Tender Team Member"
+        },
+        {
+            "fieldname": "sec_comments",
+            "fieldtype": "Section Break",
+            "label": "Discussion & Comments"
+        },
+        {
+            "fieldname": "comments",
+            "fieldtype": "Table",
+            "label": "Comments",
+            "options": "Tender Comment"
         }
     ],
     "grid_page_length": 50,

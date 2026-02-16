@@ -66,7 +66,7 @@ function show_team_dialog(frm) {
         primary_action_label: __('Close')
     });
 
-    // Build team HTML
+    // Build team HTML from actual child table
     let html = `
 		<div class="team-management">
 			<h4>Team Members</h4>
@@ -81,8 +81,17 @@ function show_team_dialog(frm) {
 				<tbody>
 	`;
 
-    // Show team members (this would be populated from a child table in real implementation)
-    html += `<tr><td colspan="3" class="text-muted">Add team members via form</td></tr>`;
+    if (frm.doc.team_members && frm.doc.team_members.length > 0) {
+        frm.doc.team_members.forEach(m => {
+            html += `<tr>
+                <td>${m.user}</td>
+                <td>${m.role}</td>
+                <td>${frappe.datetime.str_to_user(m.assigned_date)}</td>
+            </tr>`;
+        });
+    } else {
+        html += `<tr><td colspan="3" class="text-muted">No team members assigned yet. Add them in the 'Collaborate' tab.</td></tr>`;
+    }
 
     html += `
 				</tbody>
@@ -105,7 +114,7 @@ function create_tender_task(tender_name) {
 
 function add_comment(frm) {
     let d = new frappe.ui.Dialog({
-        title: 'Add Comment',
+        title: 'Add Discussion Comment',
         fields: [
             {
                 fieldname: 'comment_text',
@@ -119,12 +128,20 @@ function add_comment(frm) {
                 label: 'Private Comment'
             }
         ],
-        primary_action_label: __('Add Comment'),
+        primary_action_label: __('Post Comment'),
         primary_action: function (values) {
-            // In real implementation, this would add to a child table
-            frappe.show_alert({
-                message: __('Comment added successfully'),
-                indicator: 'green'
+            let row = frm.add_child('comments');
+            row.comment_text = values.comment_text;
+            row.is_private = values.is_private;
+            row.user = frappe.session.user;
+            row.timestamp = frappe.datetime.now_datetime();
+
+            frm.refresh_field('comments');
+            frm.save().then(() => {
+                frappe.show_alert({
+                    message: __('Comment added and tender saved'),
+                    indicator: 'green'
+                });
             });
             d.hide();
         }
