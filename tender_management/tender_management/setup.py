@@ -710,4 +710,23 @@ def cleanup_legacy_customizations():
     """, (target_doctype))
     print("  ✔ Cleared mandatory Property Setters for bond fields")
     
+    # 4. Delete persistent Dashboard Links (DocType Link) that cause SQL errors
+    # Document Template and Tender Comment don't have a 'tender' field and shouldn't be here
+    invalid_links = ["Document Template", "Tender Comment"]
+    frappe.db.sql("""
+        DELETE FROM `tabDocType Link` 
+        WHERE parent = %s 
+        AND link_doctype IN (%s)
+    """ % ("%s", ", ".join(["%s"] * len(invalid_links))), [target_doctype] + invalid_links)
+    print(f"  ✔ Cleared invalid DocType Links: {', '.join(invalid_links)}")
+
+    # 5. Fix any links using the old fieldname 'tender_opportunity'
+    frappe.db.sql("""
+        UPDATE `tabDocType Link` 
+        SET link_fieldname = 'tender' 
+        WHERE parent = %s 
+        AND link_fieldname = 'tender_opportunity'
+    """, (target_doctype))
+
     frappe.clear_cache(doctype=target_doctype)
+    print(f"  ✔ Cache cleared for {target_doctype}")
