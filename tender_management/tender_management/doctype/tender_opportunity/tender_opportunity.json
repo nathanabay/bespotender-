@@ -8,6 +8,13 @@
     "engine": "InnoDB",
     "field_order": [
         "tab_identify",
+        "tab_files",
+        "sec_all_files",
+        "full_tender_document",
+        "technical_proposal",
+        "financial_proposal_doc",
+        "payment_receipt_proof",
+        "generated_documents",
         "sec_header",
         "naming_series",
         "title",
@@ -96,16 +103,10 @@
         "compliance_matrix_complete",
         "formatting_check",
         "submission_format_validated",
+        "submission_format_validated",
         "quotation_ref",
         "sec_boq",
         "items",
-        "tab_files",
-        "sec_all_files",
-        "full_tender_document",
-        "technical_proposal",
-        "financial_proposal_doc",
-        "payment_receipt_proof",
-        "generated_documents",
         "tab_bid_bond",
         "sec_security",
         "bond_type",
@@ -169,6 +170,44 @@
             "fieldname": "tab_identify",
             "fieldtype": "Tab Break",
             "label": "Identify"
+        },
+        {
+            "fieldname": "tab_files",
+            "fieldtype": "Tab Break",
+            "label": "Tender Files"
+        },
+        {
+            "fieldname": "sec_all_files",
+            "fieldtype": "Section Break",
+            "label": "Tender Documents"
+        },
+        {
+            "allow_on_submit": 1,
+            "fieldname": "full_tender_document",
+            "fieldtype": "Attach",
+            "label": "Full Tender Document (PDF)"
+        },
+        {
+            "fieldname": "technical_proposal",
+            "fieldtype": "Attach",
+            "label": "Technical Proposal"
+        },
+        {
+            "fieldname": "financial_proposal_doc",
+            "fieldtype": "Attach",
+            "label": "Financial Proposal (File)"
+        },
+        {
+            "allow_on_submit": 1,
+            "fieldname": "payment_receipt_proof",
+            "fieldtype": "Attach",
+            "label": "Purchase Receipt (Scan)"
+        },
+        {
+            "fieldname": "generated_documents",
+            "fieldtype": "Table",
+            "label": "Generated Documents",
+            "options": "Tender Generated Document"
         },
         {
             "fieldname": "sec_header",
@@ -628,44 +667,6 @@
             "options": "Tender BOQ Item"
         },
         {
-            "fieldname": "tab_files",
-            "fieldtype": "Tab Break",
-            "label": "Tender Files"
-        },
-        {
-            "fieldname": "sec_all_files",
-            "fieldtype": "Section Break",
-            "label": "Tender Documents"
-        },
-        {
-            "allow_on_submit": 1,
-            "fieldname": "full_tender_document",
-            "fieldtype": "Attach",
-            "label": "Full Tender Document (PDF)"
-        },
-        {
-            "fieldname": "technical_proposal",
-            "fieldtype": "Attach",
-            "label": "Technical Proposal"
-        },
-        {
-            "fieldname": "financial_proposal_doc",
-            "fieldtype": "Attach",
-            "label": "Financial Proposal (File)"
-        },
-        {
-            "allow_on_submit": 1,
-            "fieldname": "payment_receipt_proof",
-            "fieldtype": "Attach",
-            "label": "Purchase Receipt (Scan)"
-        },
-        {
-            "fieldname": "generated_documents",
-            "fieldtype": "Table",
-            "label": "Generated Documents",
-            "options": "Tender Generated Document"
-        },
-        {
             "fieldname": "tab_bid_bond",
             "fieldtype": "Tab Break",
             "label": "Bid Bond"
@@ -976,7 +977,7 @@
     "index_web_pages_for_search": 1,
     "is_submittable": 1,
     "links": [],
-    "modified": "2026-02-09 19:40:00.000000",
+    "modified": "2026-02-16 19:20:00.000000",
     "modified_by": "Administrator",
     "module": "Tender Management",
     "name": "Tender Opportunity",
