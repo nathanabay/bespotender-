@@ -8,6 +8,41 @@ class TenderOpportunity(Document):
         self.auto_create_bid_security_request()
         self.validate_state_requirements()
 
+    def after_insert(self):
+        self.create_standard_tasks()
+        
+    def create_standard_tasks(self):
+        """Create standard tasks for new tender opportunity"""
+        import frappe.utils
+        
+        # Define standard tasks with relative due dates
+        tasks = [
+            {"title": "Review Tender Requirements", "priority": "High", "days": 2, "description": "Review the tender document and identify key requirements (eligibility, technical, financial)."},
+            {"title": "Bid/No-Bid Decision", "priority": "High", "days": 3, "description": "Conduct risk analysis, cost-benefit analysis, and make a formal bid/no-bid decision."},
+            {"title": "Prepare Technical Proposal", "priority": "Medium", "days": 7, "description": "Draft the technical response, methodology, and compliance matrix."},
+            {"title": "Prepare Financial Proposal", "priority": "Medium", "days": 7, "description": "Calculate costs, prepare BOQ, and determine final pricing strategy."},
+            {"title": "Obtain Bid Security", "priority": "High", "days": 5, "description": "Request and obtain the bid bond (CPO/Bank Guarantee) from the bank."}
+        ]
+        
+        created_count = 0
+        for task_data in tasks:
+            try:
+                task = frappe.new_doc("Tender Task")
+                task.tender = self.name
+                task.title = task_data["title"]
+                task.description = task_data["description"]
+                task.priority = task_data["priority"]
+                task.status = "Open"
+                task.due_date = frappe.utils.add_days(frappe.utils.nowdate(), task_data["days"])
+                task.assigned_to = self.owner
+                task.insert(ignore_permissions=True)
+                created_count += 1
+            except Exception as e:
+                frappe.log_error(f"Failed to auto-create task {task_data['title']}: {str(e)}", "Tender Task Auto-Creation")
+        
+        if created_count > 0:
+            frappe.msgprint(_("{0} Standard Tender Tasks Created").format(created_count), alert=True)
+
     def validate_state_requirements(self):
         state = self.workflow_state
         
