@@ -19,7 +19,7 @@ frappe.pages['tender-calendar'].on_page_load = function (wrapper) {
 		},
 		events: function (info, successCallback, failureCallback) {
 			frappe.call({
-				method: 'tender_management.tender_management.page.tender_calendar.tender_calendar.get_calendar_events',
+				method: 'tender_management.page.tender_calendar.tender_calendar.get_calendar_events',
 				args: {
 					start: info.startStr,
 					end: info.endStr
