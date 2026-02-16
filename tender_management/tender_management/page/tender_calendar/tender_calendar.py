@@ -4,24 +4,34 @@
 import frappe
 
 @frappe.whitelist()
-def get_calendar_events(start, end):
+def get_calendar_events(start, end, filters=None):
 	"""
 	Get all tender opportunities for the calendar view
 	Args:
 		start: Start date
 		end: End date
+		filters: Optional JSON string of filters
 	Returns:
 		list: Calendar events
 	"""
 	events = []
 	
+	# Parse filters if provided
+	query_filters = [
+		["submission_deadline", ">=", start],
+		["submission_deadline", "<=", end],
+	]
+	
+	if filters:
+		additional_filters = frappe.parse_json(filters)
+		for key, value in additional_filters.items():
+			if value:
+				query_filters.append([key, "=", value])
+	
 	# Fetch all tender opportunities in the date range
 	tenders = frappe.get_all(
 		"Tender Opportunity",
-		filters=[
-			["submission_deadline", ">=", start],
-			["submission_deadline", "<=", end],
-		],
+		filters=query_filters,
 		fields=["name", "title", "organization", "submission_deadline", "publication_date", 
 		        "site_visit_date", "pre_bid_meeting_date", "workflow_state", "sector"]
 	)
