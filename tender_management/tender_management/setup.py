@@ -148,9 +148,10 @@ def setup_dashboard_charts():
     chart_doc_2 = {
         "doctype": "Dashboard Chart",
         "chart_name": chart_2,
-        "chart_type": "Count",
+        "chart_type": "Group By",
         "document_type": "Tender Opportunity",
         "group_by_based_on": "workflow_state",
+        "aggregate_function": "Count",
         "based_on": "creation",
         "timeseries": 0,
         "filters_json": json.dumps([["Tender Opportunity", "workflow_state", "in", ["Approved", "Rejected"]]]),
@@ -181,7 +182,7 @@ def setup_dashboard_charts():
     chart_doc_4 = {
         "doctype": "Dashboard Chart",
         "chart_name": chart_4,
-        "chart_type": "Sum",
+        "chart_type": "Count",
         "document_type": "Tender Opportunity",
         "based_on": "publication_date",
         "timeseries": 1,
