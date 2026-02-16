@@ -34,3 +34,13 @@ class DocumentTemplate(Document):
 			content = re.sub(pattern, value, content, flags=re.IGNORECASE)
 		
 		return content
+
+@frappe.whitelist()
+def generate_from_template(template_name, tender_name):
+	"""
+	Whitelisted function to generate document content from template
+	Called from Tender Opportunity UI
+	"""
+	template = frappe.get_doc("Document Template", template_name)
+	tender = frappe.get_doc("Tender Opportunity", tender_name)
+	return template.generate_document(tender)
