@@ -10,7 +10,8 @@
         "file",
         "column_break_1",
         "generated_by",
-        "date"
+        "date",
+        "print_pdf"
     ],
     "fields": [
         {
@@ -46,6 +47,12 @@
             "in_list_view": 1,
             "label": "Generation Date",
             "reqd": 1
+        },
+        {
+            "fieldname": "print_pdf",
+            "fieldtype": "Button",
+            "in_list_view": 1,
+            "label": "Print PDF"
         }
     ],
     "index_web_pages_for_search": 1,
