@@ -10,14 +10,9 @@ frappe.pages['tender-calendar'].on_page_load = function (wrapper) {
 	let calendar_wrapper = $('<div id="tender-calendar-view" style="padding: 20px; min-height: 600px;"></div>').appendTo(page.main);
 
 	// Load FullCalendar assets
-	// Frappe typically stores libs in frappe/public/js/lib...
-	// We'll try to load the bundle if available, or individual files.
-	// For v13/v14/v15, 'fullcalendar.bundle.js' is often standard.
-	frappe.require([
-		"assets/frappe/js/lib/fullcalendar/main.min.js",
-		"assets/frappe/js/lib/fullcalendar/main.min.css"
-	], function () {
-		console.log("📅 Tender Calendar: FullCalendar Assets Loaded");
+	// 'calendar.bundle.js' includes FullCalendar logic and styles in recent Frappe versions.
+	frappe.require("calendar.bundle.js", function () {
+		console.log("📅 Tender Calendar: Calendar Bundle Loaded");
 		initialize_calendar(calendar_wrapper, page);
 	});
 }
