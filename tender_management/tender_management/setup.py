@@ -4,9 +4,6 @@ import json
 
 def after_install():
     setup_module()
-    setup_dashboard_charts()
-    setup_number_cards()
-    setup_workspace()
     create_default_document_templates()
 
 def after_migrate():
@@ -254,9 +251,8 @@ def upsert_dashboard_chart(name, doct):
                 del doct["document_type"]
                 
             doc.update(doct)
-            if doc.is_dirty():
-                doc.save(ignore_permissions=True)
-                print(f"✔ Updated Dashboard Chart: {name}")
+            doc.save(ignore_permissions=True)
+            print(f"✔ Updated Dashboard Chart: {name}")
 
 def setup_number_cards():
     # 1. Total Active Tenders
@@ -397,9 +393,8 @@ def setup_workspace():
     else:
         doc = frappe.get_doc("Workspace", workspace_name)
         doc.update(ws_doc)
-        if doc.is_dirty():
-            doc.save(ignore_permissions=True)
-            print(f"✔ Updated Workspace: {workspace_name}")
+        doc.save(ignore_permissions=True)
+        print(f"✔ Updated Workspace: {workspace_name}")
 
 def setup_enhanced_workflow():
     wf_name = "Two-Stage Tender Approval"

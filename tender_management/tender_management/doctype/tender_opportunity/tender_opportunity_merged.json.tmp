@@ -1,0 +1,1037 @@
+{
+ "actions": [],
+ "allow_export": 1,
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-02 18:27:12.861756",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tab_identify",
+  "sec_header",
+  "naming_series",
+  "title",
+  "organization",
+  "sector",
+  "tender_type",
+  "workflow_state",
+  "status",
+  "col_break_header",
+  "tender_number",
+  "url",
+  "source_evidence",
+  "driver_name",
+  "sec_dates",
+  "publication_date",
+  "submission_deadline",
+  "clarification_deadline",
+  "col_break_dates",
+  "payment_receipt_proof",
+  "site_visit_date",
+  "pre_bid_meeting_date",
+  "decision_date",
+  "sec_purchase",
+  "document_price",
+  "purchase_date",
+  "col_break_purchase",
+  "purchase_receipt_no",
+  "doc_purchase_status",
+  "tender_purchaser",
+  "doc_purchase_payment_entry",
+  "tab_files",
+  "sec_all_files",
+  "full_tender_document",
+  "technical_proposal",
+  "financial_proposal_doc",
+  "generated_documents",
+  "sec_esg",
+  "esg_impact_score",
+  "environmental_initiatives",
+  "social_value_commitment",
+  "governance_compliance",
+  "tab_qualify",
+  "sec_go_no_go",
+  "bid_probability_score",
+  "incumbent_vendor",
+  "decision_approver",
+  "col_break_go_no_go",
+  "decision_notes",
+  "decision_matrix",
+  "sec_advanced_qualify",
+  "strategic_alignment_score",
+  "historical_win_rate_with_client",
+  "opportunity_cost_assessment",
+  "sec_risk",
+  "technical_risk",
+  "commercial_risk",
+  "financial_risk",
+  "col_break_risk",
+  "scope_creep_risk",
+  "resource_availability_risk",
+  "reputational_risk",
+  "competition_level",
+  "customer_relationship",
+  "sec_competition",
+  "competitors",
+  "sec_costing",
+  "estimated_cost",
+  "margin_percentage",
+  "final_bid_price",
+  "col_break_costing",
+  "budget_source",
+  "project_duration_months",
+  "payment_terms",
+  "tab_plan",
+  "sec_kickoff",
+  "kickoff_meeting_notes",
+  "sec_strategy",
+  "win_themes",
+  "customer_hot_buttons",
+  "key_success_factors",
+  "sec_data_evidence",
+  "key_data_points",
+  "visualisation_required",
+  "narrative_strategy",
+  "sec_compliance_risk",
+  "price_lock_in_risk",
+  "supply_chain_volatility_risk",
+  "contractual_clause_review",
+  "payment_terms_negotiated",
+  "team_capacity_check",
+  "sec_capture_plan",
+  "customer_pain_points",
+  "solution_overview",
+  "value_proposition",
+  "executive_summary_themes",
+  "tab_proposal",
+  "sec_planner",
+  "proposal_sections",
+  "sec_compliance_checklist",
+  "mandatory_requirements_met",
+  "compliance_matrix_complete",
+  "formatting_check",
+  "submission_format_validated",
+  "quotation_ref",
+  "sec_boq",
+  "items",
+  "tab_bid_bond",
+  "sec_security",
+  "bond_type",
+  "bond_amount",
+  "bond_percentage",
+  "col_break_security",
+  "bond_expiry",
+  "bond_validity_days",
+  "bid_security_request",
+  "bond_status",
+  "bond_number",
+  "bank_name",
+  "cpo_journal_entry",
+  "tab_collaborate",
+  "sec_team",
+  "team_members",
+  "sec_comments",
+  "comments",
+  "tab_outcome",
+  "sec_negotiation",
+  "clarification_questions",
+  "negotiation_notes",
+  "final_contract_value",
+  "sec_presentation",
+  "shortlisted_for_presentation",
+  "presentation_date",
+  "presentation_leader",
+  "presentation_feedback",
+  "sec_outcome",
+  "loss_reason",
+  "winning_bid_price",
+  "price_difference",
+  "client_feedback_score",
+  "main_weakness_identified",
+  "debrief_notes",
+  "lessons_learned",
+  "amended_from",
+  "sec_reporting",
+  "revenue_potential",
+  "weighted_revenue",
+  "forecast_quarter"
+ ],
+ "fields": [
+  {
+   "fieldname": "tab_identify",
+   "fieldtype": "Tab Break",
+   "label": "Identify"
+  },
+  {
+   "fieldname": "sec_header",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "T-OPP-.YYYY.-.####\nT-CON-.YYYY.-.####\nT-ELEC-.YYYY.-.####\nT-WAT-.YYYY.-.####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tender Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "organization",
+   "fieldtype": "Data",
+   "label": "Organization / Client",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sector",
+   "fieldtype": "Select",
+   "label": "Sector",
+   "options": "\nConstruction\nElectro-Mechanical\nMaintenance\nWater Works\nGeneral Supply",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tender_type",
+   "fieldtype": "Select",
+   "label": "Tender Type",
+   "options": "\nRequest for Proposal (RFP)\nRequest for Quotation (RFQ)\nRequest for Tender (RFT)\nExpression of Interest (EOI)\nUnsolicited Proposal\nPrequalification Questionnaire (PQQ)\nInvitation to Tender (ITT)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "label": "Workflow State",
+   "options": "Workflow State",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Open\nClosed"
+  },
+  {
+   "fieldname": "col_break_header",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tender_number",
+   "fieldtype": "Data",
+   "label": "Tender Number / Ref"
+  },
+  {
+   "fieldname": "url",
+   "fieldtype": "Data",
+   "label": "Tender Link"
+  },
+  {
+   "fieldname": "source_evidence",
+   "fieldtype": "Attach Image",
+   "label": "Source Evidence"
+  },
+  {
+   "fieldname": "driver_name",
+   "fieldtype": "Data",
+   "label": "Assigned Driver"
+  },
+  {
+   "fieldname": "sec_dates",
+   "fieldtype": "Section Break",
+   "label": "Critical Dates"
+  },
+  {
+   "fieldname": "publication_date",
+   "fieldtype": "Date",
+   "label": "Publication Date"
+  },
+  {
+   "fieldname": "submission_deadline",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Submission Deadline",
+   "reqd": 1
+  },
+  {
+   "fieldname": "clarification_deadline",
+   "fieldtype": "Date",
+   "label": "Clarification Deadline"
+  },
+  {
+   "fieldname": "col_break_dates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "payment_receipt_proof",
+   "fieldtype": "Attach",
+   "label": "Purchase Receipt (Scan)"
+  },
+  {
+   "fieldname": "site_visit_date",
+   "fieldtype": "Datetime",
+   "label": "Site Visit"
+  },
+  {
+   "fieldname": "pre_bid_meeting_date",
+   "fieldtype": "Datetime",
+   "label": "Pre-Bid Meeting"
+  },
+  {
+   "fieldname": "decision_date",
+   "fieldtype": "Date",
+   "label": "Decision Date"
+  },
+  {
+   "fieldname": "sec_purchase",
+   "fieldtype": "Section Break",
+   "label": "Document Purchase"
+  },
+  {
+   "fieldname": "document_price",
+   "fieldtype": "Currency",
+   "label": "Purchase Price"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
+  },
+  {
+   "fieldname": "col_break_purchase",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_receipt_no",
+   "fieldtype": "Data",
+   "label": "Receipt No"
+  },
+  {
+   "default": "Pending Assignment",
+   "fieldname": "doc_purchase_status",
+   "fieldtype": "Select",
+   "label": "Purchase Status",
+   "options": "Pending Assignment\nPending Request\nFinance Review\nFunds Released\nCompleted"
+  },
+  {
+   "fieldname": "tender_purchaser",
+   "fieldtype": "Link",
+   "label": "Tender Purchaser",
+   "options": "User"
+  },
+  {
+   "fieldname": "doc_purchase_payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tab_files",
+   "fieldtype": "Tab Break",
+   "label": "Tender Files"
+  },
+  {
+   "fieldname": "sec_all_files",
+   "fieldtype": "Section Break",
+   "label": "Tender Documents"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "full_tender_document",
+   "fieldtype": "Attach",
+   "label": "Full Tender Document (PDF)"
+  },
+  {
+   "fieldname": "technical_proposal",
+   "fieldtype": "Attach",
+   "label": "Technical Proposal"
+  },
+  {
+   "fieldname": "financial_proposal_doc",
+   "fieldtype": "Attach",
+   "label": "Financial Proposal (File)"
+  },
+  {
+   "fieldname": "generated_documents",
+   "fieldtype": "Table",
+   "label": "Generated Documents",
+   "options": "Tender Generated Document"
+  },
+  {
+   "fieldname": "sec_esg",
+   "fieldtype": "Section Break",
+   "label": "ESG & Social Value"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "esg_impact_score",
+   "fieldtype": "Select",
+   "label": "ESG Impact Score",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "environmental_initiatives",
+   "fieldtype": "Small Text",
+   "label": "Environmental Initiatives"
+  },
+  {
+   "fieldname": "social_value_commitment",
+   "fieldtype": "Currency",
+   "label": "Social Value Commitment ($)"
+  },
+  {
+   "default": "0",
+   "fieldname": "governance_compliance",
+   "fieldtype": "Check",
+   "label": "Governance Compliance Checked?"
+  },
+  {
+   "fieldname": "tab_qualify",
+   "fieldtype": "Tab Break",
+   "label": "Qualify"
+  },
+  {
+   "fieldname": "sec_go_no_go",
+   "fieldtype": "Section Break",
+   "label": "Go / No-Go Decision"
+  },
+  {
+   "fieldname": "bid_probability_score",
+   "fieldtype": "Percent",
+   "label": "Win Probability"
+  },
+  {
+   "fieldname": "incumbent_vendor",
+   "fieldtype": "Data",
+   "label": "Incumbent Vendor?"
+  },
+  {
+   "fieldname": "decision_approver",
+   "fieldtype": "Link",
+   "label": "Decision Approver",
+   "options": "User"
+  },
+  {
+   "fieldname": "col_break_go_no_go",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "decision_notes",
+   "fieldtype": "Small Text",
+   "label": "Decision Notes"
+  },
+  {
+   "fieldname": "decision_matrix",
+   "fieldtype": "Table",
+   "label": "Decision Matrix",
+   "options": "Bid Decision Factor"
+  },
+  {
+   "fieldname": "sec_advanced_qualify",
+   "fieldtype": "Section Break",
+   "label": "Strategic Qualification"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "strategic_alignment_score",
+   "fieldtype": "Select",
+   "label": "Strategic Alignment",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "historical_win_rate_with_client",
+   "fieldtype": "Percent",
+   "label": "Client Win Rate (Historical)"
+  },
+  {
+   "fieldname": "opportunity_cost_assessment",
+   "fieldtype": "Small Text",
+   "label": "Opportunity Cost Assessment"
+  },
+  {
+   "fieldname": "sec_risk",
+   "fieldtype": "Section Break",
+   "label": "Risk Assessment"
+  },
+  {
+   "fieldname": "technical_risk",
+   "fieldtype": "Select",
+   "label": "Technical Risk",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "commercial_risk",
+   "fieldtype": "Select",
+   "label": "Commercial Risk",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "financial_risk",
+   "fieldtype": "Select",
+   "label": "Financial Risk",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "col_break_risk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Low",
+   "fieldname": "scope_creep_risk",
+   "fieldtype": "Select",
+   "label": "Scope Creep Risk",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "default": "Low",
+   "fieldname": "resource_availability_risk",
+   "fieldtype": "Select",
+   "label": "Resource Availability Risk",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "default": "Low",
+   "fieldname": "reputational_risk",
+   "fieldtype": "Select",
+   "label": "Reputational Risk",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "fieldname": "competition_level",
+   "fieldtype": "Select",
+   "label": "Competition Level",
+   "options": "Low\nModerate\nIntense\nLocked Spec"
+  },
+  {
+   "fieldname": "customer_relationship",
+   "fieldtype": "Select",
+   "label": "Customer Relationship",
+   "options": "New Client\nExisting - Good\nExisting - Strained\nBlacklisted"
+  },
+  {
+   "fieldname": "sec_competition",
+   "fieldtype": "Section Break",
+   "label": "Competition"
+  },
+  {
+   "fieldname": "competitors",
+   "fieldtype": "Table",
+   "label": "Competitors",
+   "options": "Tender Competitor"
+  },
+  {
+   "fieldname": "sec_costing",
+   "fieldtype": "Section Break",
+   "label": "Budget & Costing"
+  },
+  {
+   "fieldname": "estimated_cost",
+   "fieldtype": "Currency",
+   "label": "Estimated Cost"
+  },
+  {
+   "fieldname": "margin_percentage",
+   "fieldtype": "Percent",
+   "label": "Margin %"
+  },
+  {
+   "fieldname": "final_bid_price",
+   "fieldtype": "Currency",
+   "label": "Final Bid Price"
+  },
+  {
+   "fieldname": "col_break_costing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "budget_source",
+   "fieldtype": "Data",
+   "label": "Budget Source"
+  },
+  {
+   "fieldname": "project_duration_months",
+   "fieldtype": "Int",
+   "label": "Duration (Months)"
+  },
+  {
+   "fieldname": "payment_terms",
+   "fieldtype": "Data",
+   "label": "Payment Terms"
+  },
+  {
+   "fieldname": "tab_plan",
+   "fieldtype": "Tab Break",
+   "label": "Plan"
+  },
+  {
+   "fieldname": "sec_kickoff",
+   "fieldtype": "Section Break",
+   "label": "Kick-off Meeting"
+  },
+  {
+   "fieldname": "kickoff_meeting_notes",
+   "fieldtype": "Text Editor",
+   "label": "Kick-off Meeting Notes"
+  },
+  {
+   "fieldname": "sec_strategy",
+   "fieldtype": "Section Break",
+   "label": "Strategic Alignment"
+  },
+  {
+   "fieldname": "win_themes",
+   "fieldtype": "Text Editor",
+   "label": "Win Themes"
+  },
+  {
+   "fieldname": "customer_hot_buttons",
+   "fieldtype": "Small Text",
+   "label": "Customer Hot Buttons"
+  },
+  {
+   "fieldname": "key_success_factors",
+   "fieldtype": "Small Text",
+   "label": "Key Success Factors"
+  },
+  {
+   "fieldname": "sec_data_evidence",
+   "fieldtype": "Section Break",
+   "label": "Data & Evidence Strategy"
+  },
+  {
+   "fieldname": "key_data_points",
+   "fieldtype": "Small Text",
+   "label": "Key Data Points (Metrics)"
+  },
+  {
+   "default": "0",
+   "fieldname": "visualisation_required",
+   "fieldtype": "Check",
+   "label": "Visualisation Required?"
+  },
+  {
+   "fieldname": "narrative_strategy",
+   "fieldtype": "Text Editor",
+   "label": "Narrative Strategy / Storyboard"
+  },
+  {
+   "fieldname": "sec_compliance_risk",
+   "fieldtype": "Section Break",
+   "label": "Compliance & Gov Watchpoints"
+  },
+  {
+   "default": "0",
+   "fieldname": "price_lock_in_risk",
+   "fieldtype": "Check",
+   "label": "Price Lock-in Risk?"
+  },
+  {
+   "fieldname": "supply_chain_volatility_risk",
+   "fieldtype": "Select",
+   "label": "Supply Chain Volatility Risk",
+   "options": "Low\nMedium\nHigh"
+  },
+  {
+   "default": "0",
+   "fieldname": "contractual_clause_review",
+   "fieldtype": "Check",
+   "label": "Legal Review Complete?"
+  },
+  {
+   "default": "0",
+   "fieldname": "payment_terms_negotiated",
+   "fieldtype": "Check",
+   "label": "Payment Terms Negotiated?"
+  },
+  {
+   "default": "0",
+   "fieldname": "team_capacity_check",
+   "fieldtype": "Check",
+   "label": "Team Capacity Confirmed?"
+  },
+  {
+   "fieldname": "sec_capture_plan",
+   "fieldtype": "Section Break",
+   "label": "Capture Plan"
+  },
+  {
+   "fieldname": "customer_pain_points",
+   "fieldtype": "Text Editor",
+   "label": "Customer Pain Points"
+  },
+  {
+   "fieldname": "solution_overview",
+   "fieldtype": "Text Editor",
+   "label": "Solution Overview"
+  },
+  {
+   "fieldname": "value_proposition",
+   "fieldtype": "Text Editor",
+   "label": "Value Proposition"
+  },
+  {
+   "fieldname": "executive_summary_themes",
+   "fieldtype": "Text Editor",
+   "label": "Executive Summary Themes"
+  },
+  {
+   "fieldname": "tab_proposal",
+   "fieldtype": "Tab Break",
+   "label": "Proposal"
+  },
+  {
+   "fieldname": "sec_planner",
+   "fieldtype": "Section Break",
+   "label": "Bid & Proposal Planner"
+  },
+  {
+   "fieldname": "proposal_sections",
+   "fieldtype": "Table",
+   "label": "Proposal Sections",
+   "options": "Proposal Section"
+  },
+  {
+   "fieldname": "sec_compliance_checklist",
+   "fieldtype": "Section Break",
+   "label": "Submission Compliance Checklist"
+  },
+  {
+   "default": "0",
+   "fieldname": "mandatory_requirements_met",
+   "fieldtype": "Check",
+   "label": "Mandatory Requirements Met?"
+  },
+  {
+   "default": "0",
+   "fieldname": "compliance_matrix_complete",
+   "fieldtype": "Check",
+   "label": "Compliance Matrix Complete?"
+  },
+  {
+   "default": "0",
+   "fieldname": "formatting_check",
+   "fieldtype": "Check",
+   "label": "Formatting Check (Font, Margins)?"
+  },
+  {
+   "default": "0",
+   "fieldname": "submission_format_validated",
+   "fieldtype": "Check",
+   "label": "Submission Format Validated (Hard/Soft Copy)?"
+  },
+  {
+   "fieldname": "quotation_ref",
+   "fieldtype": "Link",
+   "label": "Linked Quotation",
+   "options": "Quotation"
+  },
+  {
+   "fieldname": "sec_boq",
+   "fieldtype": "Section Break",
+   "label": "BOQ / Items"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Tender BOQ Item"
+  },
+  {
+   "fieldname": "tab_bid_bond",
+   "fieldtype": "Tab Break",
+   "label": "Bid Bond"
+  },
+  {
+   "fieldname": "sec_security",
+   "fieldtype": "Section Break",
+   "label": "Bid Security (CPO)"
+  },
+  {
+   "fieldname": "bond_type",
+   "fieldtype": "Select",
+   "label": "Bond Type",
+   "options": "\nCPO\nBank Guarantee\nInsurance Bond\nPerformance Bond"
+  },
+  {
+   "fieldname": "bond_amount",
+   "fieldtype": "Currency",
+   "label": "Bond Amount"
+  },
+  {
+   "fieldname": "bond_percentage",
+   "fieldtype": "Percent",
+   "label": "Bond Percentage"
+  },
+  {
+   "fieldname": "col_break_security",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bond_expiry",
+   "fieldtype": "Date",
+   "label": "Bond Expiry"
+  },
+  {
+   "fieldname": "bond_validity_days",
+   "fieldtype": "Int",
+   "label": "Validity (Days)"
+  },
+  {
+   "fieldname": "bid_security_request",
+   "fieldtype": "Link",
+   "label": "Bid Security Request",
+   "options": "Bid Security Request"
+  },
+  {
+   "fetch_from": "bid_security_request.status",
+   "fieldname": "bond_status",
+   "fieldtype": "Read Only",
+   "label": "Bond Status"
+  },
+  {
+   "fetch_from": "bid_security_request.security_number",
+   "fieldname": "bond_number",
+   "fieldtype": "Read Only",
+   "label": "Bond Number"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Data",
+   "label": "Bank Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "bid_security_request.journal_entry",
+   "fieldname": "cpo_journal_entry",
+   "fieldtype": "Read Only",
+   "label": "CPO Journal Entry"
+  },
+  {
+   "fieldname": "tab_collaborate",
+   "fieldtype": "Tab Break",
+   "label": "Collaborate"
+  },
+  {
+   "fieldname": "sec_team",
+   "fieldtype": "Section Break",
+   "label": "Tender Team"
+  },
+  {
+   "fieldname": "team_members",
+   "fieldtype": "Table",
+   "label": "Team Members",
+   "options": "Tender Team Member"
+  },
+  {
+   "fieldname": "sec_comments",
+   "fieldtype": "Section Break",
+   "label": "Discussion & Comments"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Table",
+   "label": "Comments",
+   "options": "Tender Comment"
+  },
+  {
+   "fieldname": "tab_outcome",
+   "fieldtype": "Tab Break",
+   "label": "Outcome"
+  },
+  {
+   "fieldname": "sec_negotiation",
+   "fieldtype": "Section Break",
+   "label": "Negotiation & Clarifications"
+  },
+  {
+   "fieldname": "clarification_questions",
+   "fieldtype": "Table",
+   "label": "Clarification Questions",
+   "options": "Clarification Question"
+  },
+  {
+   "fieldname": "negotiation_notes",
+   "fieldtype": "Text Editor",
+   "label": "Negotiation Notes"
+  },
+  {
+   "fieldname": "final_contract_value",
+   "fieldtype": "Currency",
+   "label": "Final Contract Value"
+  },
+  {
+   "fieldname": "sec_presentation",
+   "fieldtype": "Section Break",
+   "label": "Post-Bid Presentation"
+  },
+  {
+   "default": "0",
+   "fieldname": "shortlisted_for_presentation",
+   "fieldtype": "Check",
+   "label": "Shortlisted for Presentation?"
+  },
+  {
+   "fieldname": "presentation_date",
+   "fieldtype": "Datetime",
+   "label": "Presentation Date"
+  },
+  {
+   "fieldname": "presentation_leader",
+   "fieldtype": "Link",
+   "label": "Presentation Leader",
+   "options": "User"
+  },
+  {
+   "fieldname": "presentation_feedback",
+   "fieldtype": "Small Text",
+   "label": "Presentation Feedback"
+  },
+  {
+   "fieldname": "sec_outcome",
+   "fieldtype": "Section Break",
+   "label": "Outcome & Debrief"
+  },
+  {
+   "fieldname": "loss_reason",
+   "fieldtype": "Select",
+   "label": "Loss Reason",
+   "options": "\nPrice High\nTechnical Fail"
+  },
+  {
+   "fieldname": "winning_bid_price",
+   "fieldtype": "Currency",
+   "label": "Winning Bid Price"
+  },
+  {
+   "fieldname": "price_difference",
+   "fieldtype": "Currency",
+   "label": "Price Difference (Vs Winner)"
+  },
+  {
+   "fieldname": "client_feedback_score",
+   "fieldtype": "Select",
+   "label": "Client Feedback Score (1-10)",
+   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+  },
+  {
+   "fieldname": "main_weakness_identified",
+   "fieldtype": "Small Text",
+   "label": "Main Weakness Identified"
+  },
+  {
+   "fieldname": "debrief_notes",
+   "fieldtype": "Text",
+   "label": "Debrief Notes"
+  },
+  {
+   "fieldname": "lessons_learned",
+   "fieldtype": "Text Editor",
+   "label": "Lessons Learned"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Tender Opportunity",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "sec_reporting",
+   "fieldtype": "Section Break",
+   "label": "One Click Reporting Metrics"
+  },
+  {
+   "fieldname": "revenue_potential",
+   "fieldtype": "Currency",
+   "label": "Revenue Potential"
+  },
+  {
+   "fieldname": "weighted_revenue",
+   "fieldtype": "Currency",
+   "label": "Weighted Revenue (Prob * Value)"
+  },
+  {
+   "fieldname": "forecast_quarter",
+   "fieldtype": "Select",
+   "label": "Forecast Quarter",
+   "options": "Q1\nQ2\nQ3\nQ4"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-16 20:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Tender Management",
+ "name": "Tender Opportunity",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tender Director",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tender Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Tender User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "search_fields": "tender_number, title, organization",
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "title",
+ "track_changes": 1
+}
