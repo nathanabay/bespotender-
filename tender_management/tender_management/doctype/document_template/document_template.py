@@ -41,6 +41,9 @@ def download_pdf(html, tender_name, template_name, filename="document.pdf"):
 	"""
 	Generate and download PDF from HTML content and link it to the tender
 	"""
+	if not frappe.has_permission("Tender Opportunity", "write", doc=tender_name):
+		frappe.throw(frappe._("Not permitted to generate documents for this Tender Opportunity"), frappe.PermissionError)
+
 	import frappe.utils
 	pdf_content = get_pdf(html)
 	
@@ -53,7 +56,7 @@ def download_pdf(html, tender_name, template_name, filename="document.pdf"):
 		"content": pdf_content,
 		"is_private": 1
 	})
-	file_doc.insert(ignore_permissions=True)
+	file_doc.insert()
 	
 	# Add to Tender Opportunity child table
 	try:
@@ -64,7 +67,7 @@ def download_pdf(html, tender_name, template_name, filename="document.pdf"):
 			"generated_by": frappe.session.user,
 			"date": frappe.utils.now_datetime()
 		})
-		tender.save(ignore_permissions=True)
+		tender.save()
 	except Exception as e:
 		frappe.log_error(f"Failed to link generated document: {str(e)}", "Document Generation")
 

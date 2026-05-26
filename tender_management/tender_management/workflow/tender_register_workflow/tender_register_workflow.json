@@ -88,7 +88,7 @@
     "transitions": [
         {
             "action": "Qualify",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Qualify",
             "send_email_to_creator": 0,
@@ -96,7 +96,7 @@
         },
         {
             "action": "Approve (Go)",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Plan",
             "send_email_to_creator": 0,
@@ -104,7 +104,7 @@
         },
         {
             "action": "No-Go",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Lost",
             "send_email_to_creator": 1,
@@ -112,7 +112,7 @@
         },
         {
             "action": "Start Proposal",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Proposal",
             "send_email_to_creator": 0,
@@ -120,7 +120,7 @@
         },
         {
             "action": "Submit Bid",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Submitted",
             "send_email_to_creator": 0,
@@ -128,7 +128,7 @@
         },
         {
             "action": "Client Review",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Negotiation",
             "send_email_to_creator": 0,
@@ -136,7 +136,7 @@
         },
         {
             "action": "Award",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Won",
             "send_email_to_creator": 0,
@@ -144,7 +144,7 @@
         },
         {
             "action": "Regret",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Lost",
             "send_email_to_creator": 0,
@@ -152,7 +152,7 @@
         },
         {
             "action": "Regret",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "System Manager",
             "next_state": "Lost",
             "send_email_to_creator": 0,

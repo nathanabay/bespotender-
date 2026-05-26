@@ -457,9 +457,12 @@ def setup_enhanced_workflow():
     doc.set("transitions", []) 
     for t in new_transitions:
         doc.append("transitions", t)
+        # Ensure System Manager is also allowed to move the workflow to prevent deadlocks
+        sm_t = t.copy()
+        sm_t["allowed"] = "System Manager"
+        doc.append("transitions", sm_t)
         
     doc.save(ignore_permissions=True)
-    print(f"✔ Workflow {wf_name} updated successfully")
     print(f"✔ Workflow {wf_name} updated successfully")
 
 def setup_bid_security_sync():

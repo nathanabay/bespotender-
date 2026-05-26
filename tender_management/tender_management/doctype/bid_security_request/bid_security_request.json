@@ -8,7 +8,7 @@
     "field_order": [
         "section_break_jcdq",
         "naming_series",
-        "tender_opportunity",
+        "tender",
         "organization",
         "type",
         "status",
@@ -49,7 +49,7 @@
             "reqd": 1
         },
         {
-            "fetch_from": "tender_opportunity.organization",
+            "fetch_from": "tender.organization",
             "fieldname": "organization",
             "fieldtype": "Data",
             "label": "Organization",

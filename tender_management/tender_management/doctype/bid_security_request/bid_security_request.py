@@ -19,12 +19,13 @@ class BidSecurityRequest(Document):
 
 		# Find a default account for Bid Bond Receivable
 		# In a real scenario, this should be in Company settings. 
-		# For now, we search for an account with 'Bid Bond' in the name.
-		bid_bond_account = frappe.db.get_value("Account", {"account_name": ["like", "%Bid Bond%"], "company": frappe.defaults.get_user_default("Company")}, "name")
+		# For now, we search for an account with the configured pattern or 'Bid Bond' in the name.
+		bid_bond_search = frappe.conf.get('bid_bond_account', 'Bid Bond')
+		bid_bond_account = frappe.db.get_value("Account", {"account_name": ["like", f"%{bid_bond_search}%"], "company": frappe.defaults.get_user_default("Company")}, "name")
 		
 		if not bid_bond_account:
 			# Fallback or error
-			frappe.throw("Could not find an Account named 'Bid Bond Receivable'. Please create one in the Chart of Accounts.")
+			frappe.throw(f"Could not find an Account matching '{bid_bond_search}'. Please create one in the Chart of Accounts.")
 
 		je = frappe.new_doc("Journal Entry")
 		je.posting_date = self.required_date or frappe.utils.nowdate()

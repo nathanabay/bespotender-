@@ -3,9 +3,12 @@ import requests
 
 @frappe.whitelist()
 def send_sms(msisdn, text):
+    if not frappe.has_permission('Tender Opportunity', 'read'):
+        frappe.throw(frappe._("You do not have permission to send SMS"), frappe.PermissionError)
+
     try:
         # ✅ YOUR NEW KEY
-        api_key = "VZRZD8VLZW1702V84HOVY0FBDO9BWRDD"
+        api_key = frappe.conf.get('sms_api_key')
         
         # Headers
         headers = {

@@ -115,7 +115,7 @@
     "transitions": [
         {
             "action": "Submit for Analysis",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender User",
             "next_state": "Capture Plan",
             "send_email_to_creator": 0,
@@ -123,7 +123,7 @@
         },
         {
             "action": "Request Decision",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Manager",
             "next_state": "Bid / No Bid",
             "send_email_to_creator": 0,
@@ -131,7 +131,7 @@
         },
         {
             "action": "Approve (Go)",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Director",
             "next_state": "Plan Proposal",
             "send_email_to_creator": 0,
@@ -139,7 +139,7 @@
         },
         {
             "action": "Reject (No-Go)",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Director",
             "next_state": "Rejected",
             "send_email_to_creator": 0,
@@ -147,7 +147,7 @@
         },
         {
             "action": "Mobilize Team",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Manager",
             "next_state": "Kick Off Meeting",
             "send_email_to_creator": 0,
@@ -155,7 +155,7 @@
         },
         {
             "action": "Start Development",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Manager",
             "next_state": "Develop Proposal",
             "send_email_to_creator": 0,
@@ -163,7 +163,7 @@
         },
         {
             "action": "Submit Bid",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Manager",
             "next_state": "Evaluation Period",
             "send_email_to_creator": 0,
@@ -171,7 +171,7 @@
         },
         {
             "action": "Award (Win)",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Director",
             "next_state": "Won",
             "send_email_to_creator": 0,
@@ -179,7 +179,7 @@
         },
         {
             "action": "Regret (Loss)",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Director",
             "next_state": "Lost",
             "send_email_to_creator": 0,
@@ -187,7 +187,7 @@
         },
         {
             "action": "Complete Debrief",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Manager",
             "next_state": "Lessons Learned",
             "send_email_to_creator": 0,
@@ -195,7 +195,7 @@
         },
         {
             "action": "Complete Debrief",
-            "allow_self_approval": 1,
+            "allow_self_approval": 0,
             "allowed": "Tender Manager",
             "next_state": "Lessons Learned",
             "send_email_to_creator": 0,

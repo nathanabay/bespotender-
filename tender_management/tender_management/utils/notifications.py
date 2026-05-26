@@ -4,8 +4,8 @@ import requests
 import json
 
 # CHATWOOT CREDENTIALS (Synced from chatwoot_integration app)
-CW_URL = "https://support.bespo.et"
-CW_TOKEN = "VXi81L2ep9zmDCueikdro2F2"
+CW_URL = frappe.conf.get('cw_url')
+CW_TOKEN = frappe.conf.get('cw_token')
 CW_ACCOUNT_ID = "1"
 CW_DEFAULT_CONV_ID = "15" # Fallback if specific conv not specified
 
@@ -17,6 +17,9 @@ def notify_chatwoot(content, conversation_id=None):
     """
     Push a system notification to Chatwoot.
     """
+    if not frappe.has_permission('Tender Opportunity', 'read'):
+        frappe.throw(frappe.PermissionError)
+
     if not CW_TOKEN:
         return {"status": "error", "message": "Chatwoot Token not configured"}
 
@@ -98,4 +101,4 @@ def send_daily_deadline_reminders():
 
     for t in upcoming:
         msg = f"⏰ *REMINDER*: Tender closing soon!\n📌 {t.title} ({t.name})\n🕒 Deadline: {t.submission_deadline}\n🔗 [View Tender](/app/tender-opportunity/{t.name})"
-        notify_chatwoot(msg)
+        frappe.enqueue('tender_management.tender_management.utils.notifications.notify_chatwoot', content=msg)

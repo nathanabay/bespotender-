@@ -14,6 +14,9 @@ def get_calendar_events(start, end, filters=None):
 	Returns:
 		list: Calendar events
 	"""
+	if not frappe.has_permission("Tender Opportunity", "read"):
+		frappe.throw(frappe._("You do not have permission to view Tender Opportunities"), frappe.PermissionError)
+
 	events = []
 	
 	# Parse filters if provided

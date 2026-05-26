@@ -232,7 +232,8 @@
             "fieldtype": "Select",
             "label": "Sector",
             "options": "\nConstruction\nElectro-Mechanical\nMaintenance\nWater Works\nGeneral Supply",
-            "reqd": 1
+            "reqd": 1,
+            "search_index": 1
         },
         {
             "fieldname": "tender_type",
@@ -252,7 +253,8 @@
             "fieldname": "status",
             "fieldtype": "Select",
             "label": "Status",
-            "options": "Open\nClosed"
+            "options": "Open\nClosed",
+            "search_index": 1
         },
         {
             "fieldname": "col_break_header",
@@ -321,7 +323,8 @@
             "fieldtype": "Datetime",
             "in_list_view": 1,
             "label": "Submission Deadline",
-            "reqd": 1
+            "reqd": 1,
+            "search_index": 1
         },
         {
             "fieldname": "clarification_deadline",
@@ -861,6 +864,7 @@
             "label": "Negotiation Notes"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "final_contract_value",
             "fieldtype": "Currency",
             "label": "Final Contract Value"
@@ -898,38 +902,45 @@
             "label": "Outcome & Debrief"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "loss_reason",
             "fieldtype": "Select",
             "label": "Loss Reason",
             "options": "\nPrice High\nTechnical Fail"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "winning_bid_price",
             "fieldtype": "Currency",
             "label": "Winning Bid Price"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "price_difference",
             "fieldtype": "Currency",
             "label": "Price Difference (Vs Winner)"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "client_feedback_score",
             "fieldtype": "Select",
             "label": "Client Feedback Score (1-10)",
             "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "main_weakness_identified",
             "fieldtype": "Small Text",
             "label": "Main Weakness Identified"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "debrief_notes",
             "fieldtype": "Text",
             "label": "Debrief Notes"
         },
         {
+            "allow_on_submit": 1,
             "fieldname": "lessons_learned",
             "fieldtype": "Text Editor",
             "label": "Lessons Learned"
