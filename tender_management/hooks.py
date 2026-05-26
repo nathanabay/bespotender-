@@ -140,30 +140,15 @@ after_migrate = "tender_management.tender_management.setup.after_migrate"
 
 doc_events = {
 	"Tender Opportunity": {
-		"on_update": "tender_management.tender_management.utils.notifications.notify_tender_update",
+		"on_update": "tender_management.tender_management.utils.notification_dispatcher.handle_tender_update",
+		"on_workflow_action": "tender_management.tender_management.utils.notification_dispatcher.handle_workflow_notification",
 	}
 }
 
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-	"daily": [
-		"tender_management.tender_management.utils.notifications.send_daily_deadline_reminders"
-	],
-}
-
-# Testing
-# -------
-
-# before_tests = "tender_management.install.before_tests"
-
-# Overriding Methods
-# ------------------------------
-#
-# override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "tender_management.event.get_events"
-# }
+scheduler_events = {}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

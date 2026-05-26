@@ -56,6 +56,19 @@ frappe.ui.form.on('Tender Opportunity', {
             frm.add_custom_button(__('View Calendar'), function () {
                 frappe.set_route('tender-calendar');
             });
+
+            // Watch/Unwatch button
+            let is_watching = frm.doc.followers && frm.doc.followers.some(f => f.user === frappe.session.user);
+            frm.add_custom_button(is_watching ? __('Unwatch') : __('Watch'), function () {
+                frm.call('toggle_watch').then(r => {
+                    frm.reload_doc();
+                    if (r.message) {
+                        frappe.show_alert({ message: __('You are now watching this tender'), indicator: 'blue' });
+                    } else {
+                        frappe.show_alert({ message: __('You have stopped watching this tender'), indicator: 'orange' });
+                    }
+                });
+            });
         }
     }
 });

@@ -156,7 +156,8 @@
         "sec_reporting",
         "revenue_potential",
         "weighted_revenue",
-        "forecast_quarter"
+        "forecast_quarter",
+        "followers"
     ],
     "fields": [
         {
@@ -975,6 +976,12 @@
             "fieldtype": "Select",
             "label": "Forecast Quarter",
             "options": "Q1\nQ2\nQ3\nQ4"
+        },
+        {
+            "fieldname": "followers",
+            "fieldtype": "Table",
+            "label": "Followers",
+            "options": "Tender Follower"
         }
     ],
     "grid_page_length": 50,

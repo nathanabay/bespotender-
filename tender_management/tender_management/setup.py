@@ -19,6 +19,7 @@ def after_migrate():
     setup_bid_security_accounting()
     setup_document_purchase_payment()
     setup_notifications()
+    setup_user_custom_fields()
     create_default_document_templates()
 
 def setup_module():
@@ -670,6 +671,51 @@ def setup_notifications():
             "message": "The Bid Security (CPO) for Tender <b>{{ doc.tender }}</b> expires in 7 days."
         }).insert(ignore_permissions=True)
         print(f"✔ Created Notification: CPO Expiry Alert")
+
+def setup_user_custom_fields():
+    """
+    Add notification preference fields to the User DocType
+    """
+    print("👤 Setting up User Custom Fields...")
+    
+    custom_fields = [
+        {
+            "fieldname": "receive_tender_deadline_alerts",
+            "label": "Receive Tender Deadline Alerts",
+            "fieldtype": "Check",
+            "insert_after": "email_notifications",
+            "default": "1"
+        },
+        {
+            "fieldname": "receive_workflow_state_alerts",
+            "label": "Receive Workflow State Alerts",
+            "fieldtype": "Check",
+            "insert_after": "receive_tender_deadline_alerts",
+            "default": "1"
+        },
+        {
+            "fieldname": "receive_cpo_expiry_alerts",
+            "label": "Receive CPO Expiry Alerts",
+            "fieldtype": "Check",
+            "insert_after": "receive_workflow_state_alerts",
+            "default": "1"
+        }
+    ]
+    
+    for field in custom_fields:
+        if not frappe.db.exists("Custom Field", {"dt": "User", "fieldname": field["fieldname"]}):
+            frappe.get_doc({
+                "doctype": "Custom Field",
+                "dt": "User",
+                **field
+            }).insert(ignore_permissions=True)
+            print(f"  ✔ Created Custom Field: {field['fieldname']}")
+        else:
+            # Update label or other properties if they changed
+            doc = frappe.get_doc("Custom Field", {"dt": "User", "fieldname": field["fieldname"]})
+            doc.update(field)
+            doc.save(ignore_permissions=True)
+            print(f"  ✔ Updated Custom Field: {field['fieldname']}")
 
 def cleanup_legacy_customizations():
     """

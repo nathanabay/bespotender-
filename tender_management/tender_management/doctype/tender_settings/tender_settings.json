@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "creation": "2024-05-24 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "default_tender_manager",
+  "lost_tender_recipient",
+  "cpo_expiry_recipient",
+  "enable_tender_notifications",
+  "enable_chatwoot"
+ ],
+ "fields": [
+  {
+   "fieldname": "default_tender_manager",
+   "fieldtype": "Link",
+   "label": "Default Tender Manager",
+   "options": "User"
+  },
+  {
+   "fieldname": "lost_tender_recipient",
+   "fieldtype": "Link",
+   "label": "Lost Tender Recipient",
+   "options": "User"
+  },
+  {
+   "fieldname": "cpo_expiry_recipient",
+   "fieldtype": "Link",
+   "label": "CPO Expiry Recipient",
+   "options": "User"
+  },
+  {
+   "fieldname": "enable_tender_notifications",
+   "fieldtype": "Check",
+   "label": "Enable Tender Notifications"
+  },
+  {
+   "fieldname": "enable_chatwoot",
+   "fieldtype": "Check",
+   "label": "Enable Chatwoot (Legacy)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-05-26 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Tender Management",
+ "name": "Tender Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

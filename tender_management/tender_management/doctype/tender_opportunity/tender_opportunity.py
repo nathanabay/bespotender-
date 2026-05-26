@@ -123,3 +123,33 @@ class TenderOpportunity(Document):
             error_msg = str(e)
             frappe.log_error(f"BSR Auto-Creation Error for {self.name}: {error_msg}", "BSR Auto-Creation")
             frappe.msgprint(_("Error: {0}. Please create Bid Security Request manually.").format(error_msg), alert=True, indicator="red")
+
+    @frappe.whitelist()
+    def toggle_watch(self):
+        """Add or remove current user from followers list.
+        Uses surgical DB operations to avoid triggering parent validations."""
+        self.check_permission("read")
+        user = frappe.session.user
+
+        # Check if already following
+        existing = frappe.db.exists("Tender Follower", {
+            "parent": self.name,
+            "parenttype": self.doctype,
+            "user": user
+        })
+
+        if existing:
+            frappe.db.delete("Tender Follower", existing)
+            # Update parent modified timestamp for cache consistency
+            self.db_set("modified", frappe.utils.now())
+            return False
+        else:
+            follower = frappe.new_doc("Tender Follower")
+            follower.parent = self.name
+            follower.parenttype = self.doctype
+            follower.parentfield = "followers"
+            follower.user = user
+            follower.insert(ignore_permissions=True)
+            # Update parent modified timestamp for cache consistency
+            self.db_set("modified", frappe.utils.now())
+            return True
