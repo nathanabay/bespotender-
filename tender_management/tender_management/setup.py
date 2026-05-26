@@ -114,8 +114,8 @@ def setup_bid_bond_account():
                     "root_type": "Asset"
                 }).insert(ignore_permissions=True)
                 print(f"✔ Created Account: {account_name}")
-            except frappe.DuplicateEntryError:
-                print(f"✔ Account already exists: {account_name}")
+            except Exception as e:
+                print(f"✔ Account {account_name} setup handled: {str(e)}")
         else:
             print(f"⚠ Could not create account {account_name}: No suitable parent account found")
     else:
@@ -739,7 +739,7 @@ def create_default_document_templates():
     
     templates = [
         {
-            "template_name": "Technical Proposal Cover Letter",
+            "template_name": "Technical Proposal Cover Letter", "doc_type": "Letter",
             "category": "Cover Letter",
             "content": """
 <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; height: 900px; position: relative; padding: 120px 80px; background-color: #ffffff; color: #000000;">
@@ -777,7 +777,7 @@ def create_default_document_templates():
             """
         },
         {
-            "template_name": "Financial Proposal Cover Letter",
+            "template_name": "Financial Proposal Cover Letter", "doc_type": "Letter",
             "category": "Cover Letter",
             "content": """
 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -795,7 +795,7 @@ def create_default_document_templates():
             """
         },
         {
-            "template_name": "Standard Executive Summary",
+            "template_name": "Standard Executive Summary", "doc_type": "Letter",
             "category": "Executive Summary",
             "content": """
 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -813,7 +813,7 @@ def create_default_document_templates():
             """
         },
         {
-            "template_name": "Technical Methodology Template",
+            "template_name": "Technical Methodology Template", "doc_type": "Letter",
             "category": "Methodology",
             "content": """
 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -843,8 +843,14 @@ def create_default_document_templates():
         else:
             # Update content for default templates to ensure the latest design is applied
             doc = frappe.get_doc("Document Template", template_data["template_name"])
+            updated = False
+            if not doc.doc_type:
+                doc.doc_type = template_data.get("doc_type", "Letter")
+                updated = True
             if doc.content != template_data["content"]:
                 doc.content = template_data["content"]
+                updated = True
+            if updated:
                 doc.save(ignore_permissions=True)
                 print(f"  ✔ Updated Template content: {template_data['template_name']}")
             else:

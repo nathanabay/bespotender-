@@ -1,15 +1,11 @@
-
 import frappe
 from frappe import _
 
 def execute(filters=None):
     columns = get_columns()
     data = get_data(filters)
-    
-    # Generate Analytics
     chart = get_chart_data(data)
     report_summary = get_report_summary(data)
-    
     return columns, data, None, chart, report_summary
 
 def get_columns():
@@ -24,13 +20,23 @@ def get_columns():
     ]
 
 def get_data(filters):
-    conditions = ""
+    values = {}
+    conditions = []
+
+    if filters.get("from_date"):
+        conditions.append("submission_deadline >= %(from_date)s")
+        values["from_date"] = filters["from_date"]
+    if filters.get("to_date"):
+        conditions.append("submission_deadline <= %(to_date)s")
+        values["to_date"] = filters["to_date"]
     if filters.get("sector"):
-        conditions += f" AND sector = '{filters.get('sector')}'"
-        
-    # Fetch Raw Data
-    sql = f'''
-        SELECT 
+        conditions.append("sector = %(sector)s")
+        values["sector"] = filters["sector"]
+
+    where_clause = " AND ".join(conditions) if conditions else "1=1"
+
+    raw_data = frappe.db.sql("""
+        SELECT
             sector,
             COUNT(name) as total_bids,
             SUM(CASE WHEN workflow_state = 'Won' THEN 1 ELSE 0 END) as won_bids,
@@ -38,25 +44,20 @@ def get_data(filters):
             SUM(final_bid_price) as total_value,
             AVG(final_bid_price - estimated_cost) as avg_margin
         FROM `tabTender Opportunity`
-        WHERE submission_deadline BETWEEN '{filters.get("from_date")}' AND '{filters.get("to_date")}'
-        {conditions}
+        WHERE {where}
         GROUP BY sector
-    '''
-    raw_data = frappe.db.sql(sql, as_dict=True)
-    
-    # Process for View
+    """.format(where=where_clause), values, as_dict=True)
+
     for row in raw_data:
         if row.total_bids > 0:
             row.win_rate = (row.won_bids / row.total_bids) * 100
         else:
             row.win_rate = 0
-            
+
     return raw_data
 
 def get_chart_data(data):
     labels = [row.get("sector") for row in data]
-    
-    # We want a Multi-Bar chart (Won vs Lost)
     won_values = [row.get("won_bids") for row in data]
     lost_values = [row.get("lost_bids") for row in data]
 
@@ -75,7 +76,7 @@ def get_chart_data(data):
 def get_report_summary(data):
     total_won = sum([d.get("won_bids") for d in data])
     total_val = sum([d.get("total_value") for d in data])
-    
+
     avg_win_rate = 0
     if data:
         avg_win_rate = sum([d.get("win_rate") for d in data]) / len(data)
