@@ -7,18 +7,15 @@
  "engine": "InnoDB",
  "field_order": [
   "template_name",
-  "template_name",
   "doc_type",
   "category",
+  "is_active",
   "description",
   "column_break_1",
-  "content",
-  "is_active",
-  "placeholders",
   "section_break_1",
-  "is_active",
   "content",
   "section_break_2",
+  "placeholders",
   "placeholders_help",
   "section_break_3",
   "usage_notes"
@@ -32,6 +29,14 @@
    "unique": 1
   },
   {
+   "fieldname": "doc_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Document Type",
+   "options": "Letter\nCertificate\nReport\nMemo\nNotice\nOthers",
+   "reqd": 1
+  },
+  {
    "fieldname": "category",
    "fieldtype": "Select",
    "in_list_view": 1,
@@ -41,15 +46,20 @@
    "reqd": 1
   },
   {
-   "fieldname": "column_break_1",
-   "fieldtype": "Column Break"
-  },
-  {
    "default": "1",
    "fieldname": "is_active",
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Active"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "section_break_1",
@@ -67,7 +77,13 @@
    "label": "Available Placeholders"
   },
   {
-   "default": "Available placeholders:\\n{{tender_title}} - Tender title\\n{{organization}} - Client organization\\n{{tender_number}} - Tender reference number\\n{{submission_deadline}} - Submission deadline\\n{{final_bid_price}} - Final bid price\\n{{sector}} - Tender sector\\n{{tender_type}} - Type of tender\\n{{company_name}} - Your company name",
+   "fieldname": "placeholders",
+   "fieldtype": "Text",
+   "label": "Available Placeholders",
+   "read_only": 1
+  },
+  {
+   "default": "Available placeholders:\n{{tender_title}} - Tender title\n{{client}} - Client organization\n{{tender_number}} - Tender reference number\n{{submission_deadline}} - Submission deadline\n{{final_bid_price}} - Final bid price\n{{sector}} - Tender sector\n{{tender_type}} - Type of tender\n{{company_name}} - Your company name\n(Note: {{organization}} is also supported for backward compatibility)",
    "fieldname": "placeholders_help",
    "fieldtype": "Text",
    "label": "Placeholder Guide",
@@ -81,49 +97,11 @@
    "fieldname": "usage_notes",
    "fieldtype": "Small Text",
    "label": "Usage Notes"
-  },
-  {
-   "fieldname": "template_name",
-   "fieldtype": "Data",
-   "label": "Template Name",
-   "reqd": 1,
-   "unique": 1
-  },
-  {
-   "fieldname": "doc_type",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Document Type",
-   "options": "Letter\nCertificate\nReport\nMemo\nNotice\nOthers",
-   "reqd": 1
-  },
-  {
-   "fieldname": "description",
-   "fieldtype": "Small Text",
-   "label": "Description"
-  },
-  {
-   "fieldname": "placeholders",
-   "fieldtype": "Text",
-   "label": "Available Placeholders",
-   "read_only": 1
-  },
-  {
-   "default": "1",
-   "fieldname": "is_active",
-   "fieldtype": "Check",
-   "in_list_view": 1,
-   "label": "Active"
-  },
-  {
-   "fieldname": "content",
-   "fieldtype": "Text Editor",
-   "label": "Template Content"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-16 16:01:00",
+ "modified": "2026-06-02 19:17:57.547615",
  "modified_by": "Administrator",
  "module": "Tender Management",
  "name": "Document Template",

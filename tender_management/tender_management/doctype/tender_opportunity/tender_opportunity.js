@@ -181,7 +181,7 @@ function generate_document_dialog(frm) {
         args: {
             doctype: 'Document Template',
             filters: { is_active: 1 },
-            fields: ['name', 'category']
+            fields: ['name']
         },
         callback: function (r) {
             if (r.message && r.message.length > 0) {
@@ -201,7 +201,7 @@ function generate_document_dialog(frm) {
                     primary_action_label: __('Generate'),
                     primary_action: function (values) {
                         frappe.call({
-                            method: 'tender_management.tender_management.doctype.document_template.document_template.generate_from_template',
+                            method: 'tender_management.tender_management.utils.tender_doc_gen.generate_proposal_document',
                             args: {
                                 template_name: values.template,
                                 tender_name: frm.doc.name

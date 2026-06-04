@@ -6,7 +6,7 @@
     "docstatus": 0,
     "doctype": "Dashboard Chart",
     "document_type": "Tender Opportunity",
-    "group_by_based_on": "organization",
+    "group_by_based_on": "client",
     "group_by_type": "Count",
     "idx": 0,
     "is_public": 1,
