@@ -238,7 +238,7 @@ function show_generated_document(frm, content, template_name) {
         primary_action: function () {
             // Trigger PDF download via POST to site root
             let form = $(`<form action="/" method="POST" target="_blank">
-                <input type="hidden" name="cmd" value="tender_management.tender_management.doctype.document_template.document_template.download_pdf">
+                <input type="hidden" name="cmd" value="tender_management.tender_management.utils.tender_doc_gen.download_pdf">
                 <input type="hidden" name="html">
                 <input type="hidden" name="tender_name" value="${frm.doc.name}">
                 <input type="hidden" name="template_name" value="${template_name}">

@@ -33,3 +33,11 @@ def generate_proposal_document(template_name, tender_name):
     """
     from tender_management.tender_management.utils.tender_doc_gen import generate_proposal_document
     return generate_proposal_document(template_name, tender_name)
+
+@frappe.whitelist()
+def download_pdf(html, tender_name, template_name, filename="document.pdf"):
+    """
+    Legacy catch-all for cached JS.
+    """
+    from tender_management.tender_management.utils.tender_doc_gen import download_pdf
+    return download_pdf(html, tender_name, template_name, filename)

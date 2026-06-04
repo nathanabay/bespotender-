@@ -1,5 +1,7 @@
 import frappe
 import re
+from frappe.utils.pdf import get_pdf
+import frappe.utils
 
 @frappe.whitelist()
 def generate_proposal_document(template_name, tender_name):
@@ -36,9 +38,6 @@ def download_pdf(html, tender_name, template_name, filename="document.pdf"):
     """
     if not frappe.has_permission("Tender Opportunity", "write", doc=tender_name):
         frappe.throw(frappe._("Not permitted to generate documents for this Tender Opportunity"), frappe.PermissionError)
-
-    from frappe.utils.pdf import get_pdf
-    import frappe.utils
     
     pdf_content = get_pdf(html)
     
