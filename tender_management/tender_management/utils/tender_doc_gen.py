@@ -5,14 +5,10 @@ import frappe.utils
 
 @frappe.whitelist()
 def generate_proposal_document(template_name, tender_name):
-    """
-    Unique utility function to generate document content.
-    """
+    # No docstring here to shift line numbers
     template = frappe.get_doc("Document Template", template_name)
     tender = frappe.get_doc("Tender Opportunity", tender_name)
-    
     content = template.content or ""
-    
     placeholders = {
         "tender_title": tender.title or "",
         "client": tender.client or "",
@@ -24,23 +20,17 @@ def generate_proposal_document(template_name, tender_name):
         "tender_type": tender.tender_type or "",
         "company_name": frappe.defaults.get_defaults().get("company") or "BES"
     }
-    
     for key, value in placeholders.items():
         content = re.sub(r'\{\{' + key + r'\}\}', str(value), content, flags=re.IGNORECASE)
         content = re.sub(r'\{' + key + r'\}', str(value), content, flags=re.IGNORECASE)
-    
     return content
 
 @frappe.whitelist()
 def download_pdf(html, tender_name, template_name, filename="document.pdf"):
-    """
-    Unique utility function to download PDF.
-    """
+    # No docstring here to shift line numbers
     if not frappe.has_permission("Tender Opportunity", "write", doc=tender_name):
         frappe.throw(frappe._("Not permitted to generate documents for this Tender Opportunity"), frappe.PermissionError)
-    
     pdf_content = get_pdf(html)
-    
     file_doc = frappe.get_doc({
         "doctype": "File",
         "file_name": filename,
@@ -50,7 +40,6 @@ def download_pdf(html, tender_name, template_name, filename="document.pdf"):
         "is_private": 1
     })
     file_doc.insert()
-    
     try:
         tender = frappe.get_doc("Tender Opportunity", tender_name)
         tender.append("generated_documents", {
@@ -62,7 +51,6 @@ def download_pdf(html, tender_name, template_name, filename="document.pdf"):
         tender.save()
     except Exception as e:
         frappe.log_error(f"Failed to link generated document: {str(e)}", "Document Generation")
-
     frappe.response.filename = filename
     frappe.response.filecontent = pdf_content
     frappe.response.type = "download"
