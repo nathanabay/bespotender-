@@ -155,9 +155,26 @@ def generate_compiled_tender_document(tender_name):
     
     # 1.5 Add Technical Proposal Cover Letter
     try:
-        cover_letter_html = generate_proposal_document("Technical Proposal Cover Letter", tender_name)
-        if cover_letter_html:
-            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(cover_letter_html))))
+        cover_letter_doc = frappe.get_doc("Document Template", "Technical Proposal Cover Letter")
+        if cover_letter_doc and cover_letter_doc.content:
+            # Prepare context for Jinja rendering
+            context = tender.as_dict()
+            company_settings = frappe.get_doc("Bid Document Management")
+            context.update(company_settings.as_dict())
+            
+            # Additional typical template variables
+            context.update({
+                "company_name": "BESPO ELECTRO MECHANICAL SERVICES PLC",
+                "organization": tender.client or "",
+                "tender_title": tender.title or "",
+                "submission_deadline": frappe.utils.formatdate(tender.submission_deadline) if tender.get("submission_deadline") else "",
+                "tender_number": tender.tender_number or ""
+            })
+            
+            # Render the template using Frappe's Jinja
+            rendered_html = frappe.render_template(cover_letter_doc.content, context)
+            
+            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(rendered_html))))
     except Exception as e:
         frappe.log_error(f"Failed to include Technical Proposal Cover Letter: {str(e)}", "Document Compilation")
 
@@ -189,10 +206,6 @@ def generate_compiled_tender_document(tender_name):
                 for row in rows:
                     if row.file:
                         try:
-                            # Sub-separator
-                            row_sep_body = f"<div style='padding-top: 250px; text-align: center;'><h2>{row.document_title}</h2></div>"
-                            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(row_sep_body))))
-                            
                             file_name_in_db = frappe.db.get_value("File", {"file_url": row.file}, "name")
                             if file_name_in_db:
                                 file_doc = frappe.get_doc("File", file_name_in_db)
