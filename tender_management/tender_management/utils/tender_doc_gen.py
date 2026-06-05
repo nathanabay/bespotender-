@@ -77,31 +77,35 @@ def generate_compiled_tender_document(tender_name):
     tender = frappe.get_doc("Tender Opportunity", tender_name)
     bid_mgmt = frappe.get_single("Bid Document Management")
     
-    # Letter Head HTML provided by user (converted to table for better PDF rendering compatibility)
+    # Letter Head HTML provided by user
     header_html = """
-    <div class="letterhead-header" style="overflow: hidden; margin-bottom: 15px;">
+    <div class="letterhead-header" style="overflow: hidden; margin-bottom: 10px;">
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
-          <td style="width: 55%; vertical-align: bottom; text-align: left;">
-            <img src="https://erp.bespo.et/files/bespo%20new%20.png" style="max-height: 70px; width: auto; margin-bottom: 10px; display: block;" alt="Bespo Logo">
-            <h1 style="margin: 0; font-size: 20px; color: #333132; font-weight: 800; line-height: 1.1;">
+          <td style="width: 55%; vertical-align: bottom; text-align: left; padding-bottom: 5px;">
+            <img src="https://erp.bespo.et/files/bespo%20new%20.png" style="max-height: 60px; width: auto; margin-bottom: 8px; display: block;" alt="Bespo Logo">
+            <h1 style="margin: 0; font-size: 18px; color: #333132; font-weight: 800; line-height: 1.1;">
               BESPO <span style="color: #d92027;">ELECTRO MECHANICAL</span><br>SERVICES PLC
             </h1>
-            <p style="margin: 4px 0 0; font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; font-weight: bold;">
+            <p style="margin: 3px 0 0; font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; font-weight: bold;">
               The Power People
             </p>
           </td>
-          <td style="width: 45%; vertical-align: bottom; text-align: right;">
-            <div style="margin-bottom: 8px;">
-              <strong style="color: #d92027; font-size: 10px; display: block; margin-bottom: 1px;">TEL / FAX</strong>
-              <span style="color: #333132; font-size: 11px;">+251 11 629 9030 / 31</span><br>
-              <span style="color: #333132; font-size: 11px;">Fax: +251 116 298999</span>
+          <td style="width: 45%; vertical-align: bottom; text-align: right; padding-bottom: 5px;">
+            <div style="margin-bottom: 5px;">
+              <strong style="color: #d92027; font-size: 9px; display: block; margin-bottom: 1px;">TEL / FAX</strong>
+              <span style="color: #333132; font-size: 10px;">+251 11 629 9030 / 31</span><br>
+              <span style="color: #333132; font-size: 10px;">Fax: +251 116 298999</span>
             </div>
           </td>
         </tr>
       </table>
     </div>
-    <div style="width: 100%; height: 2px; background: linear-gradient(90deg, #333132 55%, #d92027 55%); margin-bottom: 20px;"></div>
+    <!-- Reliable colored line replacement for gradient -->
+    <div style="width: 100%; height: 2px; clear: both; margin-bottom: 15px;">
+        <div style="float: left; width: 55%; height: 2px; background-color: #333132;"></div>
+        <div style="float: left; width: 45%; height: 2px; background-color: #d92027;"></div>
+    </div>
     """
     
     # Try to get real footer from DB if exists
@@ -113,11 +117,12 @@ def generate_compiled_tender_document(tender_name):
         <html>
         <head>
             <style>
-                body {{ font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 0; }}
-                .letter-head {{ width: 100%; }}
-                .letter-footer {{ position: fixed; bottom: 0; width: 100%; padding-bottom: 20px; }}
-                .content-wrapper {{ padding: 20px 40px; min-height: 800px; }}
-                h1, h2, h3 {{ font-family: 'Helvetica', 'Arial', sans-serif; }}
+                @page {{ margin: 5mm; }}
+                body {{ font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 0; font-size: 11pt; line-height: 1.3; }}
+                .letter-head {{ width: 100%; margin: 0; padding: 0; }}
+                .letter-footer {{ width: 100%; margin: 0; padding: 0; }}
+                .content-wrapper {{ padding: 10px 30px; margin: 0; }}
+                h1, h2, h3 {{ font-family: 'Helvetica', 'Arial', sans-serif; margin-top: 5px; }}
             </style>
         </head>
         <body>
@@ -131,9 +136,9 @@ def generate_compiled_tender_document(tender_name):
 
     writer = PdfWriter()
     
-    # 1. Create and Add Cover Page
+    # 1. Add Cover Page
     cover_body = f"""
-        <div style="text-align: center; padding-top: 50px;">
+        <div style="text-align: center; padding-top: 100px;">
             <h1 style="color: #2c3e50; font-size: 32px; margin-bottom: 20px;">Compiled Technical Bid Package</h1>
             <h2 style="color: #7f8c8d; font-size: 24px; margin-bottom: 50px;">{tender.title}</h2>
             
@@ -148,6 +153,14 @@ def generate_compiled_tender_document(tender_name):
     cover_pdf_content = get_pdf_with_letterhead(cover_body)
     writer.append_pages_from_reader(PdfReader(BytesIO(cover_pdf_content)))
     
+    # 1.5 Add Technical Proposal Cover Letter
+    try:
+        cover_letter_html = generate_proposal_document("Technical Proposal Cover Letter", tender_name)
+        if cover_letter_html:
+            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(cover_letter_html))))
+    except Exception as e:
+        frappe.log_error(f"Failed to include Technical Proposal Cover Letter: {str(e)}", "Document Compilation")
+
     # 2. Add sections
     sections = [
         {"title": "1. Legal & Administrative", "table": "legal_and_administrative_documents"},
@@ -192,9 +205,6 @@ def generate_compiled_tender_document(tender_name):
                                     writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
                         except Exception as e:
                             frappe.log_error(f"Failed to include row {row.document_title}: {str(e)}", "Document Compilation")
-            else:
-                msg_body = f"<div style='padding: 50px; text-align: center; color: red;'><h1>{section['title']}</h1><p>No documents in table.</p></div>"
-                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
             continue
 
         # Handle File-based sections
@@ -216,15 +226,31 @@ def generate_compiled_tender_document(tender_name):
                         writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
             except Exception as e:
                 frappe.log_error(f"Failed to include section {section['title']}: {str(e)}", "Document Compilation")
-        else:
-            msg_body = f"<div style='padding: 50px; text-align: center; color: red;'><h1>{section['title']}</h1><p>No document attached.</p></div>"
-            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
+
             
     # 3. Finalize and Save
     output_stream = BytesIO()
     writer.write(output_stream)
     pdf_content = output_stream.getvalue()
     
+    # Delete previously generated Compiled Bids
+    if hasattr(tender, "generated_documents"):
+        rows_to_remove = []
+        for row in tender.generated_documents:
+            if row.template == "Compiled Bid":
+                rows_to_remove.append(row)
+                # Attempt to delete the actual file
+                if row.file:
+                    try:
+                        file_name = frappe.db.get_value("File", {"file_url": row.file}, "name")
+                        if file_name:
+                            frappe.delete_doc("File", file_name, ignore_permissions=True)
+                    except Exception as e:
+                        frappe.log_error(f"Failed to delete old compiled bid file: {str(e)}", "Document Cleanup")
+        
+        for row in rows_to_remove:
+            tender.remove(row)
+
     filename = f"{tender.name}_Compiled_Bid.pdf"
     file_doc = frappe.get_doc({
         "doctype": "File",
