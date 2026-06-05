@@ -7,31 +7,52 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "legal_and_administrative",
-  "our_company_profile",
-  "our_employee_list_and_cv"
+  "sec_legal",
+  "legal_and_administrative_documents",
+  "sec_profile",
+  "company_profile_documents",
+  "sec_employees",
+  "employee_list_cv_documents"
  ],
  "fields": [
   {
-   "fieldname": "legal_and_administrative",
-   "fieldtype": "Attach",
+   "fieldname": "sec_legal",
+   "fieldtype": "Section Break",
    "label": "Legal & Administrative"
   },
   {
-   "fieldname": "our_company_profile",
-   "fieldtype": "Attach",
-   "label": "Our Company Profile"
+   "fieldname": "legal_and_administrative_documents",
+   "fieldtype": "Table",
+   "label": "Legal and Administrative Documents",
+   "options": "Bid Document Item"
   },
   {
-   "fieldname": "our_employee_list_and_cv",
-   "fieldtype": "Attach",
-   "label": "Our Employee List and CV"
+   "fieldname": "sec_profile",
+   "fieldtype": "Section Break",
+   "label": "Company Profile"
+  },
+  {
+   "fieldname": "company_profile_documents",
+   "fieldtype": "Table",
+   "label": "Company Profile Documents",
+   "options": "Bid Document Item"
+  },
+  {
+   "fieldname": "sec_employees",
+   "fieldtype": "Section Break",
+   "label": "Employee Records"
+  },
+  {
+   "fieldname": "employee_list_cv_documents",
+   "fieldtype": "Table",
+   "label": "Employee List and CV Documents",
+   "options": "Bid Document Item"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-06-05 10:00:00.000000",
+ "modified": "2026-06-05 18:45:00.000000",
  "modified_by": "Administrator",
  "module": "Tender Management",
  "name": "Bid Document Management",

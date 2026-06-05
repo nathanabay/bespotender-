@@ -113,7 +113,7 @@ def generate_compiled_tender_document(tender_name):
     
     # 2. Add sections
     sections = [
-        {"title": "1. Legal & Administrative", "file": bid_mgmt.legal_and_administrative},
+        {"title": "1. Legal & Administrative", "table": "legal_and_administrative_documents"},
         {"title": "2. Our Company Profile", "file": bid_mgmt.our_company_profile},
         {"title": "3. Our Employee List and CV", "file": bid_mgmt.our_employee_list_and_cv},
         {"title": "4. Bid Submission Sheets", "file": tender.bid_submission_sheets},
@@ -125,7 +125,42 @@ def generate_compiled_tender_document(tender_name):
     ]
     
     for section in sections:
-        if section['file']:
+        # Handle Table-based sections (like Legal & Administrative)
+        if "table" in section:
+            table_name = section["table"]
+            rows = bid_mgmt.get(table_name) or []
+            
+            if rows:
+                # Add a main separator for the section
+                main_sep_html = f"<div style='padding-top: 300px; text-align: center; font-family: sans-serif;'><h1>{section['title']}</h1></div>"
+                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(main_sep_html))))
+                
+                for row in rows:
+                    if row.file:
+                        try:
+                            # Sub-separator for individual document
+                            row_sep_html = f"<div style='padding-top: 350px; text-align: center; font-family: sans-serif;'><h2>{row.document_title}</h2></div>"
+                            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(row_sep_html))))
+                            
+                            file_name_in_db = frappe.db.get_value("File", {"file_url": row.file}, "name")
+                            if file_name_in_db:
+                                file_doc = frappe.get_doc("File", file_name_in_db)
+                                file_content = file_doc.get_content()
+                                
+                                if row.file.lower().endswith(".pdf"):
+                                    writer.append_pages_from_reader(PdfReader(BytesIO(file_content)))
+                                else:
+                                    msg_html = f"<div style='padding: 100px; text-align: center; font-family: sans-serif;'><p>Non-PDF file: {file_doc.file_name}</p></div>"
+                                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(msg_html))))
+                        except Exception as e:
+                            frappe.log_error(f"Failed to include row {row.document_title}: {str(e)}", "Document Compilation")
+            else:
+                msg_html = f"<div style='padding: 100px; text-align: center; color: red; font-family: sans-serif;'><h1>{section['title']}</h1><p>No documents in table.</p></div>"
+                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(msg_html))))
+            continue
+
+        # Handle File-based sections
+        if section.get('file'):
             try:
                 # Find File document to get content
                 file_name_in_db = frappe.db.get_value("File", {"file_url": section['file']}, "name")
