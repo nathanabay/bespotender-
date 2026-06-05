@@ -31,7 +31,6 @@ original_file_validate = File.validate
 
 def patched_file_validate(self):
     if self.file_name and len(self.file_name) > 255:
-        print(f"DEBUG: Truncating file_name from {len(self.file_name)} to 255")
         # Keep extension if possible
         ext = ""
         if "." in self.file_name:
@@ -44,15 +43,6 @@ def patched_file_validate(self):
     return original_file_validate(self)
 
 File.validate = patched_file_validate
-
-# Monkey patch upload_file to log filename
-import frappe.handler
-original_upload_file = frappe.handler.upload_file
-
-def patched_upload_file(*args, **kwargs):
-    return original_upload_file(*args, **kwargs)
-
-frappe.handler.upload_file = patched_upload_file
 
 # Apps
 # ------------------
@@ -76,6 +66,13 @@ frappe.handler.upload_file = patched_upload_file
 # include js, css files in header of desk.html
 # app_include_css = "/assets/tender_management/css/tender_management.css"
 # app_include_js = "/assets/tender_management/js/tender_management.js"
+
+# include js, css files in header of web template
+# web_include_css = "/assets/tender_management/css/tender_management.css"
+# web_include_js = "/assets/tender_management/js/tender_management.js"
+
+# include custom scss in every website theme (without file extension ".scss")
+# website_theme_scss = "tender_management/public/scss/website"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/tender_management/css/tender_management.css"
@@ -268,4 +265,3 @@ scheduler_events = {}
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

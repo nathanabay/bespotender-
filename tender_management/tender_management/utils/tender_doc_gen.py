@@ -77,38 +77,75 @@ def generate_compiled_tender_document(tender_name):
     tender = frappe.get_doc("Tender Opportunity", tender_name)
     bid_mgmt = frappe.get_single("Bid Document Management")
     
+    # Letter Head HTML provided by user (converted to table for better PDF rendering compatibility)
+    header_html = """
+    <div class="letterhead-header" style="overflow: hidden; margin-bottom: 15px;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="width: 55%; vertical-align: bottom; text-align: left;">
+            <img src="https://erp.bespo.et/files/bespo%20new%20.png" style="max-height: 70px; width: auto; margin-bottom: 10px; display: block;" alt="Bespo Logo">
+            <h1 style="margin: 0; font-size: 20px; color: #333132; font-weight: 800; line-height: 1.1;">
+              BESPO <span style="color: #d92027;">ELECTRO MECHANICAL</span><br>SERVICES PLC
+            </h1>
+            <p style="margin: 4px 0 0; font-size: 10px; color: #666; letter-spacing: 2px; text-transform: uppercase; font-weight: bold;">
+              The Power People
+            </p>
+          </td>
+          <td style="width: 45%; vertical-align: bottom; text-align: right;">
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #d92027; font-size: 10px; display: block; margin-bottom: 1px;">TEL / FAX</strong>
+              <span style="color: #333132; font-size: 11px;">+251 11 629 9030 / 31</span><br>
+              <span style="color: #333132; font-size: 11px;">Fax: +251 116 298999</span>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div style="width: 100%; height: 2px; background: linear-gradient(90deg, #333132 55%, #d92027 55%); margin-bottom: 20px;"></div>
+    """
+    
+    # Try to get real footer from DB if exists
+    letter_head_db = frappe.db.get_value("Letter Head", {"is_default": 1}, "footer")
+    footer_html = letter_head_db if letter_head_db else ""
+
+    def get_pdf_with_letterhead(html_body):
+        full_html = f"""
+        <html>
+        <head>
+            <style>
+                body {{ font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 0; }}
+                .letter-head {{ width: 100%; }}
+                .letter-footer {{ position: fixed; bottom: 0; width: 100%; padding-bottom: 20px; }}
+                .content-wrapper {{ padding: 20px 40px; min-height: 800px; }}
+                h1, h2, h3 {{ font-family: 'Helvetica', 'Arial', sans-serif; }}
+            </style>
+        </head>
+        <body>
+            <div class="letter-head">{header_html}</div>
+            <div class="content-wrapper">{html_body}</div>
+            <div class="letter-footer">{footer_html}</div>
+        </body>
+        </html>
+        """
+        return get_pdf(full_html)
+
     writer = PdfWriter()
     
     # 1. Create and Add Cover Page
-    cover_html = f"""
-    <html>
-    <head>
-        <style>
-            body {{ font-family: sans-serif; padding: 100px 50px; text-align: center; }}
-            h1 {{ color: #2c3e50; font-size: 32px; margin-bottom: 20px; }}
-            h2 {{ color: #7f8c8d; font-size: 24px; margin-bottom: 50px; }}
-            .info {{ margin-top: 50px; font-size: 18px; line-height: 1.6; }}
-            .footer {{ position: fixed; bottom: 50px; width: 100%; text-align: center; color: #bdc3c7; }}
-        </style>
-    </head>
-    <body>
-        <h1>Compiled Technical Bid Package</h1>
-        <h2>{tender.title}</h2>
-        
-        <div class="info">
-            <p><strong>Tender Number:</strong> {tender.tender_number or 'N/A'}</p>
-            <p><strong>Client:</strong> {tender.client or 'N/A'}</p>
-            <p><strong>Sector:</strong> {tender.sector or 'N/A'}</p>
-            <p><strong>Generated Date:</strong> {frappe.utils.format_datetime(frappe.utils.now_datetime())}</p>
+    cover_body = f"""
+        <div style="text-align: center; padding-top: 50px;">
+            <h1 style="color: #2c3e50; font-size: 32px; margin-bottom: 20px;">Compiled Technical Bid Package</h1>
+            <h2 style="color: #7f8c8d; font-size: 24px; margin-bottom: 50px;">{tender.title}</h2>
+            
+            <div style="margin-top: 50px; font-size: 18px; line-height: 1.6; text-align: left; display: inline-block;">
+                <p><strong>Tender Number:</strong> {tender.tender_number or 'N/A'}</p>
+                <p><strong>Client:</strong> {tender.client or 'N/A'}</p>
+                <p><strong>Sector:</strong> {tender.sector or 'N/A'}</p>
+                <p><strong>Generated Date:</strong> {frappe.utils.format_datetime(frappe.utils.now_datetime())}</p>
+            </div>
         </div>
-        
-        <div class="footer">
-            Generated via Tender Management System
-        </div>
-    </body>
-    </html>
     """
-    cover_pdf_content = get_pdf(cover_html)
+    cover_pdf_content = get_pdf_with_letterhead(cover_body)
     writer.append_pages_from_reader(PdfReader(BytesIO(cover_pdf_content)))
     
     # 2. Add sections
@@ -118,29 +155,30 @@ def generate_compiled_tender_document(tender_name):
         {"title": "3. Our Employee List and CV", "table": "employee_list_cv_documents"},
         {"title": "4. Bid Submission Sheets", "file": tender.bid_submission_sheets},
         {"title": "5. Technical Methodology", "file": tender.technical_methodology},
-        {"title": "6. Supplier Company Profile", "file": tender.supplier_company_profile},
-        {"title": "7. Supplier ISO and Other Certification", "file": tender.supplier_iso_certification},
-        {"title": "8. The Bid Document", "file": tender.the_bid_document},
-        {"title": "9. Financial Document", "file": tender.extracted_financial_document}
+        {"title": "6. Manufacturer Authorization Form (MAF)", "file": tender.manufacturer_authorization_form},
+        {"title": "7. Supplier Company Profile", "file": tender.supplier_company_profile},
+        {"title": "8. Supplier ISO and Other Certification", "file": tender.supplier_iso_certification},
+        {"title": "9. The Bid Document", "file": tender.the_bid_document},
+        {"title": "10. Financial Document", "file": tender.extracted_financial_document}
     ]
     
     for section in sections:
-        # Handle Table-based sections (like Legal & Administrative)
+        # Handle Table-based sections
         if "table" in section:
             table_name = section["table"]
             rows = bid_mgmt.get(table_name) or []
             
             if rows:
-                # Add a main separator for the section
-                main_sep_html = f"<div style='padding-top: 300px; text-align: center; font-family: sans-serif;'><h1>{section['title']}</h1></div>"
-                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(main_sep_html))))
+                # Main separator
+                main_sep_body = f"<div style='padding-top: 200px; text-align: center;'><h1>{section['title']}</h1></div>"
+                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(main_sep_body))))
                 
                 for row in rows:
                     if row.file:
                         try:
-                            # Sub-separator for individual document
-                            row_sep_html = f"<div style='padding-top: 350px; text-align: center; font-family: sans-serif;'><h2>{row.document_title}</h2></div>"
-                            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(row_sep_html))))
+                            # Sub-separator
+                            row_sep_body = f"<div style='padding-top: 250px; text-align: center;'><h2>{row.document_title}</h2></div>"
+                            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(row_sep_body))))
                             
                             file_name_in_db = frappe.db.get_value("File", {"file_url": row.file}, "name")
                             if file_name_in_db:
@@ -150,55 +188,37 @@ def generate_compiled_tender_document(tender_name):
                                 if row.file.lower().endswith(".pdf"):
                                     writer.append_pages_from_reader(PdfReader(BytesIO(file_content)))
                                 else:
-                                    msg_html = f"<div style='padding: 100px; text-align: center; font-family: sans-serif;'><p>Non-PDF file: {file_doc.file_name}</p></div>"
-                                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(msg_html))))
+                                    msg_body = f"<div style='padding: 50px; text-align: center;'><p>Non-PDF file: {file_doc.file_name}</p></div>"
+                                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
                         except Exception as e:
                             frappe.log_error(f"Failed to include row {row.document_title}: {str(e)}", "Document Compilation")
             else:
-                msg_html = f"<div style='padding: 100px; text-align: center; color: red; font-family: sans-serif;'><h1>{section['title']}</h1><p>No documents in table.</p></div>"
-                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf(msg_html))))
+                msg_body = f"<div style='padding: 50px; text-align: center; color: red;'><h1>{section['title']}</h1><p>No documents in table.</p></div>"
+                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
             continue
 
         # Handle File-based sections
         if section.get('file'):
             try:
-                # Find File document to get content
                 file_name_in_db = frappe.db.get_value("File", {"file_url": section['file']}, "name")
-                if not file_name_in_db:
-                    # Try private path
-                    file_name_in_db = frappe.db.get_value("File", {"file_url": section['file']}, "name")
-                
                 if file_name_in_db:
                     file_doc = frappe.get_doc("File", file_name_in_db)
                     file_content = file_doc.get_content()
                     
+                    # Section title/separator with letterhead
+                    sep_body = f"<div style='padding-top: 200px; text-align: center;'><h1>{section['title']}</h1></div>"
+                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(sep_body))))
+                    
                     if section['file'].lower().endswith(".pdf"):
-                        # Add a separator/title page for the section
-                        sep_html = f"<div style='padding-top: 300px; text-align: center; font-family: sans-serif;'><h1>{section['title']}</h1></div>"
-                        sep_pdf = get_pdf(sep_html)
-                        writer.append_pages_from_reader(PdfReader(BytesIO(sep_pdf)))
-                        
-                        # Append the actual PDF content
-                        section_reader = PdfReader(BytesIO(file_content))
-                        writer.append_pages_from_reader(section_reader)
+                        writer.append_pages_from_reader(PdfReader(BytesIO(file_content)))
                     else:
-                        # For non-PDF files, add a page with a link/note
-                        msg_html = f"""
-                        <div style='padding: 100px; font-family: sans-serif; text-align: center;'>
-                            <h1>{section['title']}</h1>
-                            <p>This section contains a non-PDF file: <b>{file_doc.file_name}</b></p>
-                            <p>Please access it separately via the Tender Opportunity record.</p>
-                        </div>
-                        """
-                        msg_pdf = get_pdf(msg_html)
-                        writer.append_pages_from_reader(PdfReader(BytesIO(msg_pdf)))
+                        msg_body = f"<div style='padding: 50px; text-align: center;'><p>Non-PDF file: {file_doc.file_name}</p></div>"
+                        writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
             except Exception as e:
                 frappe.log_error(f"Failed to include section {section['title']}: {str(e)}", "Document Compilation")
         else:
-            # Missing file placeholder
-            msg_html = f"<div style='padding: 100px; font-family: sans-serif; text-align: center; color: red;'><h1>{section['title']}</h1><p>No document attached for this section.</p></div>"
-            msg_pdf = get_pdf(msg_html)
-            writer.append_pages_from_reader(PdfReader(BytesIO(msg_pdf)))
+            msg_body = f"<div style='padding: 50px; text-align: center; color: red;'><h1>{section['title']}</h1><p>No document attached.</p></div>"
+            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
             
     # 3. Finalize and Save
     output_stream = BytesIO()

@@ -127,6 +127,7 @@
   "sec_technical_docs",
   "bid_submission_sheets",
   "technical_methodology",
+  "manufacturer_authorization_form",
   "supplier_company_profile",
   "supplier_iso_certification",
   "the_bid_document",
@@ -813,6 +814,11 @@
    "fieldname": "technical_methodology",
    "fieldtype": "Attach",
    "label": "Technical Methodology"
+  },
+  {
+   "fieldname": "manufacturer_authorization_form",
+   "fieldtype": "Attach",
+   "label": "Manufacturer Authorization Form (MAF)"
   },
   {
    "fieldname": "supplier_company_profile",
