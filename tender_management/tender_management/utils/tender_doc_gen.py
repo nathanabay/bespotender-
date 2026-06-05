@@ -114,8 +114,8 @@ def generate_compiled_tender_document(tender_name):
     # 2. Add sections
     sections = [
         {"title": "1. Legal & Administrative", "table": "legal_and_administrative_documents"},
-        {"title": "2. Our Company Profile", "file": bid_mgmt.our_company_profile},
-        {"title": "3. Our Employee List and CV", "file": bid_mgmt.our_employee_list_and_cv},
+        {"title": "2. Our Company Profile", "table": "company_profile_documents"},
+        {"title": "3. Our Employee List and CV", "table": "employee_list_cv_documents"},
         {"title": "4. Bid Submission Sheets", "file": tender.bid_submission_sheets},
         {"title": "5. Technical Methodology", "file": tender.technical_methodology},
         {"title": "6. Supplier Company Profile", "file": tender.supplier_company_profile},
