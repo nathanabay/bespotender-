@@ -123,6 +123,16 @@
   "formatting_check",
   "submission_format_validated",
   "quotation_ref",
+  "tab_technical_document",
+  "sec_technical_docs",
+  "bid_submission_sheets",
+  "technical_methodology",
+  "supplier_company_profile",
+  "supplier_iso_certification",
+  "the_bid_document",
+  "tab_financial_document",
+  "sec_financial_docs",
+  "extracted_financial_document",
   "tab_collaborate",
   "sec_team",
   "team_members",
@@ -783,6 +793,57 @@
    "fieldtype": "Link",
    "label": "Linked Quotation",
    "options": "Quotation"
+  },
+  {
+   "fieldname": "tab_technical_document",
+   "fieldtype": "Tab Break",
+   "label": "Technical Document"
+  },
+  {
+   "fieldname": "sec_technical_docs",
+   "fieldtype": "Section Break",
+   "label": "Technical Documents"
+  },
+  {
+   "fieldname": "bid_submission_sheets",
+   "fieldtype": "Attach",
+   "label": "Bid Submission Sheets"
+  },
+  {
+   "fieldname": "technical_methodology",
+   "fieldtype": "Attach",
+   "label": "Technical Methodology"
+  },
+  {
+   "fieldname": "supplier_company_profile",
+   "fieldtype": "Attach",
+   "label": "Supplier Company Profile"
+  },
+  {
+   "fieldname": "supplier_iso_certification",
+   "fieldtype": "Attach",
+   "label": "Supplier ISO and Other Certification"
+  },
+  {
+   "fieldname": "the_bid_document",
+   "fieldtype": "Attach",
+   "label": "The Bid Document"
+  },
+  {
+   "fieldname": "tab_financial_document",
+   "fieldtype": "Tab Break",
+   "label": "Financial Document"
+  },
+  {
+   "fieldname": "sec_financial_docs",
+   "fieldtype": "Section Break",
+   "label": "Financial Documents"
+  },
+  {
+   "fieldname": "extracted_financial_document",
+   "fieldtype": "Attach",
+   "label": "Extracted Financial Document",
+   "read_only": 1
   },
   {
    "fieldname": "tab_collaborate",

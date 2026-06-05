@@ -23,6 +23,10 @@ frappe.ui.form.on('Tender Opportunity', {
                 generate_document_dialog(frm);
             }, __('Documents'));
 
+            frm.add_custom_button(__('Generate Compiled Bid'), function () {
+                generate_compiled_bid(frm);
+            }, __('Documents'));
+
             // Cost Estimation button
             frm.add_custom_button(__('Create Cost Estimation'), function () {
                 create_cost_estimation(frm);
@@ -257,6 +261,24 @@ function show_generated_document(frm, content, template_name) {
 
     d.fields_dict.doc_html.$wrapper.html(content);
     d.show();
+}
+
+function generate_compiled_bid(frm) {
+    frappe.call({
+        method: 'tender_management.tender_management.utils.tender_doc_gen.generate_compiled_tender_document',
+        args: {
+            tender_name: frm.doc.name
+        },
+        freeze: true,
+        freeze_message: __('Generating Compiled Bid Document...'),
+        callback: function (r) {
+            if (r.message) {
+                window.open(r.message, '_blank');
+                frappe.show_alert({ message: __('Compiled Bid Document Generated'), indicator: 'green' });
+                frm.reload_doc();
+            }
+        }
+    });
 }
 
 function create_cost_estimation(frm) {

@@ -1,0 +1,57 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "creation": "2026-06-05 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "legal_and_administrative",
+  "our_company_profile",
+  "our_employee_list_and_cv"
+ ],
+ "fields": [
+  {
+   "fieldname": "legal_and_administrative",
+   "fieldtype": "Attach",
+   "label": "Legal & Administrative"
+  },
+  {
+   "fieldname": "our_company_profile",
+   "fieldtype": "Attach",
+   "label": "Our Company Profile"
+  },
+  {
+   "fieldname": "our_employee_list_and_cv",
+   "fieldtype": "Attach",
+   "label": "Our Employee List and CV"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-06-05 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Tender Management",
+ "name": "Bid Document Management",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "import": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
