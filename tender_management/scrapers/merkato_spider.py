@@ -7,65 +7,95 @@ from frappe.utils import get_datetime
 
 class MerkatoSpider(scrapy.Spider):
 	name = "merkato_tender"
-	allowed_domains = ["tender.2merkato.com"]
-	login_url = "https://tender.2merkato.com/login"
-	start_urls = ["https://tender.2merkato.com/tenders"]
+	start_urls = ["https://tender.2merkato.com/login"]
+	handle_httpstatus_list = [422, 409]
 
-	def start_requests(self):
-		yield scrapy.Request(self.login_url, callback=self.login)
-
-	def login(self, response):
+	def parse(self, response):
 		"""
-		Handles the login process using Scrapy's FormRequest to automatically
-		handle CSRF tokens. Assumes standard 'email' and 'password' fields.
+		Entry point: extract CSRF token and handle login.
 		"""
-		username = frappe.conf.get("merkato_username")
-		password = frappe.conf.get("merkato_password")
-
-		if not username or not password:
-			self.log("Merkato credentials missing from site_config.json. Scraping without login.", level=scrapy.log.WARNING)
-			yield scrapy.Request(self.start_urls[0], callback=self.parse_tenders_page)
+		# Extract data-page JSON
+		data_page_raw = response.css("div#app::attr(data-page)").get()
+		if not data_page_raw:
+			self.logger.error("Could not find data-page on login page.")
+			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
 			return
 
-		return scrapy.FormRequest.from_response(
-			response,
-			formdata={"email": username, "password": password},
-			callback=self.after_login
+		data_page_str = html.unescape(data_page_raw)
+		try:
+			page_data = json.loads(data_page_str)
+			csrf_token = page_data.get("props", {}).get("csrf_token")
+			inertia_version = page_data.get("version")
+		except Exception as e:
+			self.logger.error(f"Failed to parse login page JSON: {e}")
+			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
+			return
+
+		username = frappe.conf.get("merkato_username")
+		password = frappe.conf.get("merkato_password")
+		
+		if not username or not password:
+			self.logger.warning("Merkato credentials missing in site_config.json. Scraping without login.")
+			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
+			return
+
+		self.logger.info(f"Attempting login for: {username}")
+		
+		# Perform an Inertia-style POST request
+		yield scrapy.Request(
+			"https://tender.2merkato.com/login",
+			method="POST",
+			headers={
+				"X-Inertia": "true",
+				"X-Inertia-Version": inertia_version,
+				"X-CSRF-TOKEN": csrf_token,
+				"Content-Type": "application/json",
+				"Accept": "application/json",
+			},
+			body=json.dumps({
+				"emailOrMobile": username, 
+				"password": password,
+				"remember": True
+			}),
+			callback=self.after_login,
+			dont_filter=True
 		)
 
 	def after_login(self, response):
 		"""Verify login and proceed."""
-		if "login" in response.url:
-			self.log("Login failed. Check credentials.", level=scrapy.log.ERROR)
-			return
+		if response.status == 422:
+			self.logger.error(f"Login validation error: {response.text}")
+		elif response.status == 409:
+			self.logger.warning("Inertia version mismatch (409) during login. Proceeding anyway.")
+		elif "login" in response.url:
+			self.logger.error("Login failed (redirected back to login).")
+		else:
+			self.logger.info("Login successful.")
+		
+		yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
 
-		self.log("Login successful. Starting scrape.")
-		yield scrapy.Request(self.start_urls[0], callback=self.parse_tenders_page)
-
-	def parse_tenders_page(self, response):
+	def parse_tenders_list(self, response):
 		"""
 		Extracts the JSON payload from the data-page attribute and parses it.
 		"""
-		# Extract the raw string from the data-page attribute
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		
 		if not data_page_raw:
-			self.log("Could not find data-page attribute. Site structure may have changed.", level=scrapy.log.ERROR)
+			self.logger.error("Could not find data-page attribute on tenders list.")
 			return
 
-		# Unescape HTML entities (&quot; to ")
 		data_page_str = html.unescape(data_page_raw)
-
 		try:
 			page_data = json.loads(data_page_str)
 		except json.JSONDecodeError as e:
-			self.log(f"Failed to parse JSON payload: {e}", level=scrapy.log.ERROR)
+			self.logger.error(f"Failed to parse JSON: {e}")
 			return
 
-		# Navigate the JSON structure based on the sample HTML analysis
 		props = page_data.get("props", {})
 		tenders_data = props.get("tenders", {})
 		tenders_list = tenders_data.get("data", [])
+
+		self.logger.info(f"Found {len(tenders_list)} tenders in the list.")
 
 		for tender in tenders_list:
 			tender_id = tender.get("id")
@@ -78,14 +108,15 @@ class MerkatoSpider(scrapy.Spider):
 				)
 
 		# Pagination handling
-		next_page_url = tenders_data.get("next_page_url")
-		if next_page_url:
-			yield response.follow(next_page_url, self.parse_tenders_page)
+		links = tenders_data.get("links", {})
+		next_page = links.get("next")
+		if next_page:
+			self.logger.info(f"Following next page: {next_page}")
+			yield response.follow(next_page, self.parse_tenders_list)
 
 	def parse_tender_details(self, response, list_data):
 		"""
-		Extracts full details. Tries JSON payload first, falls back to CSS selectors 
-		for the description if it's rendered server-side as raw HTML.
+		Extracts full details.
 		"""
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		tender_details = {}
@@ -97,20 +128,21 @@ class MerkatoSpider(scrapy.Spider):
 			except json.JSONDecodeError:
 				pass
 
-		# Combine data from the list view and the detail view
 		title = tender_details.get("title") or list_data.get("title", "N/A")
-		
 		# Extract category
-		category_data = tender_details.get("category") or list_data.get("category")
+		category_data = tender_details.get("categories") or tender_details.get("category") or \
+						list_data.get("categories") or list_data.get("category")
 		category = "N/A"
-		if isinstance(category_data, dict):
+		if isinstance(category_data, list) and category_data:
+			# Get names from all categories if multiple
+			names = [c.get("name_en") for c in category_data if isinstance(c, dict) and c.get("name_en")]
+			category = ", ".join(names) if names else "N/A"
+		elif isinstance(category_data, dict):
 			category = category_data.get("name_en", "N/A")
-		elif isinstance(category_data, list) and category_data:
-			 category = category_data[0].get("name_en", "N/A")
 		elif isinstance(category_data, str):
 			category = category_data
 
-		# Extract Region
+
 		region_data = tender_details.get("region") or list_data.get("region")
 		region = "N/A"
 		if isinstance(region_data, dict):
@@ -118,8 +150,8 @@ class MerkatoSpider(scrapy.Spider):
 		elif isinstance(region_data, str):
 			region = region_data
 		else:
-			# Fallback CSS for Region
-			region = response.css('div:contains("Region") + div a::text, div:contains("Region") + div::text').get(default="N/A").strip()
+			region_sel = response.css('div:contains("Region") + div a::text, div:contains("Region") + div::text').get()
+			region = region_sel.strip() if region_sel else "N/A"
 
 		closing_date_str = tender_details.get("bid_closing_date") or list_data.get("bid_closing_date")
 		try:
@@ -127,21 +159,16 @@ class MerkatoSpider(scrapy.Spider):
 		except Exception:
 			closing_date = None
 
-		# HYBRID APPROACH: Handle description. 
 		description = tender_details.get("description") or tender_details.get("content")
 		if not description:
-			# Fallback: Extract raw HTML content if the description wasn't in the JSON blob
 			description_html = response.css('div.overflow-x-auto').get()
 			description = description_html if description_html else "No description provided."
 
-		# Extract AI Summary
 		ai_summary = tender_details.get("ai_summary")
 		if not ai_summary:
-			# Fallback CSS for AI summary
 			ai_summary_parts = response.css('div.mt-6.space-y-3.rounded-lg.border.p-6 h4:contains("AI Summary") ~ div::text').getall()
 			ai_summary = " ".join([p.strip() for p in ai_summary_parts if p.strip()]) if ai_summary_parts else None
 
-		# Extract Documents
 		documents_list = []
 		doc_links = response.css('div.bg-blue-50 a[href*="/documents/"]::attr(href)').getall()
 		for doc_link in doc_links:
@@ -161,6 +188,6 @@ class MerkatoSpider(scrapy.Spider):
 			doc.documents = documents_str
 			doc.insert(ignore_permissions=True)
 			frappe.db.commit() 
-			self.log(f"Created new tender: {doc.title}")
+			self.logger.info(f"Created new tender: {doc.title[:50]}...")
 		else:
-			self.log(f"Tender already exists: {response.url}")
+			self.logger.debug(f"Tender already exists: {response.url}")
