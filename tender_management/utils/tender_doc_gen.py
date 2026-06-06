@@ -150,6 +150,56 @@ def generate_compiled_tender_document_v5(tender_name):
         """
         return get_pdf(full_html)
 
+    def append_document_to_writer(writer, file_doc, get_pdf_with_letterhead):
+        import tempfile
+        import os
+        import subprocess
+
+        file_content = file_doc.get_content()
+        file_name = file_doc.file_name
+
+        if file_name.lower().endswith(".pdf"):
+            writer.append_pages_from_reader(PdfReader(BytesIO(file_content)))
+        
+        elif file_name.lower().endswith((".docx", ".doc")):
+            with tempfile.TemporaryDirectory() as temp_dir:
+                original_filename = os.path.splitext(file_name)[0]
+                doc_path = os.path.join(temp_dir, file_name)
+                pdf_path = os.path.join(temp_dir, f"{original_filename}.pdf")
+
+                with open(doc_path, "wb") as f:
+                    f.write(file_content)
+
+                try:
+                    # Run unoconv to convert docx to pdf
+                    result = subprocess.run(
+                        ["unoconv", "-f", "pdf", "-o", pdf_path, doc_path],
+                        check=True,
+                        capture_output=True,
+                        text=True
+                    )
+                    
+                    with open(pdf_path, "rb") as f:
+                        pdf_content = f.read()
+                    
+                    writer.append_pages_from_reader(PdfReader(BytesIO(pdf_content)))
+
+                except FileNotFoundError:
+                    error_message = f"Failed to convert Word document: {file_name}. The 'unoconv' command was not found. Please install it on your server (e.g., 'sudo apt-get install unoconv')."
+                    frappe.log_error(message=error_message, title="DOCX Conversion Failed: Command Not Found")
+                    msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color: red;'><b>Conversion Failed</b></p><p>Could not convert file: <b>{file_name}</b></p><p style='font-size: 10px; color: grey;'>Reason: `unoconv` is not installed on the server.</p></div>"
+                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
+                except subprocess.CalledProcessError as e:
+                    error_message = f"Failed to convert Word document: {file_name}. `unoconv` command failed with exit code {e.returncode}. STDERR: {e.stderr}"
+                    frappe.log_error(message=error_message, title="DOCX Conversion Failed: unoconv Error")
+                    msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color: red;'><b>Conversion Failed</b></p><p>Could not convert file: <b>{file_name}</b></p><p style='font-size: 10px; color: grey;'>Reason: {e.stderr}</p></div>"
+                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
+        
+        else:
+            msg_body = f"<div style='padding: 50px; text-align: center;'><p>Unsupported file type: {file_name}</p></div>"
+            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
+
+
     writer = PdfWriter()
     
     cover_body = f"""
@@ -211,41 +261,34 @@ def generate_compiled_tender_document_v5(tender_name):
     ]
     
     for section in sections:
+        # Determine the source of documents: either the main tender doc or the Bid Document Management singleton
+        doc_source = bid_mgmt if section.get("table") in ["legal_and_administrative_documents", "company_profile_documents", "employee_list_cv_documents", "supplier_company_profile"] else tender
+
         if "table" in section:
             table_name = section["table"]
-            rows = bid_mgmt.get(table_name) or []
+            rows = doc_source.get(table_name) or []
             if rows:
                 main_sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{section['title']}</h1></div>"
                 writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(main_sep_body))))
                 for row in rows:
                     if row.file:
                         try:
-                            file_doc_name = frappe.db.get_value("File", {"file_url": row.file}, "name")
-                            if file_doc_name:
-                                file_doc = frappe.get_doc("File", file_doc_name)
-                                if row.file.lower().endswith(".pdf"):
-                                    writer.append_pages_from_reader(PdfReader(BytesIO(file_doc.get_content())))
-                                else:
-                                    msg_body = f"<div style='padding: 50px; text-align: center;'><p>Non-PDF file: {file_doc.file_name}</p></div>"
-                                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
+                            file_doc = frappe.get_doc("File", {"file_url": row.file})
+                            append_document_to_writer(writer, file_doc, get_pdf_with_letterhead)
                         except Exception as e:
-                            frappe.log_error(f"Table row failure: {str(e)}", "Document Compilation")
+                            frappe.log_error(f"Table row failure for {row.file}: {str(e)}", "Document Compilation")
             continue
 
         if section.get('file'):
-            try:
-                file_doc_name = frappe.db.get_value("File", {"file_url": section['file']}, "name")
-                if file_doc_name:
-                    file_doc = frappe.get_doc("File", file_doc_name)
+            file_url = section['file']
+            if file_url:
+                try:
+                    file_doc = frappe.get_doc("File", {"file_url": file_url})
                     sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{section['title']}</h1></div>"
                     writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(sep_body))))
-                    if section['file'].lower().endswith(".pdf"):
-                        writer.append_pages_from_reader(PdfReader(BytesIO(file_doc.get_content())))
-                    else:
-                        msg_body = f"<div style='padding: 50px; text-align: center;'><p>Non-PDF file: {file_doc.file_name}</p></div>"
-                        writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
-            except Exception as e:
-                frappe.log_error(f"File section failure: {str(e)}", "Document Compilation")
+                    append_document_to_writer(writer, file_doc, get_pdf_with_letterhead)
+                except Exception as e:
+                    frappe.log_error(f"File section failure for {file_url}: {str(e)}", "Document Compilation")
 
     output_stream = BytesIO()
     writer.write(output_stream)
