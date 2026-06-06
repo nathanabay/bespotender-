@@ -120,3 +120,8 @@ class TenderOpportunity(Document):
 			follower.insert(ignore_permissions=True)
 			self.db_set("modified", frappe.utils.now())
 			return True
+
+@frappe.whitelist()
+def generate_compiled_tender_document_final(tender_name):
+    from tender_management.tender_management.utils.tender_doc_gen import generate_compiled_tender_document_v3
+    return generate_compiled_tender_document_v3(tender_name)

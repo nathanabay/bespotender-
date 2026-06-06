@@ -265,7 +265,7 @@ function show_generated_document(frm, content, template_name) {
 
 function generate_compiled_bid(frm) {
     frappe.call({
-        method: 'tender_management.tender_management.utils.tender_doc_gen.generate_compiled_tender_document',
+        method: 'tender_management.utils.tender_doc_gen.generate_compiled_tender_document_v5',
         args: {
             tender_name: frm.doc.name
         },
@@ -273,6 +273,7 @@ function generate_compiled_bid(frm) {
         freeze_message: __('Generating Compiled Bid Document...'),
         callback: function (r) {
             if (r.message) {
+                // The URL now includes a ?v=timestamp query parameter
                 window.open(r.message, '_blank');
                 frappe.show_alert({ message: __('Compiled Bid Document Generated'), indicator: 'green' });
                 frm.reload_doc();

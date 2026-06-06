@@ -1,15 +1,17 @@
-# Integration Recommendation Plan: Tender Management & Bespo Notifications
-**Date:** Tuesday, May 26, 2026
-**Version:** 1.5 (Multi-Bot & Multi-Channel Routing)
+<h1 align="center">Integration Recommendation Plan: Tender Management & Bespo Notifications</h1>
+<p align="center">
+  <b>Date:</b> Tuesday, May 26, 2026<br>
+  <b>Version:</b> 1.5 (Multi-Bot & Multi-Channel Routing)
+</p>
 
-## 1. Executive Summary
+<h2 align="center">1. Executive Summary</h2>
 The goal is to migrate the legacy, synchronous notification system in `tender_management` (Chatwoot/SMS) to the robust, multi-channel, and audited framework provided by `bespo_notifications`. 
 
 **Update (v1.5):** This version incorporates **Multi-Bot and Multi-Channel** management capabilities derived from `bespo_notifications`. Instead of a single static bot, the system will support routing Tender Alerts through specific Telegram Bots and Channel Profiles based on global defaults or per-tender configurations.
 
 ---
 
-## 2. Phase 1: Legacy Decommissioning (Cleanup)
+<h2 align="center">2. Phase 1: Legacy Decommissioning (Cleanup)</h2>
 *(Status: Complete)*
 - Deleted `tender_management/utils/sms.py`.
 - Stripped Chatwoot logic from `notifications.py`.
@@ -17,7 +19,7 @@ The goal is to migrate the legacy, synchronous notification system in `tender_ma
 
 ---
 
-## 3. Phase 2: Multi-Bot Configuration & Settings
+<h2 align="center">3. Phase 2: Multi-Bot Configuration & Settings</h2>
 
 ### 3.1 Global: Tender Settings DocType
 The `Tender Settings` Single DocType manages default notification pathways.
@@ -38,7 +40,7 @@ Custom fields on the `User` DocType:
 
 ---
 
-## 4. Phase 3: Dynamic Routing & Per-Tender Overrides
+<h2 align="center">4. Phase 3: Dynamic Routing & Per-Tender Overrides</h2>
 
 ### 4.1 Per-Tender Departmental Routing (NEW)
 Different departments (e.g., Construction vs. IT) may require their tenders to be broadcast via different bots or to different chat groups.
@@ -61,7 +63,7 @@ The `notification_dispatcher.py` handles multi-bot selection:
 
 ---
 
-## 5. Phase 4: Scheduled Job Consolidation
+<h2 align="center">5. Phase 4: Scheduled Job Consolidation</h2>
 *(Status: Complete)*
 - Migrated `check_tender_deadlines` to `bespo_notifications/tasks.py`.
 - Updated Bespo's Daily Digest to include Tender Deadlines.
@@ -69,7 +71,7 @@ The `notification_dispatcher.py` handles multi-bot selection:
 
 ---
 
-## 6. Implementation Roadmap for Version 1.5
+<h2 align="center">6. Implementation Roadmap for Version 1.5</h2>
 1. **Schema Update:** Add `Telegram Bot` and `Telegram Chat Profile` Link fields to `Tender Settings`.
 2. **Per-Tender Logic:** Add the same Link fields to `Tender Opportunity` for departmental override.
 3. **Dispatcher Upgrade:** Refactor `notification_dispatcher.py` to pass the dynamically selected `linked_bot` into the `Notification Log` payload.

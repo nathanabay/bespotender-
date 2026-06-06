@@ -822,13 +822,15 @@
   },
   {
    "fieldname": "supplier_company_profile",
-   "fieldtype": "Attach",
-   "label": "Supplier Company Profile"
+   "fieldtype": "Table",
+   "label": "Supplier Company Profile",
+   "options": "Bid Document Item"
   },
   {
    "fieldname": "supplier_iso_certification",
-   "fieldtype": "Attach",
-   "label": "Supplier ISO and Other Certification"
+   "fieldtype": "Table",
+   "label": "Supplier ISO and Other Certification",
+   "options": "Bid Document Item"
   },
   {
    "fieldname": "the_bid_document",

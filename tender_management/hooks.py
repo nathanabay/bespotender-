@@ -186,9 +186,9 @@ after_migrate = "tender_management.tender_management.setup.after_migrate"
 
 doc_events = {
 	"Tender Opportunity": {
-		"before_save": "tender_management.tender_management.utils.tender_doc_gen.extract_financial_document",
-		"on_update": "tender_management.tender_management.utils.notification_dispatcher.handle_tender_update",
-		"on_workflow_action": "tender_management.tender_management.utils.notification_dispatcher.handle_workflow_notification",
+		"before_save": "tender_management.utils.tender_doc_gen.extract_financial_document",
+		"on_update": "tender_management.utils.notification_dispatcher.handle_tender_update",
+		"on_workflow_action": "tender_management.utils.notification_dispatcher.handle_workflow_notification",
 	}
 }
 
