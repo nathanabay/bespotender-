@@ -205,10 +205,9 @@ def generate_compiled_tender_document_v5(tender_name):
         {"title": "4. Bid Submission Sheets", "file": tender.bid_submission_sheets},
         {"title": "5. Technical Methodology", "file": tender.technical_methodology},
         {"title": "6. Manufacturer Authorization Form (MAF)", "file": tender.manufacturer_authorization_form},
-        {"title": "7. Supplier Company Profile", "table": "supplier_company_profile"},
-        {"title": "8. Supplier ISO and Other Certification", "table": "supplier_iso_certification"},
-        {"title": "9. The Bid Document", "file": tender.the_bid_document},
-        {"title": "10. Financial Document", "file": tender.extracted_financial_document}
+        {"title": "7. Supplier Company Profile & Certifications", "table": "supplier_company_profile"},
+        {"title": "8. The Bid Document", "file": tender.the_bid_document},
+        {"title": "9. Financial Document", "file": tender.extracted_financial_document}
     ]
     
     for section in sections:

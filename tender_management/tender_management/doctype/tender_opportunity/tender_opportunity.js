@@ -74,8 +74,49 @@ frappe.ui.form.on('Tender Opportunity', {
                 });
             });
         }
+        
+        // Add multi-upload buttons
+        setup_multi_upload_button(frm, 'supplier_company_profile', 'Supplier Company Profile & Certifications');
     }
 });
+
+function setup_multi_upload_button(frm, field_name, button_label) {
+    const grid = frm.get_field(field_name).grid;
+    if (grid) {
+        // Prevent adding duplicate buttons
+        if (grid.custom_buttons && grid.custom_buttons[button_label]) {
+            return;
+        }
+
+        grid.add_custom_button(__('Upload Multiple'), () => {
+            new frappe.ui.FileUploader({
+                doctype: frm.doctype,
+                docname: frm.docname,
+                allow_multiple: true,
+                on_success: (files) => {
+                    if (!Array.isArray(files)) {
+                        files = [files];
+                    }
+                    
+                    let new_rows = false;
+                    files.forEach(file => {
+                        frm.add_child(field_name, {
+                            document_title: file.file_name,
+                            file: file.file_url
+                        });
+                        new_rows = true;
+                    });
+                    
+                    if (new_rows) {
+                        frm.refresh_field(field_name);
+                        frappe.show_alert({message: __('{0} files added to {1}').format(files.length, grid.doctype), indicator: 'green'});
+                        frm.save();
+                    }
+                }
+            });
+        });
+    }
+}
 
 function show_team_dialog(frm) {
     let d = new frappe.ui.Dialog({
