@@ -150,55 +150,9 @@ def generate_compiled_tender_document_v5(tender_name):
         """
         return get_pdf(full_html)
 
-    def append_document_to_writer(writer, file_doc, get_pdf_with_letterhead):
-        import tempfile
-        import os
-        import subprocess
-
-        file_content = file_doc.get_content()
-        file_name = file_doc.file_name
-
-        if file_name.lower().endswith(".pdf"):
-            writer.append_pages_from_reader(PdfReader(BytesIO(file_content)))
-        
-        elif file_name.lower().endswith((".docx", ".doc")):
-            with tempfile.TemporaryDirectory() as temp_dir:
-                original_filename = os.path.splitext(file_name)[0]
-                doc_path = os.path.join(temp_dir, file_name)
-                pdf_path = os.path.join(temp_dir, f"{original_filename}.pdf")
-
-                with open(doc_path, "wb") as f:
-                    f.write(file_content)
-
-                try:
-                    # Run unoconv to convert docx to pdf
-                    result = subprocess.run(
-                        ["unoconv", "-f", "pdf", "-o", pdf_path, doc_path],
-                        check=True,
-                        capture_output=True,
-                        text=True
-                    )
-                    
-                    with open(pdf_path, "rb") as f:
-                        pdf_content = f.read()
-                    
-                    writer.append_pages_from_reader(PdfReader(BytesIO(pdf_content)))
-
-                except FileNotFoundError:
-                    error_message = f"Failed to convert Word document: {file_name}. The 'unoconv' command was not found. Please install it on your server (e.g., 'sudo apt-get install unoconv')."
-                    frappe.log_error(message=error_message, title="DOCX Conversion Failed: Command Not Found")
-                    msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color: red;'><b>Conversion Failed</b></p><p>Could not convert file: <b>{file_name}</b></p><p style='font-size: 10px; color: grey;'>Reason: `unoconv` is not installed on the server.</p></div>"
-                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
-                except subprocess.CalledProcessError as e:
-                    error_message = f"Failed to convert Word document: {file_name}. `unoconv` command failed with exit code {e.returncode}. STDERR: {e.stderr}"
-                    frappe.log_error(message=error_message, title="DOCX Conversion Failed: unoconv Error")
-                    msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color: red;'><b>Conversion Failed</b></p><p>Could not convert file: <b>{file_name}</b></p><p style='font-size: 10px; color: grey;'>Reason: {e.stderr}</p></div>"
-                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
-        
-        else:
-            msg_body = f"<div style='padding: 50px; text-align: center;'><p>Unsupported file type: {file_name}</p></div>"
-            writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
-
+    # Import the new converter
+    from pypdf import PdfReader, PdfWriter
+    from io import BytesIO
 
     writer = PdfWriter()
     
@@ -252,7 +206,7 @@ def generate_compiled_tender_document_v5(tender_name):
         {"title": "1. Legal & Administrative", "table": "legal_and_administrative_documents"},
         {"title": "2. Our Company Profile", "table": "company_profile_documents"},
         {"title": "3. Our Employee List and CV", "table": "employee_list_cv_documents"},
-        {"title": "4. Bid Submission Sheets", "file": tender.bid_submission_sheets},
+        {"title": "4. Bid Submission Sheets", "table": "bid_submission_sheets"},
         {"title": "5. Technical Methodology", "file": tender.technical_methodology},
         {"title": "6. Manufacturer Authorization Form (MAF)", "file": tender.manufacturer_authorization_form},
         {"title": "7. Supplier Company Profile & Certifications", "table": "supplier_company_profile"},
@@ -262,7 +216,7 @@ def generate_compiled_tender_document_v5(tender_name):
     
     for section in sections:
         # Determine the source of documents: either the main tender doc or the Bid Document Management singleton
-        doc_source = bid_mgmt if section.get("table") in ["legal_and_administrative_documents", "company_profile_documents", "employee_list_cv_documents", "supplier_company_profile"] else tender
+        doc_source = bid_mgmt if section.get("table") in ["legal_and_administrative_documents", "company_profile_documents", "employee_list_cv_documents"] else tender
 
         if "table" in section:
             table_name = section["table"]
@@ -273,8 +227,16 @@ def generate_compiled_tender_document_v5(tender_name):
                 for row in rows:
                     if row.file:
                         try:
-                            file_doc = frappe.get_doc("File", {"file_url": row.file})
-                            append_document_to_writer(writer, file_doc, get_pdf_with_letterhead)
+                            # Prioritize using the pre-converted PDF.
+                            file_to_use = row.converted_pdf or row.file
+                            file_doc = frappe.get_doc("File", {"file_url": file_to_use})
+
+                            if file_doc.file_name.lower().endswith('.pdf'):
+                                writer.append_pages_from_reader(PdfReader(BytesIO(file_doc.get_content())))
+                            else:
+                                # This will now only show if the background conversion failed or is still running
+                                msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color:orange;'><b>File Not Ready or Unsupported</b></p><p>File '{file_doc.file_name}' is not a PDF.</p><p>If you just uploaded it, please wait a moment for the conversion to finish and try again.</p></div>"
+                                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
                         except Exception as e:
                             frappe.log_error(f"Table row failure for {row.file}: {str(e)}", "Document Compilation")
             continue
@@ -286,9 +248,14 @@ def generate_compiled_tender_document_v5(tender_name):
                     file_doc = frappe.get_doc("File", {"file_url": file_url})
                     sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{section['title']}</h1></div>"
                     writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(sep_body))))
-                    append_document_to_writer(writer, file_doc, get_pdf_with_letterhead)
+                    if file_doc.file_name.lower().endswith('.pdf'):
+                        writer.append_pages_from_reader(PdfReader(BytesIO(file_doc.get_content())))
+                    else:
+                        msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color:red;'><b>Unsupported File</b></p><p>File '{file_doc.file_name}' is not a PDF.</p><p>Please convert it to PDF manually and re-upload.</p></div>"
+                        writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
                 except Exception as e:
                     frappe.log_error(f"File section failure for {file_url}: {str(e)}", "Document Compilation")
+
 
     output_stream = BytesIO()
     writer.write(output_stream)

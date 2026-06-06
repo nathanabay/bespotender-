@@ -195,7 +195,11 @@ doc_events = {
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {}
+scheduler_events = {
+	"hourly": [
+		"tender_management.utils.run_scraper.run_scraper_job"
+	]
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,

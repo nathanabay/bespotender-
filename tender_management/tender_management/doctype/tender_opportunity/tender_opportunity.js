@@ -76,6 +76,7 @@ frappe.ui.form.on('Tender Opportunity', {
         }
         
         // Add multi-upload buttons
+        setup_multi_upload_button(frm, 'bid_submission_sheets', 'Bid Submission Sheets');
         setup_multi_upload_button(frm, 'supplier_company_profile', 'Supplier Company Profile & Certifications');
     }
 });

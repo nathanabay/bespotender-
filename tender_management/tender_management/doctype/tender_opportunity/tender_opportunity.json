@@ -804,16 +804,17 @@
    "fieldtype": "Section Break",
    "label": "Technical Documents"
   },
-  {
-   "fieldname": "bid_submission_sheets",
-   "fieldtype": "Attach",
-   "label": "Bid Submission Sheets"
-  },
-  {
-   "fieldname": "technical_methodology",
-   "fieldtype": "Attach",
-   "label": "Technical Methodology"
-  },
+   {
+    "fieldname": "bid_submission_sheets",
+    "fieldtype": "Table",
+    "label": "Bid Submission Sheets",
+    "options": "Bid Document Item"
+   },
+   {
+    "fieldname": "technical_methodology",
+    "fieldtype": "Attach",
+    "label": "Technical Methodology"
+   },
   {
    "fieldname": "manufacturer_authorization_form",
    "fieldtype": "Attach",
