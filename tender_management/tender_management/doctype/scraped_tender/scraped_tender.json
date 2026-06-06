@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "autoincrement",
  "creation": "2026-06-06 12:00:00",
  "doctype": "DocType",
@@ -9,7 +8,12 @@
   "title",
   "category",
   "region",
+  "posted_date",
+  "published_on",
   "closing_date",
+  "closing_date_text",
+  "bid_document_price",
+  "bid_bond",
   "source_url",
   "status",
   "section_break_1",
@@ -21,29 +25,55 @@
   {
    "fieldname": "title",
    "fieldtype": "Small Text",
+   "in_list_view": 1,
    "label": "Tender Title",
-   "reqd": 1,
-   "in_list_view": 1
+   "reqd": 1
   },
   {
    "fieldname": "category",
    "fieldtype": "Data",
-   "label": "Category",
    "in_list_view": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "label": "Category"
   },
   {
    "fieldname": "region",
    "fieldtype": "Data",
-   "label": "Region",
    "in_list_view": 1,
-   "in_standard_filter": 1
+   "in_standard_filter": 1,
+   "label": "Region"
+  },
+  {
+   "fieldname": "posted_date",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Posted Date"
+  },
+  {
+   "fieldname": "published_on",
+   "fieldtype": "Data",
+   "label": "Published On"
   },
   {
    "fieldname": "closing_date",
    "fieldtype": "Datetime",
-   "label": "Closing Date",
-   "in_list_view": 1
+   "in_list_view": 1,
+   "label": "Closing Date"
+  },
+  {
+   "fieldname": "closing_date_text",
+   "fieldtype": "Data",
+   "label": "Closing Date (Text)"
+  },
+  {
+   "fieldname": "bid_document_price",
+   "fieldtype": "Data",
+   "label": "Bid Document Price"
+  },
+  {
+   "fieldname": "bid_bond",
+   "fieldtype": "Data",
+   "label": "Bid Bond"
   },
   {
    "fieldname": "source_url",
@@ -55,9 +85,9 @@
    "default": "New",
    "fieldname": "status",
    "fieldtype": "Select",
+   "in_list_view": 1,
    "label": "Status",
-   "options": "New\nProcessed\nError",
-   "in_list_view": 1
+   "options": "New\nProcessed\nError"
   },
   {
    "fieldname": "section_break_1",
@@ -74,15 +104,15 @@
    "label": "AI Summary"
   },
   {
+   "description": "Newline separated URLs for attached documents",
    "fieldname": "documents",
    "fieldtype": "Text",
-   "label": "Documents",
-   "description": "Newline separated URLs for attached documents"
+   "label": "Documents"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-06 12:00:00",
+ "modified": "2026-06-06 20:15:14.970755",
  "modified_by": "Administrator",
  "module": "Tender Management",
  "name": "Scraped Tender",
@@ -110,6 +140,19 @@
    "read": 1,
    "report": 1,
    "role": "Tender Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Administrator",
+   "select": 1,
    "share": 1,
    "write": 1
   }
