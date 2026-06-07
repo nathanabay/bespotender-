@@ -13,10 +13,14 @@ frappe.ui.form.on('Tender Scraper Settings', {
 				method: "tender_management.utils.scraper_utils.sync_categories",
 				callback: function(r) {
 					if (r.message && r.message.status === "success") {
+						let msg = r.message.new_count > 0 
+							? __('{0} new categories added. Total: {1}', [r.message.new_count, r.message.total_count])
+							: __('All {0} categories are already up to date.', [r.message.total_count]);
+							
 						frappe.msgprint({
-							title: __('Success'),
+							title: __('Category Sync'),
 							indicator: 'green',
-							message: __('{0} categories synced successfully.', [r.message.count])
+							message: msg
 						});
 					}
 				}
@@ -30,7 +34,8 @@ frappe.ui.form.on('Tender Scraper Settings', {
 				args: {
 					doctype: "Merkato Category",
 					fields: ["name"],
-					limit_page_length: 500
+					limit_page_length: 500,
+					order_by: "category_name asc"
 				},
 				callback: function(r) {
 					if (r.message) {
