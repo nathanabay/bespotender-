@@ -6,7 +6,9 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "category_name"
+  "category_name",
+  "is_group",
+  "parent_category"
  ],
  "fields": [
   {
@@ -16,6 +18,18 @@
    "label": "Category Name",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "label": "Is Group"
+  },
+  {
+   "fieldname": "parent_category",
+   "fieldtype": "Link",
+   "label": "Parent Category",
+   "options": "Merkato Category"
   }
  ],
  "index_web_pages_for_search": 1,
