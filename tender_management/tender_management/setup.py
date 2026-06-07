@@ -337,6 +337,7 @@ def setup_workspace():
         {"type": "shortcut", "data": {"shortcut_name": "Bid Decisions", "col": 3}},
         {"type": "shortcut", "data": {"shortcut_name": "Cost Estimations", "col": 3}},
         {"type": "shortcut", "data": {"shortcut_name": "Templates", "col": 3}},
+        {"type": "shortcut", "data": {"shortcut_name": "Scraper Settings", "col": 3}},
         
         {"type": "header", "data": {"text": "Task Overview", "level": 3, "col": 12}},
         {"type": "chart", "data": {"chart_name": "Tasks by Status", "col": 6}},
@@ -374,6 +375,7 @@ def setup_workspace():
         {"link_to": "Bid Decision Matrix", "type": "DocType", "label": "Bid Decisions", "icon": "milestone", "color": "Purple"},
         {"link_to": "Cost Estimation", "type": "DocType", "label": "Cost Estimations", "icon": "calculator", "color": "Green"},
         {"link_to": "Document Template", "type": "DocType", "label": "Templates", "icon": "file", "color": "Cyan"},
+        {"link_to": "Tender Scraper Settings", "type": "DocType", "label": "Scraper Settings", "icon": "settings", "color": "Grey"},
         {"link_to": "Performance Bond", "type": "DocType", "label": "Performance Bonds", "icon": "shield", "color": "Red"},
         {"link_to": "Competitor", "type": "DocType", "label": "Competitors", "icon": "users", "color": "Yellow"}
     ]

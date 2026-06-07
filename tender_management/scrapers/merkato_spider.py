@@ -9,16 +9,44 @@ class MerkatoSpider(scrapy.Spider):
 	name = "merkato_tender"
 	start_urls = ["https://tender.2merkato.com/login"]
 	handle_httpstatus_list = [422, 409]
-	page_limit = 80
 	page_count = 0
+
+	def __init__(self, page_limit=None, *args, **kwargs):
+		super(MerkatoSpider, self).__init__(*args, **kwargs)
+		
+		# Load settings from Frappe
+		self.settings_doc = frappe.get_single("Tender Scraper Settings")
+		
+		# Set page limit: CLI arg takes precedence, then settings, then default 80
+		if page_limit:
+			self.page_limit = int(page_limit)
+		else:
+			self.page_limit = int(self.settings_doc.page_limit or 80)
+			
+		# Load enabled categories for filtering
+		self.enabled_categories = [c.category_name.strip().lower() for c in self.settings_doc.categories]
+		
+		print(f"--- MerkatoSpider initialized ---")
+		print(f"--- Page Limit: {self.page_limit} ---")
+		if self.enabled_categories:
+			print(f"--- Filter Categories: {', '.join(self.enabled_categories)} ---")
+		else:
+			print(f"--- Filter Categories: ALL ---")
 
 	def parse(self, response):
 		"""
-		Entry point: extract CSRF token and handle login.
+		Entry point: handle login.
 		"""
+		print(f"--- Entry point: {response.url} ---")
+		
+		# If we are on a tenders page already, just parse the list
+		if "/tenders" in response.url:
+			return self.parse_tenders_list(response)
+
+		# Otherwise, extract CSRF token and handle login
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		if not data_page_raw:
-			self.logger.error("Could not find data-page on login page.")
+			print("--- Error: data-page not found ---")
 			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
 			return
 
@@ -28,19 +56,19 @@ class MerkatoSpider(scrapy.Spider):
 			csrf_token = page_data.get("props", {}).get("csrf_token")
 			inertia_version = page_data.get("version")
 		except Exception as e:
-			self.logger.error(f"Failed to parse login page JSON: {e}")
+			print(f"--- Error parsing JSON: {e} ---")
 			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
 			return
 
-		username = frappe.conf.get("merkato_username")
-		password = frappe.conf.get("merkato_password")
+		# Read credentials from Settings DocType
+		username = self.settings_doc.merkato_username
+		password = self.settings_doc.get_password("merkato_password")
 		
 		if not username or not password:
-			self.logger.warning("Merkato credentials missing. Scraping without login.")
-			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
+			print("--- Error: Credentials missing in Tender Scraper Settings. Login is REQUIRED. ---")
 			return
 
-		self.logger.info(f"Attempting login for: {username}")
+		print(f"--- Attempting login for {username} ---")
 		yield scrapy.Request(
 			"https://tender.2merkato.com/login",
 			method="POST",
@@ -62,39 +90,52 @@ class MerkatoSpider(scrapy.Spider):
 
 	def after_login(self, response):
 		"""Verify login and proceed."""
-		if response.status == 422:
-			self.logger.error(f"Login validation error: {response.text}")
-		elif "login" in response.url:
-			self.logger.error("Login failed (redirected back to login).")
-		else:
-			self.logger.info("Login successful.")
+		print(f"--- After login URL: {response.url}, Status: {response.status} ---")
 		
-		yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
+		if response.status == 409:
+			print("--- Conflict Error (likely version mismatch) ---")
+			location = response.headers.get("X-Inertia-Location")
+			if location:
+				location_str = location.decode('utf-8')
+				print(f"--- Retrying via X-Inertia-Location: {location_str} ---")
+				yield scrapy.Request(response.urljoin(location_str), callback=self.parse_tenders_list)
+				return
+
+		if response.status == 422:
+			print(f"--- Validation error (check your credentials in Settings): {response.text} ---")
+			return
+		
+		if "login" in response.url:
+			print("--- Login failed (redirected back to login) ---")
+			return
+		else:
+			print("--- Login successful! ---")
+			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
 
 	def parse_tenders_list(self, response):
 		"""
 		Extracts the JSON payload from the data-page attribute and parses it.
 		"""
 		self.page_count += 1
-		self.logger.info(f"PARSING TENDERS PAGE: {response.url} (Page {self.page_count})")
+		print(f"--- Parsing tenders page {self.page_count}: {response.url} ---")
 
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		if not data_page_raw:
-			self.logger.error("Could not find data-page attribute on tenders list.")
+			print("--- Error: data-page missing on list page ---")
 			return
 
 		data_page_str = html.unescape(data_page_raw)
 		try:
 			page_data = json.loads(data_page_str)
 		except json.JSONDecodeError as e:
-			self.logger.error(f"Failed to parse JSON: {e}")
+			print(f"--- Error parsing list JSON: {e} ---")
 			return
 
 		props = page_data.get("props", {})
 		tenders_data = props.get("tenders", {})
 		tenders_list = tenders_data.get("data", [])
 
-		self.logger.info(f"Found {len(tenders_list)} tenders in the list.")
+		print(f"--- Found {len(tenders_list)} tenders on page ---")
 
 		for tender in tenders_list:
 			tender_id = tender.get("id")
@@ -106,18 +147,16 @@ class MerkatoSpider(scrapy.Spider):
 					cb_kwargs={"list_data": tender}
 				)
 
-		# Pagination handling with 80-page limit
+		# Pagination handling with limit
 		if self.page_count < self.page_limit:
 			links = tenders_data.get("links", {})
 			next_page = links.get("next")
 			if next_page:
 				yield response.follow(next_page, self.parse_tenders_list)
-		else:
-			self.logger.info(f"Reached page limit ({self.page_limit}), stopping.")
 
 	def parse_tender_details(self, response, list_data):
 		"""
-		Extracts full details.
+		Extracts full details and saves to Frappe.
 		"""
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		tender_details = {}
@@ -129,20 +168,33 @@ class MerkatoSpider(scrapy.Spider):
 			except json.JSONDecodeError:
 				pass
 
-		# Combine data from the list view and the detail view
-		title = tender_details.get("title") or list_data.get("title", "N/A")
+		original_title = (tender_details.get("title") or list_data.get("title", "N/A")).strip()
+		truncated_title = original_title[:140].strip()
 		
 		# Category
 		category_data = tender_details.get("categories") or tender_details.get("category") or \
 						list_data.get("categories") or list_data.get("category")
 		category = "N/A"
 		if isinstance(category_data, list) and category_data:
-			names = [c.get("name_en") for c in category_data if isinstance(c, dict) and c.get("name_en")]
-			category = ", ".join(names) if names else "N/A"
+			names = [c.get("name_en") or c.get("name") for c in category_data if isinstance(c, dict)]
+			category = ", ".join([n for n in names if n]) or "N/A"
 		elif isinstance(category_data, dict):
-			category = category_data.get("name_en", "N/A")
+			category = category_data.get("name_en") or category_data.get("name") or "N/A"
 		elif isinstance(category_data, str):
 			category = category_data
+
+		# --- Category Filtering ---
+		if self.enabled_categories:
+			match = False
+			tender_cats = [c.strip().lower() for c in category.split(",")]
+			for ec in self.enabled_categories:
+				# Direct match or partial match
+				if any(ec in tc for tc in tender_cats):
+					match = True
+					break
+			if not match:
+				self.logger.debug(f"Skipping tender (category mismatch): {original_title[:30]}...")
+				return
 
 		# Region
 		region_data = tender_details.get("region") or list_data.get("region")
@@ -152,7 +204,7 @@ class MerkatoSpider(scrapy.Spider):
 		elif isinstance(region_data, str):
 			region = region_data
 		else:
-			region_sel = response.css('div:contains("Region") + div a::text, div:contains("Region") + div::text').get()
+			region_sel = response.xpath('//div[contains(text(), "Region")]/following-sibling::div//text()').get()
 			region = region_sel.strip() if region_sel else "N/A"
 
 		# Dates and Prices
@@ -167,7 +219,7 @@ class MerkatoSpider(scrapy.Spider):
 		doc_price = tender_details.get("bid_document_price") or list_data.get("bid_document_price")
 		bid_bond = tender_details.get("bid_bond") or list_data.get("bid_bond")
 
-		# Published On (Source Name + Date)
+		# Published On
 		sources = tender_details.get("sources") or list_data.get("sources")
 		published_on = "N/A"
 		if isinstance(sources, list) and sources:
@@ -186,7 +238,7 @@ class MerkatoSpider(scrapy.Spider):
 
 		ai_summary = tender_details.get("ai_summary")
 		if not ai_summary:
-			ai_summary_parts = response.css('div.mt-6.space-y-3.rounded-lg.border.p-6 h4:contains("AI Summary") ~ div::text').getall()
+			ai_summary_parts = response.xpath('//h4[contains(text(), "AI Summary")]/following-sibling::div//text()').getall()
 			ai_summary = " ".join([p.strip() for p in ai_summary_parts if p.strip()]) if ai_summary_parts else None
 
 		documents_list = []
@@ -195,23 +247,28 @@ class MerkatoSpider(scrapy.Spider):
 			documents_list.append(response.urljoin(doc_link))
 		documents_str = "\n".join(documents_list) if documents_list else None
 
-		if not frappe.db.exists("Scraped Tender", {"source_url": response.url}):
-			doc = frappe.new_doc("Scraped Tender")
-			doc.title = title.strip() if title else "N/A"
-			doc.category = category
-			doc.region = region
-			doc.posted_date = posted_date
-			doc.published_on = published_on
-			doc.closing_date = closing_date
-			doc.closing_date_text = closing_date_text
-			doc.bid_document_price = doc_price
-			doc.bid_bond = bid_bond
-			doc.source_url = response.url
-			doc.description = description
-			doc.ai_summary = ai_summary
-			doc.documents = documents_str
-			doc.insert(ignore_permissions=True)
-			frappe.db.commit() 
-			self.logger.info(f"Created new tender: {doc.title[:50]}...")
+		# Save to Frappe
+		if not frappe.db.exists("Scraped Tender", truncated_title):
+			try:
+				doc = frappe.new_doc("Scraped Tender")
+				doc.title = truncated_title
+				doc.tender_title = original_title
+				doc.category = category
+				doc.region = region
+				doc.posted_date = str(posted_date) if posted_date else None
+				doc.published_on = published_on
+				doc.closing_date = closing_date
+				doc.closing_date_text = closing_date_text
+				doc.bid_document_price = str(doc_price) if doc_price else None
+				doc.bid_bond = str(bid_bond) if bid_bond else None
+				doc.source_url = response.url
+				doc.description = description
+				doc.ai_summary = ai_summary
+				doc.documents = documents_str
+				doc.insert(ignore_permissions=True)
+				frappe.db.commit() 
+				print(f"--- Created tender: {truncated_title[:30]}... ---")
+			except Exception as e:
+				print(f"--- Error creating tender: {e} ---")
 		else:
-			self.logger.debug(f"Tender already exists: {response.url}")
+			print(f"--- Tender already exists: {truncated_title[:30]}... ---")

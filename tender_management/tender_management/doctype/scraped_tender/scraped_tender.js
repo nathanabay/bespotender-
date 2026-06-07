@@ -5,10 +5,13 @@ frappe.ui.form.on('Scraped Tender', {
 	refresh: function(frm) {
 		frm.add_custom_button(__('Scrape Tenders'), function() {
 			frappe.call({
-				method: "tender_management.utils.run_scraper.run_scraper_job",
+				method: "tender_management.utils.scraper_utils.run_scraper_job",
 				callback: function(r) {
 					if (r.message && r.message.status === "success") {
-						frappe.msgprint(__('Scraping job has been enqueued. It will take a few minutes to finish.'));
+						frappe.show_alert({
+							message: __('Scraping job enqueued successfully'),
+							indicator: 'green'
+						});
 					}
 				}
 			});

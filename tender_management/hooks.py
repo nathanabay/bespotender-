@@ -197,7 +197,7 @@ doc_events = {
 
 scheduler_events = {
 	"hourly": [
-		"tender_management.utils.run_scraper.run_scraper_job"
+		"tender_management.utils.scraper_utils.run_scraper_job"
 	]
 }
 #
