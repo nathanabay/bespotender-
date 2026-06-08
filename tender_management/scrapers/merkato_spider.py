@@ -149,7 +149,17 @@ class MerkatoSpider(scrapy.Spider):
 			except Exception: pass
 
 		# --- RE-VERIFY OPEN STATUS ---
-		if not tender_details.get("is_open", list_data.get("is_open")):
+		# Check JSON flags
+		is_open = tender_details.get("is_open", list_data.get("is_open"))
+		status_str = tender_details.get("status", list_data.get("status", "")).lower()
+		
+		if is_open is False or status_str == "closed":
+			self.logger.debug(f"Skipping closed tender (JSON flag): {response.url}")
+			return
+			
+		# Check raw HTML for "Bidding closed" badges just in case JSON is misleading
+		if "bidding closed" in response.text.lower():
+			self.logger.debug(f"Skipping closed tender (HTML badge): {response.url}")
 			return
 
 		original_title = (tender_details.get("title") or list_data.get("title", "N/A")).strip()
