@@ -74,6 +74,29 @@ frappe.listview_settings['Scraped Tender'] = {
 				});
 			});
 		});
+
+		// Add a Stop button
+		listview.page.add_inner_button(__('Stop Scraping'), function() {
+			frappe.confirm(__('Are you sure you want to stop all active scraping processes?'), function() {
+				frappe.call({
+					method: "tender_management.utils.scraper_utils.stop_scraper_job",
+					callback: function(r) {
+						if (r.message && r.message.status === "success") {
+							frappe.show_alert({
+								message: __('Scraping stopped successfully'),
+								indicator: 'green'
+							});
+						} else {
+							frappe.msgprint({
+								title: __('Error'),
+								indicator: 'red',
+								message: r.message ? r.message.message : __('Unknown error occurred')
+							});
+						}
+					}
+				});
+			});
+		}).css({ 'color': '#ff4d4f' });
 	},
 	get_indicator: function(doc) {
 		if (doc.status === "New") {

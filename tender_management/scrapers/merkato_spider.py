@@ -170,9 +170,14 @@ class MerkatoSpider(scrapy.Spider):
 		# Category Filtering
 		if self.enabled_categories:
 			match = False
-			tender_cats = [c.strip().lower() for c in category.split(",")]
+			# Normalize tender categories: lowercase, remove extra spaces
+			tender_cats_raw = category.split(",")
+			tender_cats = [c.strip().lower() for c in tender_cats_raw]
+			
 			for ec in self.enabled_categories:
-				if any(ec in tc for tc in tender_cats):
+				ec_clean = ec.strip().lower()
+				# Check for direct exact match
+				if ec_clean in tender_cats:
 					match = True
 					break
 			if not match: return
@@ -196,7 +201,13 @@ class MerkatoSpider(scrapy.Spider):
 			closing_date = None
 
 		closing_date_text = tender_details.get("bid_closing_date_text") or list_data.get("bid_closing_date_text")
-		posted_date = tender_details.get("published_at") or list_data.get("published_at")
+		
+		posted_date_raw = tender_details.get("created_at") or list_data.get("created_at")
+		if posted_date_raw and "T" in posted_date_raw:
+			posted_date = posted_date_raw.split("T")[0] + " " + posted_date_raw.split("T")[1][:8]
+		else:
+			posted_date = posted_date_raw
+			
 		doc_price = tender_details.get("bid_document_price") or list_data.get("bid_document_price")
 		bid_bond = tender_details.get("bid_bond") or list_data.get("bid_bond")
 

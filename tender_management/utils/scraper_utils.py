@@ -144,4 +144,19 @@ def sync_categories():
 		}
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "Category Sync Error")
-		return {"status": "error", "message": "An error occurred during category sync."}
+
+@frappe.whitelist()
+def stop_scraper_job():
+	"""
+	Kills any running Scrapy processes.
+	"""
+	try:
+		# Use pkill to terminate start_crawling_direct and scrapy bots
+		subprocess.run("pkill -9 -f 'start_crawling_direct'", shell=True)
+		subprocess.run("pkill -9 -f 'merkato_bot'", shell=True)
+		frappe.logger().info("Scraper processes have been manually stopped.")
+		return {"status": "success", "message": "All scraper processes have been stopped."}
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "Stop Scraper Error")
+		return {"status": "error", "message": f"Failed to stop scraper: {str(e)}"}
+
