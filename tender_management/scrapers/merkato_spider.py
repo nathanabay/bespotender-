@@ -17,17 +17,18 @@ class MerkatoSpider(scrapy.Spider):
 		# Load settings from Frappe
 		self.settings_doc = frappe.get_single("Tender Scraper Settings")
 		
-		# Set page limit: CLI arg takes precedence, then settings, then default 80
+		# Set page limit
 		if page_limit:
 			self.page_limit = int(page_limit)
 		else:
 			self.page_limit = int(self.settings_doc.page_limit or 80)
 			
-		# Load enabled categories for filtering
-		self.enabled_categories = [c.category_name.strip().lower() for c in self.settings_doc.categories]
+		# Load enabled categories
+		self.enabled_categories = [c.category_name.strip().lower() for c in self.settings_doc.categories if c.enabled]
 		
 		print(f"--- MerkatoSpider initialized ---")
 		print(f"--- Page Limit: {self.page_limit} ---")
+		print(f"--- Filter: OPEN Tenders Only ---")
 		if self.enabled_categories:
 			print(f"--- Filter Categories: {', '.join(self.enabled_categories)} ---")
 		else:
@@ -39,15 +40,13 @@ class MerkatoSpider(scrapy.Spider):
 		"""
 		print(f"--- Entry point: {response.url} ---")
 		
-		# If we are on a tenders page already, just parse the list
 		if "/tenders" in response.url:
 			return self.parse_tenders_list(response)
 
-		# Otherwise, extract CSRF token and handle login
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		if not data_page_raw:
-			print("--- Error: data-page not found ---")
-			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
+			# Fallback: go to tenders page with open status
+			yield scrapy.Request("https://tender.2merkato.com/tenders?status=open", callback=self.parse_tenders_list)
 			return
 
 		data_page_str = html.unescape(data_page_raw)
@@ -55,20 +54,18 @@ class MerkatoSpider(scrapy.Spider):
 			page_data = json.loads(data_page_str)
 			csrf_token = page_data.get("props", {}).get("csrf_token")
 			inertia_version = page_data.get("version")
-		except Exception as e:
-			print(f"--- Error parsing JSON: {e} ---")
-			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
+		except Exception:
+			yield scrapy.Request("https://tender.2merkato.com/tenders?status=open", callback=self.parse_tenders_list)
 			return
 
-		# Read credentials from Settings DocType
 		username = self.settings_doc.merkato_username
 		password = self.settings_doc.get_password("merkato_password")
 		
 		if not username or not password:
-			print("--- Error: Credentials missing in Tender Scraper Settings. Login is REQUIRED. ---")
+			print("--- Error: Credentials missing. Proceeding without login. ---")
+			yield scrapy.Request("https://tender.2merkato.com/tenders?status=open", callback=self.parse_tenders_list)
 			return
 
-		print(f"--- Attempting login for {username} ---")
 		yield scrapy.Request(
 			"https://tender.2merkato.com/login",
 			method="POST",
@@ -89,55 +86,40 @@ class MerkatoSpider(scrapy.Spider):
 		)
 
 	def after_login(self, response):
-		"""Verify login and proceed."""
-		print(f"--- After login URL: {response.url}, Status: {response.status} ---")
-		
+		"""Verify login and proceed to OPEN tenders."""
 		if response.status == 409:
-			print("--- Conflict Error (likely version mismatch) ---")
 			location = response.headers.get("X-Inertia-Location")
 			if location:
 				location_str = location.decode('utf-8')
-				print(f"--- Retrying via X-Inertia-Location: {location_str} ---")
 				yield scrapy.Request(response.urljoin(location_str), callback=self.parse_tenders_list)
 				return
 
-		if response.status == 422:
-			print(f"--- Validation error (check your credentials in Settings): {response.text} ---")
-			return
-		
-		if "login" in response.url:
-			print("--- Login failed (redirected back to login) ---")
-			return
-		else:
-			print("--- Login successful! ---")
-			yield scrapy.Request("https://tender.2merkato.com/tenders", callback=self.parse_tenders_list)
+		# Direct to OPEN tenders only
+		yield scrapy.Request("https://tender.2merkato.com/tenders?status=open", callback=self.parse_tenders_list)
 
 	def parse_tenders_list(self, response):
 		"""
-		Extracts the JSON payload from the data-page attribute and parses it.
+		Extracts OPEN tenders from the JSON payload.
 		"""
 		self.page_count += 1
 		print(f"--- Parsing tenders page {self.page_count}: {response.url} ---")
 
 		data_page_raw = response.css("div#app::attr(data-page)").get()
-		if not data_page_raw:
-			print("--- Error: data-page missing on list page ---")
-			return
+		if not data_page_raw: return
 
-		data_page_str = html.unescape(data_page_raw)
 		try:
-			page_data = json.loads(data_page_str)
-		except json.JSONDecodeError as e:
-			print(f"--- Error parsing list JSON: {e} ---")
-			return
+			page_data = json.loads(html.unescape(data_page_raw))
+		except Exception: return
 
 		props = page_data.get("props", {})
 		tenders_data = props.get("tenders", {})
 		tenders_list = tenders_data.get("data", [])
 
-		print(f"--- Found {len(tenders_list)} tenders on page ---")
-
 		for tender in tenders_list:
+			# --- HARD FILTER: MUST BE OPEN ---
+			if not tender.get("is_open"):
+				continue
+
 			tender_id = tender.get("id")
 			if tender_id:
 				detail_url = f"https://tender.2merkato.com/tenders/{tender_id}"
@@ -147,7 +129,7 @@ class MerkatoSpider(scrapy.Spider):
 					cb_kwargs={"list_data": tender}
 				)
 
-		# Pagination handling with limit
+		# Pagination
 		if self.page_count < self.page_limit:
 			links = tenders_data.get("links", {})
 			next_page = links.get("next")
@@ -161,12 +143,14 @@ class MerkatoSpider(scrapy.Spider):
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		tender_details = {}
 		if data_page_raw:
-			data_page_str = html.unescape(data_page_raw)
 			try:
-				page_data = json.loads(data_page_str)
+				page_data = json.loads(html.unescape(data_page_raw))
 				tender_details = page_data.get("props", {}).get("tender", {}) 
-			except json.JSONDecodeError:
-				pass
+			except Exception: pass
+
+		# --- RE-VERIFY OPEN STATUS ---
+		if not tender_details.get("is_open", list_data.get("is_open")):
+			return
 
 		original_title = (tender_details.get("title") or list_data.get("title", "N/A")).strip()
 		truncated_title = original_title[:140].strip()
@@ -183,18 +167,15 @@ class MerkatoSpider(scrapy.Spider):
 		elif isinstance(category_data, str):
 			category = category_data
 
-		# --- Category Filtering ---
+		# Category Filtering
 		if self.enabled_categories:
 			match = False
 			tender_cats = [c.strip().lower() for c in category.split(",")]
 			for ec in self.enabled_categories:
-				# Direct match or partial match
 				if any(ec in tc for tc in tender_cats):
 					match = True
 					break
-			if not match:
-				self.logger.debug(f"Skipping tender (category mismatch): {original_title[:30]}...")
-				return
+			if not match: return
 
 		# Region
 		region_data = tender_details.get("region") or list_data.get("region")
@@ -207,7 +188,7 @@ class MerkatoSpider(scrapy.Spider):
 			region_sel = response.xpath('//div[contains(text(), "Region")]/following-sibling::div//text()').get()
 			region = region_sel.strip() if region_sel else "N/A"
 
-		# Dates and Prices
+		# Metadata
 		closing_date_str = tender_details.get("bid_closing_date") or list_data.get("bid_closing_date")
 		try:
 			closing_date = get_datetime(closing_date_str) if closing_date_str else None
@@ -219,7 +200,6 @@ class MerkatoSpider(scrapy.Spider):
 		doc_price = tender_details.get("bid_document_price") or list_data.get("bid_document_price")
 		bid_bond = tender_details.get("bid_bond") or list_data.get("bid_bond")
 
-		# Published On
 		sources = tender_details.get("sources") or list_data.get("sources")
 		published_on = "N/A"
 		if isinstance(sources, list) and sources:
@@ -270,5 +250,3 @@ class MerkatoSpider(scrapy.Spider):
 				print(f"--- Created tender: {truncated_title[:30]}... ---")
 			except Exception as e:
 				print(f"--- Error creating tender: {e} ---")
-		else:
-			print(f"--- Tender already exists: {truncated_title[:30]}... ---")

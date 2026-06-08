@@ -19,10 +19,11 @@ frappe.ui.form.on('Tender Scraper Settings', {
 						r.message.forEach(cat => {
 							let row = frm.add_child("categories");
 							row.category_name = cat.name;
+							row.enabled = 1; // Explicitly enable by default when adding all
 						});
 						frm.refresh_field("categories");
 						frappe.show_alert({
-							message: __('Added {0} categories to the table.', [r.message.length]),
+							message: __('Added {0} categories to the table and enabled them.', [r.message.length]),
 							indicator: 'green'
 						});
 					}
@@ -52,12 +53,12 @@ frappe.ui.form.on('Tender Scraper Settings', {
 			});
 		}).addClass('btn-primary');
 
-		// 2. Secondary Button: Just fill table from existing master list
+		// 2. Just fill table from existing master list
 		frm.add_custom_button(__('Just Fill Table (No Sync)'), function() {
 			add_all_to_table();
 		}, __("Actions"));
 
-		// 3. Secondary Button: Just sync master list (no fill)
+		// 3. Just sync master list (no fill)
 		frm.add_custom_button(__('Just Sync List (No Fill)'), function() {
 			frappe.call({
 				method: "tender_management.utils.scraper_utils.sync_categories",
@@ -67,6 +68,32 @@ frappe.ui.form.on('Tender Scraper Settings', {
 					}
 				}
 			});
+		}, __("Actions"));
+
+		// 4. Select All in Table
+		frm.add_custom_button(__('Select All (Check All)'), function() {
+			if (!frm.doc.categories || frm.doc.categories.length === 0) {
+				frappe.msgprint(__('The categories table is empty.'));
+				return;
+			}
+			frm.doc.categories.forEach(row => {
+				row.enabled = 1;
+			});
+			frm.refresh_field("categories");
+			frappe.show_alert({ message: __('Checked all rows'), indicator: 'green' });
+		}, __("Actions"));
+
+		// 5. Deselect All in Table
+		frm.add_custom_button(__('Deselect All (Uncheck All)'), function() {
+			if (!frm.doc.categories || frm.doc.categories.length === 0) {
+				frappe.msgprint(__('The categories table is empty.'));
+				return;
+			}
+			frm.doc.categories.forEach(row => {
+				row.enabled = 0;
+			});
+			frm.refresh_field("categories");
+			frappe.show_alert({ message: __('Unchecked all rows'), indicator: 'orange' });
 		}, __("Actions"));
 	}
 });

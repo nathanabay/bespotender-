@@ -31,7 +31,7 @@ def run_scraper_job(pages=None):
 		]
 		
 		# Execute as a completely detached background process
-		log_path = "/home/frappe/frappe-bench/logs/tender_scraper.log"
+		log_path = "/tmp/tender_scraper.log"
 		with open(log_path, "a") as f:
 			f.write(f"\n--- Starting scraper job for {pages} pages ---\n")
 		

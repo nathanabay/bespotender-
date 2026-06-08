@@ -15,21 +15,23 @@
   {
    "fieldname": "merkato_username",
    "fieldtype": "Data",
+   "in_list_view": 1,
    "label": "Merkato Username (Email)",
    "reqd": 1
   },
   {
    "fieldname": "merkato_password",
    "fieldtype": "Password",
+   "in_list_view": 1,
    "label": "Merkato Password",
    "reqd": 1
   },
   {
    "default": "80",
+   "description": "Number of pages to scrape (max 80)",
    "fieldname": "page_limit",
    "fieldtype": "Int",
-   "label": "Page Limit",
-   "description": "Number of pages to scrape (max 80)"
+   "label": "Page Limit"
   },
   {
    "fieldname": "section_break_categories",
@@ -47,7 +49,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-06-07 19:05:00",
+ "modified": "2026-06-07 22:53:54.796303",
  "modified_by": "Administrator",
  "module": "Tender Management",
  "name": "Tender Scraper Settings",
@@ -57,10 +59,8 @@
    "create": 1,
    "delete": 1,
    "email": 1,
-   "export": 1,
    "print": 1,
    "read": 1,
-   "report": 1,
    "role": "System Manager",
    "share": 1,
    "write": 1
@@ -69,11 +69,19 @@
    "create": 1,
    "delete": 1,
    "email": 1,
-   "export": 1,
    "print": 1,
    "read": 1,
-   "report": 1,
    "role": "Tender Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "All",
    "share": 1,
    "write": 1
   }
