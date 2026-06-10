@@ -24,9 +24,14 @@ class MerkatoSpider(scrapy.Spider):
 			self.page_limit = int(self.settings_doc.page_limit or 80)
 			
 		# Load enabled categories
-		self.enabled_categories = [c.category_name.strip().lower() for c in self.settings_doc.categories if c.enabled]
+		self.enabled_categories = []
+		for c in self.settings_doc.categories:
+			# Explicitly check for integer 1 or string '1' to prevent loose truthy checks
+			if str(c.enabled) == "1":
+				self.enabled_categories.append(c.category_name.strip().lower())
 		
 		print(f"--- MerkatoSpider initialized ---")
+
 		print(f"--- Page Limit: {self.page_limit} ---")
 		print(f"--- Filter: OPEN Tenders Only ---")
 		if self.enabled_categories:
@@ -154,12 +159,7 @@ class MerkatoSpider(scrapy.Spider):
 		status_str = tender_details.get("status", list_data.get("status", "")).lower()
 		
 		if is_open is False or status_str == "closed":
-			self.logger.debug(f"Skipping closed tender (JSON flag): {response.url}")
-			return
-			
-		# Check raw HTML for "Bidding closed" badges just in case JSON is misleading
-		if "bidding closed" in response.text.lower():
-			self.logger.debug(f"Skipping closed tender (HTML badge): {response.url}")
+			print(f"--- Skipping closed tender (JSON flag: is_open={is_open}, status={status_str}): {response.url} ---")
 			return
 
 		original_title = (tender_details.get("title") or list_data.get("title", "N/A")).strip()
@@ -168,21 +168,26 @@ class MerkatoSpider(scrapy.Spider):
 		# Category
 		category_data = tender_details.get("categories") or tender_details.get("category") or \
 						list_data.get("categories") or list_data.get("category")
-		category = "N/A"
+		
+		tender_cats_list = []
 		if isinstance(category_data, list) and category_data:
-			names = [c.get("name_en") or c.get("name") for c in category_data if isinstance(c, dict)]
-			category = ", ".join([n for n in names if n]) or "N/A"
+			tender_cats_list = [c.get("name_en") or c.get("name") for c in category_data if isinstance(c, dict)]
+			tender_cats_list = [n for n in tender_cats_list if n]
 		elif isinstance(category_data, dict):
-			category = category_data.get("name_en") or category_data.get("name") or "N/A"
+			cat_val = category_data.get("name_en") or category_data.get("name")
+			if cat_val: tender_cats_list = [cat_val]
 		elif isinstance(category_data, str):
-			category = category_data
+			tender_cats_list = [category_data]
+
+		category = ", ".join(tender_cats_list) if tender_cats_list else "N/A"
+		
+		print(f"DEBUG: Tender '{truncated_title[:30]}' Cats: {tender_cats_list}")
 
 		# Category Filtering
 		if self.enabled_categories:
 			match = False
 			# Normalize tender categories: lowercase, remove extra spaces
-			tender_cats_raw = category.split(",")
-			tender_cats = [c.strip().lower() for c in tender_cats_raw]
+			tender_cats = [c.strip().lower() for c in tender_cats_list]
 			
 			for ec in self.enabled_categories:
 				ec_clean = ec.strip().lower()

@@ -70,30 +70,49 @@ frappe.ui.form.on('Tender Scraper Settings', {
 			});
 		}, __("Actions"));
 
-		// 4. Select All in Table
+		// 4. Select All in Table (Directly on form)
 		frm.add_custom_button(__('Select All (Check All)'), function() {
 			if (!frm.doc.categories || frm.doc.categories.length === 0) {
 				frappe.msgprint(__('The categories table is empty.'));
 				return;
 			}
 			frm.doc.categories.forEach(row => {
-				row.enabled = 1;
+				frappe.model.set_value(row.doctype, row.name, 'enabled', 1);
 			});
-			frm.refresh_field("categories");
-			frappe.show_alert({ message: __('Checked all rows'), indicator: 'green' });
-		}, __("Actions"));
+			frappe.show_alert({ message: __('Checked all rows. Please click Save.'), indicator: 'green' });
+		});
 
-		// 5. Deselect All in Table
+		// 5. Deselect All in Table (Directly on form)
 		frm.add_custom_button(__('Deselect All (Uncheck All)'), function() {
 			if (!frm.doc.categories || frm.doc.categories.length === 0) {
 				frappe.msgprint(__('The categories table is empty.'));
 				return;
 			}
 			frm.doc.categories.forEach(row => {
-				row.enabled = 0;
+				frappe.model.set_value(row.doctype, row.name, 'enabled', 0);
 			});
-			frm.refresh_field("categories");
-			frappe.show_alert({ message: __('Unchecked all rows'), indicator: 'orange' });
-		}, __("Actions"));
+			frappe.show_alert({ message: __('Unchecked all rows. Please click Save.'), indicator: 'orange' });
+		});
+		// 6. Check Scraper Status
+		frm.add_custom_button(__('Check Scraper Status'), function() {
+			frappe.call({
+				method: "tender_management.utils.scraper_utils.check_scraper_status",
+				callback: function(r) {
+					if (r.message && r.message.status === "success") {
+						frappe.msgprint({
+							title: __('Scraper Status'),
+							indicator: r.message.is_running ? 'green' : 'orange',
+							message: `<b>${r.message.message}</b>`
+						});
+					} else {
+						frappe.msgprint({
+							title: __('Error'),
+							indicator: 'red',
+							message: r.message ? r.message.message : __('Unknown error occurred')
+						});
+					}
+				}
+			});
+		});
 	}
 });

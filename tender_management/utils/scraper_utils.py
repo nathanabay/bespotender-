@@ -146,6 +146,25 @@ def sync_categories():
 		frappe.log_error(frappe.get_traceback(), "Category Sync Error")
 
 @frappe.whitelist()
+def check_scraper_status():
+	"""
+	Checks if the scraper background process is currently running.
+	"""
+	try:
+		# Check for running processes that match the scraper's execution signature
+		result = subprocess.run("ps aux | grep 'start_crawling_direct' | grep -v grep", shell=True, capture_output=True, text=True)
+		
+		is_running = bool(result.stdout.strip())
+		
+		if is_running:
+			return {"status": "success", "is_running": True, "message": "The scraper is currently RUNNING in the background."}
+		else:
+			return {"status": "success", "is_running": False, "message": "The scraper is currently STOPPED."}
+	except Exception as e:
+		frappe.log_error(frappe.get_traceback(), "Check Scraper Status Error")
+		return {"status": "error", "message": f"Failed to check status: {str(e)}"}
+
+@frappe.whitelist()
 def stop_scraper_job():
 	"""
 	Kills any running Scrapy processes.
