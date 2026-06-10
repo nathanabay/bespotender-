@@ -148,7 +148,7 @@ def sync_categories():
 @frappe.whitelist()
 def check_scraper_status():
 	"""
-	Checks if the scraper background process is currently running.
+	Checks if the scraper background process is currently running and returns the last few logs.
 	"""
 	try:
 		# Check for running processes that match the scraper's execution signature
@@ -156,10 +156,26 @@ def check_scraper_status():
 		
 		is_running = bool(result.stdout.strip())
 		
-		if is_running:
-			return {"status": "success", "is_running": True, "message": "The scraper is currently RUNNING in the background."}
+		# Get last 20 lines of logs using system tail (more reliable and efficient)
+		logs = ""
+		log_path = "/tmp/tender_scraper.log"
+		if os.path.exists(log_path):
+			try:
+				tail_result = subprocess.run(["tail", "-n", "20", log_path], capture_output=True, text=True)
+				logs = tail_result.stdout
+			except Exception:
+				logs = "Could not read log file via tail."
 		else:
-			return {"status": "success", "is_running": False, "message": "The scraper is currently STOPPED."}
+			logs = "Log file not found."
+		
+		status_msg = "RUNNING" if is_running else "STOPPED"
+		
+		return {
+			"status": "success", 
+			"is_running": is_running, 
+			"message": f"The scraper is currently {status_msg}.",
+			"logs": logs
+		}
 	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Check Scraper Status Error")
 		return {"status": "error", "message": f"Failed to check status: {str(e)}"}

@@ -223,6 +223,13 @@ class MerkatoSpider(scrapy.Spider):
 		else:
 			posted_date = posted_date_raw
 			
+		# Calculate days remaining
+		days_remaining = 0
+		if closing_date:
+			from frappe.utils import now_datetime
+			diff = closing_date - now_datetime()
+			days_remaining = max(0, diff.days)
+
 		doc_price = tender_details.get("bid_document_price") or list_data.get("bid_document_price")
 		bid_bond = tender_details.get("bid_bond") or list_data.get("bid_bond")
 
@@ -273,6 +280,7 @@ class MerkatoSpider(scrapy.Spider):
 				doc.posted_date = str(posted_date) if posted_date else None
 				doc.published_on = published_on
 				doc.closing_date = closing_date
+				doc.days_remaining = days_remaining
 				doc.closing_date_text = closing_date_text
 				doc.bid_document_price = str(doc_price) if doc_price else None
 				doc.bid_bond = str(bid_bond) if bid_bond else None

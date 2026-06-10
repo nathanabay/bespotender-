@@ -99,10 +99,13 @@ frappe.ui.form.on('Tender Scraper Settings', {
 				method: "tender_management.utils.scraper_utils.check_scraper_status",
 				callback: function(r) {
 					if (r.message && r.message.status === "success") {
+						let log_html = `<div style="max-height: 300px; overflow-y: auto; background: #f4f5f7; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 11px; white-space: pre-wrap; margin-top: 10px;">${r.message.logs || 'No logs available.'}</div>`;
+						
 						frappe.msgprint({
 							title: __('Scraper Status'),
 							indicator: r.message.is_running ? 'green' : 'orange',
-							message: `<b>${r.message.message}</b>`
+							message: `<b>${r.message.message}</b><br>${log_html}`,
+							wide: true
 						});
 					} else {
 						frappe.msgprint({
