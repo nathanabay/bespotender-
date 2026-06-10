@@ -252,6 +252,14 @@ class MerkatoSpider(scrapy.Spider):
 		for doc_link in doc_links:
 			documents_list.append(response.urljoin(doc_link))
 		documents_str = "\n".join(documents_list) if documents_list else None
+		
+		# Company
+		company_data = tender_details.get("company") or list_data.get("company")
+		company_name = "N/A"
+		if isinstance(company_data, dict):
+			company_name = company_data.get("name_en") or company_data.get("name") or "N/A"
+		elif isinstance(company_data, str):
+			company_name = company_data
 
 		# Save to Frappe
 		if not frappe.db.exists("Scraped Tender", truncated_title):
@@ -259,6 +267,7 @@ class MerkatoSpider(scrapy.Spider):
 				doc = frappe.new_doc("Scraped Tender")
 				doc.title = truncated_title
 				doc.tender_title = original_title
+				doc.company = company_name
 				doc.category = category
 				doc.region = region
 				doc.posted_date = str(posted_date) if posted_date else None

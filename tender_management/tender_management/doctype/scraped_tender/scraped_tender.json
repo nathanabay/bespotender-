@@ -8,6 +8,7 @@
  "field_order": [
   "title",
   "tender_title",
+  "company",
   "category",
   "region",
   "posted_date",
@@ -38,6 +39,11 @@
    "label": "ID (Truncated Title)",
    "reqd": 1,
    "unique": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Data",
+   "label": "Company / Organization"
   },
   {
    "fieldname": "category",

@@ -63,7 +63,9 @@ frappe.ui.form.on('Scraped Tender', {
 					document_price: extract_number(frm.doc.bid_document_price),
 					bond_amount: extract_number(frm.doc.bid_bond),
 					full_tender_document: frm.doc.documents,
-					solution_overview: combined_description
+					solution_overview: combined_description,
+					organization: frm.doc.company,
+					client: frm.doc.company
 				});
 			};
 			
