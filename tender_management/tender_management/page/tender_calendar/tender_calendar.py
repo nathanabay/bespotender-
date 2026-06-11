@@ -32,7 +32,7 @@ def get_calendar_events(start, end, filters=None):
 				query_filters.append([key, "=", value])
 	
 	# Fetch all tender opportunities in the date range
-	tenders = frappe.get_all(
+	tenders = frappe.get_list(
 		"Tender Opportunity",
 		filters=query_filters,
 		fields=["name", "title", "client", "submission_deadline", "publication_date", 

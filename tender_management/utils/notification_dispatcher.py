@@ -39,10 +39,19 @@ def dispatch(doc, category, subject=None, message=None):
     trace_id = str(uuid.uuid4())
     bespo_installed = "bespo_notifications" in frappe.get_installed_apps()
     
-    for user_id in recipients:
+    if not recipients:
+        return
+
+    users_info = frappe.get_all(
+        "User",
+        filters={"name": ["in", list(recipients)]},
+        fields=["name", "enabled", "email", pref_field]
+    )
+    
+    for user_info in users_info:
+        user_id = user_info.name
         # Check User preferences and basic status
-        user_info = frappe.db.get_value("User", user_id, ["enabled", "email", pref_field], as_dict=True)
-        if not user_info or not user_info.enabled or not user_info.email:
+        if not user_info.enabled or not user_info.email:
             continue
             
         # Preference check (e.g., receive_workflow_state_alerts)
@@ -63,7 +72,7 @@ def dispatch(doc, category, subject=None, message=None):
                     "subject": subject or _("Tender Notification: {0}").format(doc.name),
                     "email_content": message or _("Notification triggered for {0}").format(doc.name)
                 }).insert(ignore_permissions=True)
-            except Exception as e:
+            except (frappe.ValidationError, frappe.DuplicateEntryError) as e:
                 frappe.log_error(f"Bespo Notification Log creation failed: {str(e)}", "Notification Dispatcher")
 
         # 4. Fallback/Standard Email dispatch via frappe.sendmail
@@ -71,9 +80,10 @@ def dispatch(doc, category, subject=None, message=None):
             frappe.sendmail(
                 recipients=[user_info.email],
                 subject=subject or _("Tender Notification: {0}").format(doc.name),
-                message=message or _("Notification for {0} {1}").format(doc.doctype, doc.name)
+                message=message or _("Notification for {0} {1}").format(doc.doctype, doc.name),
+                now=False
             )
-        except Exception as e:
+        except (frappe.ValidationError, frappe.OutgoingEmailError) as e:
             frappe.log_error(f"Email dispatch failed for {user_id}: {str(e)}", "Notification Dispatcher")
 
 def handle_workflow_notification(doc, method=None):

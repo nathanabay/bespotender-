@@ -10,9 +10,11 @@ from io import BytesIO
 
 @frappe.whitelist()
 def generate_proposal_document(template_name, tender_name):
-    # No docstring here to shift line numbers
     if not frappe.has_permission("Tender Opportunity", "read", doc=tender_name):
         frappe.throw(frappe._("Not permitted to view this Tender Opportunity"), frappe.PermissionError)
+    if not frappe.has_permission("Document Template", "read", doc=template_name):
+        frappe.throw(frappe._("Not permitted to view this Document Template"), frappe.PermissionError)
+        
     template = frappe.get_doc("Document Template", template_name)
     tender = frappe.get_doc("Tender Opportunity", tender_name)
     content = template.content or ""
@@ -27,18 +29,21 @@ def generate_proposal_document(template_name, tender_name):
         "tender_type": tender.tender_type or "",
         "company_name": frappe.defaults.get_defaults().get("company") or "BES"
     }
-    for key, value in placeholders.items():
-        content = re.sub(r'\{\{\s*' + key + r'\s*\}\}', str(value), content, flags=re.IGNORECASE)
-        content = re.sub(r'\{\s*' + key + r'\s*\}', str(value), content, flags=re.IGNORECASE)
-    return content
+    safe_content = frappe.utils.sanitize_html(content)
+    return frappe.render_template(safe_content, placeholders)
 
 
 @frappe.whitelist()
 def download_pdf(html, tender_name, template_name, filename="document.pdf"):
-    # No docstring here to shift line numbers
     if not frappe.has_permission("Tender Opportunity", "write", doc=tender_name):
         frappe.throw(frappe._("Not permitted to generate documents for this Tender Opportunity"), frappe.PermissionError)
-    pdf_content = get_pdf(html)
+    if not frappe.has_permission("Document Template", "read", doc=template_name):
+        frappe.throw(frappe._("Not permitted to access this Document Template"), frappe.PermissionError)
+        
+    filename = frappe.utils.escape_html(filename)
+    safe_html = frappe.utils.sanitize_html(html)
+    pdf_content = get_pdf(safe_html)
+    
     file_doc = frappe.get_doc({
         "doctype": "File",
         "file_name": filename,
@@ -59,6 +64,7 @@ def download_pdf(html, tender_name, template_name, filename="document.pdf"):
         tender.save()
     except Exception as e:
         frappe.log_error(f"Failed to link generated document: {str(e)}", "Document Generation")
+        
     frappe.response.filename = filename
     frappe.response.filecontent = pdf_content
     frappe.response.type = "download"
@@ -77,10 +83,45 @@ def extract_financial_document(doc, method):
 
 @frappe.whitelist()
 def generate_compiled_tender_document_v5(tender_name):
-    if not frappe.has_permission("Tender Opportunity", "read", doc=tender_name):
+    if not frappe.has_permission("Tender Opportunity", "write", doc=tender_name):
         frappe.throw(frappe._("Not permitted to compile documents for this Tender Opportunity"), frappe.PermissionError)
+        
+    frappe.enqueue(
+        "tender_management.utils.tender_doc_gen.run_generate_compiled_tender_document_v5",
+        queue="long",
+        timeout=1500,
+        tender_name=tender_name
+    )
+    return frappe._("Document generation has been queued in the background. It will appear in the Generated Documents table once finished.")
+
+def get_pdf_with_letterhead(html_body, header_html, footer_html):
+    full_html = f"""
+    <html>
+    <head>
+        <style>
+            @page {{ margin: 5mm; }}
+            body {{ font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 0; font-size: 11pt; line-height: 1.3; }}
+            .letter-head {{ width: 100%; margin: 0; padding: 0; }}
+            .letter-footer {{ width: 100%; margin: 0; padding: 0; }}
+            .content-wrapper {{ padding: 10px 30px; margin: 0; }}
+            h1, h2, h3 {{ font-family: 'Helvetica', 'Arial', sans-serif; margin-top: 5px; }}
+        </style>
+    </head>
+    <body>
+        <div class="letter-head">{header_html}</div>
+        <div class="content-wrapper">{html_body}</div>
+        <div class="letter-footer">{footer_html}</div>
+    </body>
+    </html>
+    """
+    safe_html = frappe.utils.sanitize_html(full_html)
+    return get_pdf(safe_html)
+
+def run_generate_compiled_tender_document_v5(tender_name):
+    if not frappe.has_permission("Tender Opportunity", "write", doc=tender_name):
+        return
+
     frappe.msgprint("Starting Compiled Bid Generation v5...")
-    
     tender = frappe.get_doc("Tender Opportunity", tender_name)
     bid_mgmt = frappe.get_single("Bid Document Management")
     
@@ -90,14 +131,17 @@ def generate_compiled_tender_document_v5(tender_name):
             filters={"parent": tender.name, "template": "Compiled Bid"},
             fields=["file", "name"]
         )
-        for entry in old_entries:
-            if entry.file:
-                clean_url = entry.file.split('?')[0]
-                file_doc_name = frappe.db.get_value("File", {"file_url": clean_url}, "name")
-                if file_doc_name:
-                    frappe.delete_doc("File", file_doc_name, ignore_permissions=True)
-            frappe.db.delete("Tender Generated Document", {"name": entry.name})
-        frappe.db.commit()
+        
+        file_urls = [entry.file.split('?')[0] for entry in old_entries if entry.file]
+        if file_urls:
+            file_docs = frappe.get_all("File", filters={"file_url": ("in", file_urls)}, pluck="name")
+            for file_name in file_docs:
+                frappe.delete_doc("File", file_name)
+        
+        entry_names = [entry.name for entry in old_entries]
+        if entry_names:
+            frappe.db.delete("Tender Generated Document", {"name": ("in", entry_names)})
+            
     except Exception as e:
         frappe.log_error(f"Cleanup failed: {str(e)}", "Compiled Bid Cleanup")
 
@@ -133,62 +177,36 @@ def generate_compiled_tender_document_v5(tender_name):
     letter_head_db = frappe.db.get_value("Letter Head", {"is_default": 1}, "footer")
     footer_html = letter_head_db if letter_head_db else ""
 
-    def get_pdf_with_letterhead(html_body):
-        full_html = f"""
-        <html>
-        <head>
-            <style>
-                @page {{ margin: 5mm; }}
-                body {{ font-family: 'Helvetica', 'Arial', sans-serif; margin: 0; padding: 0; font-size: 11pt; line-height: 1.3; }}
-                .letter-head {{ width: 100%; margin: 0; padding: 0; }}
-                .letter-footer {{ width: 100%; margin: 0; padding: 0; }}
-                .content-wrapper {{ padding: 10px 30px; margin: 0; }}
-                h1, h2, h3 {{ font-family: 'Helvetica', 'Arial', sans-serif; margin-top: 5px; }}
-            </style>
-        </head>
-        <body>
-            <div class="letter-head">{header_html}</div>
-            <div class="content-wrapper">{html_body}</div>
-            <div class="letter-footer">{footer_html}</div>
-        </body>
-        </html>
-        """
-        return get_pdf(full_html)
-
-    # Import the new converter
-    from pypdf import PdfReader, PdfWriter
-    from io import BytesIO
-
     writer = PdfWriter()
     
     cover_body = f"""
         <div style="text-align: center; padding-top: 150px; padding-bottom: 50px;">
             <h1 style="color: #333132; font-size: 32px; margin-bottom: 10px; text-transform: uppercase; font-weight: 800;">Compiled Bid Document</h1>
             <div style="width: 120px; height: 4px; background-color: #d92027; margin: 20px auto 40px auto;"></div>
-            <h2 style="color: #333132; font-size: 24px; margin-bottom: 60px; font-weight: normal; letter-spacing: 1px;">{tender.title}</h2>
+            <h2 style="color: #333132; font-size: 24px; margin-bottom: 60px; font-weight: normal; letter-spacing: 1px;">{frappe.utils.escape_html(tender.title or "")}</h2>
             <div style="display: inline-block; text-align: left; background-color: #f9f9f9; padding: 30px; border-radius: 8px; border: 1px solid #eee;">
                 <table style="font-size: 14px; border-collapse: collapse;">
                     <tr>
                         <td style="padding: 8px 20px; color: #666; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">Tender Number</td>
-                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{tender.tender_number or 'N/A'}</td>
+                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{frappe.utils.escape_html(tender.tender_number or 'N/A')}</td>
                     </tr>
                     <tr>
                         <td style="padding: 8px 20px; color: #666; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">Client</td>
-                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{tender.client or 'N/A'}</td>
+                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{frappe.utils.escape_html(tender.client or 'N/A')}</td>
                     </tr>
                     <tr>
                         <td style="padding: 8px 20px; color: #666; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">Sector</td>
-                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{tender.sector or 'N/A'}</td>
+                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{frappe.utils.escape_html(tender.sector or 'N/A')}</td>
                     </tr>
                     <tr>
                         <td style="padding: 8px 20px; color: #666; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">Generated Date</td>
-                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{frappe.utils.format_datetime(frappe.utils.now_datetime())}</td>
+                        <td style="padding: 8px 20px; font-weight: bold; color: #333;">{frappe.utils.escape_html(frappe.utils.format_datetime(frappe.utils.now_datetime()))}</td>
                     </tr>
                 </table>
             </div>
         </div>
     """
-    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(cover_body))))
+    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(cover_body, header_html, footer_html))))
     
     try:
         if frappe.db.exists("Document Template", "Technical Proposal Cover Letter"):
@@ -202,8 +220,9 @@ def generate_compiled_tender_document_v5(tender_name):
                     "submission_deadline": frappe.utils.formatdate(tender.submission_deadline) if tender.get("submission_deadline") else "N/A",
                     "tender_number": tender.tender_number or "N/A"
                 })
-                rendered_html = frappe.render_template(cover_letter_doc.content, context)
-                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(rendered_html))))
+                safe_content = frappe.utils.sanitize_html(cover_letter_doc.content)
+                rendered_html = frappe.render_template(safe_content, context)
+                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(rendered_html, header_html, footer_html))))
     except Exception as e:
         frappe.log_error(f"Technical Proposal Cover Letter failed: {str(e)}", "Document Compilation")
 
@@ -219,32 +238,46 @@ def generate_compiled_tender_document_v5(tender_name):
         {"title": "9. Financial Document", "file": tender.extracted_financial_document}
     ]
     
+    # Pre-fetch files to fix N+1 issue
+    file_urls = []
     for section in sections:
-        # Determine the source of documents: either the main tender doc or the Bid Document Management singleton
+        doc_source = bid_mgmt if section.get("table") in ["legal_and_administrative_documents", "company_profile_documents", "employee_list_cv_documents"] else tender
+        if "table" in section:
+            rows = doc_source.get(section["table"]) or []
+            for row in rows:
+                if row.file:
+                    file_urls.append(row.converted_pdf or row.file)
+        elif section.get('file'):
+            file_urls.append(section['file'])
+
+    file_docs_map = {}
+    if file_urls:
+        file_records = frappe.get_all("File", filters={"file_url": ("in", file_urls)}, fields=["name", "file_name", "file_url"])
+        for rec in file_records:
+            file_docs_map[rec.file_url] = rec.name
+
+    for section in sections:
         doc_source = bid_mgmt if section.get("table") in ["legal_and_administrative_documents", "company_profile_documents", "employee_list_cv_documents"] else tender
 
         if "table" in section:
-            table_name = section["table"]
-            rows = doc_source.get(table_name) or []
+            rows = doc_source.get(section["table"]) or []
             if rows:
-                main_sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{section['title']}</h1></div>"
-                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(main_sep_body))))
+                main_sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{frappe.utils.escape_html(section['title'])}</h1></div>"
+                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(main_sep_body, header_html, footer_html))))
                 for row in rows:
                     if row.file:
                         try:
-                            # Prioritize using the pre-converted PDF.
                             file_to_use = row.converted_pdf or row.file
-                            file_name = frappe.db.get_value("File", {"file_url": file_to_use})
+                            file_name = file_docs_map.get(file_to_use)
                             if not file_name:
-                                raise frappe.DoesNotExistError
+                                continue
                             file_doc = frappe.get_doc("File", file_name)
 
                             if file_doc.file_name.lower().endswith('.pdf'):
                                 writer.append_pages_from_reader(PdfReader(BytesIO(file_doc.get_content())))
                             else:
-                                # This will now only show if the background conversion failed or is still running
-                                msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color:orange;'><b>File Not Ready or Unsupported</b></p><p>File '{file_doc.file_name}' is not a PDF.</p><p>If you just uploaded it, please wait a moment for the conversion to finish and try again.</p></div>"
-                                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
+                                msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color:orange;'><b>File Not Ready or Unsupported</b></p><p>File '{frappe.utils.escape_html(file_doc.file_name)}' is not a PDF.</p><p>If you just uploaded it, please wait a moment for the conversion to finish and try again.</p></div>"
+                                writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body, header_html, footer_html))))
                         except Exception as e:
                             frappe.log_error(f"Table row failure for {row.file}: {str(e)}", "Document Compilation")
             continue
@@ -253,17 +286,17 @@ def generate_compiled_tender_document_v5(tender_name):
             file_url = section['file']
             if file_url:
                 try:
-                    file_name = frappe.db.get_value("File", {"file_url": file_url})
+                    file_name = file_docs_map.get(file_url)
                     if not file_name:
-                        raise frappe.DoesNotExistError
+                        continue
                     file_doc = frappe.get_doc("File", file_name)
-                    sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{section['title']}</h1></div>"
-                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(sep_body))))
+                    sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{frappe.utils.escape_html(section['title'])}</h1></div>"
+                    writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(sep_body, header_html, footer_html))))
                     if file_doc.file_name.lower().endswith('.pdf'):
                         writer.append_pages_from_reader(PdfReader(BytesIO(file_doc.get_content())))
                     else:
-                        msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color:red;'><b>Unsupported File</b></p><p>File '{file_doc.file_name}' is not a PDF.</p><p>Please convert it to PDF manually and re-upload.</p></div>"
-                        writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body))))
+                        msg_body = f"<div style='padding: 50px; text-align: center;'><p style='color:red;'><b>Unsupported File</b></p><p>File '{frappe.utils.escape_html(file_doc.file_name)}' is not a PDF.</p><p>Please convert it to PDF manually and re-upload.</p></div>"
+                        writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(msg_body, header_html, footer_html))))
                 except Exception as e:
                     frappe.log_error(f"File section failure for {file_url}: {str(e)}", "Document Compilation")
 
@@ -274,7 +307,7 @@ def generate_compiled_tender_document_v5(tender_name):
     
     rand_str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
     timestamp = int(time.time())
-    filename = f"{tender.name}_Compiled_Bid_{timestamp}_{rand_str}.pdf"
+    filename = frappe.utils.escape_html(f"{tender.name}_Compiled_Bid_{timestamp}_{rand_str}.pdf")
     
     file_doc = frappe.get_doc({
         "doctype": "File",
@@ -284,7 +317,7 @@ def generate_compiled_tender_document_v5(tender_name):
         "content": pdf_content,
         "is_private": 1
     })
-    file_doc.insert(ignore_permissions=True)
+    file_doc.insert()
     
     tender.reload()
     tender.append("generated_documents", {
@@ -293,6 +326,6 @@ def generate_compiled_tender_document_v5(tender_name):
         "generated_by": frappe.session.user,
         "date": frappe.utils.now_datetime()
     })
-    tender.save(ignore_permissions=True)
+    tender.save()
     
     return f"{file_doc.file_url}?v={timestamp}"

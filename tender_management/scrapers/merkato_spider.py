@@ -35,7 +35,7 @@ class MerkatoSpider(scrapy.Spider):
 		try:
 			self.existing_titles = set(frappe.get_all("Scraped Tender", pluck="name"))
 			print(f"--- Found {len(self.existing_titles)} existing tenders in cache ---")
-		except Exception:
+		except frappe.exceptions.FrappeException:
 			self.existing_titles = set()
 		
 		print(f"--- MerkatoSpider initialized ---")
@@ -46,6 +46,16 @@ class MerkatoSpider(scrapy.Spider):
 			print(f"--- Filter Categories: {', '.join(self.enabled_categories)} ---")
 		else:
 			print(f"--- Filter Categories: ALL ---")
+
+	def _get_fallback(self, key, primary_dict, fallback_dict, alt_key=None):
+		val = primary_dict.get(key)
+		if not val and alt_key:
+			val = primary_dict.get(alt_key)
+		if not val:
+			val = fallback_dict.get(key)
+		if not val and alt_key:
+			val = fallback_dict.get(alt_key)
+		return val
 
 	def parse(self, response):
 		"""
@@ -67,7 +77,7 @@ class MerkatoSpider(scrapy.Spider):
 			page_data = json.loads(data_page_str)
 			csrf_token = page_data.get("props", {}).get("csrf_token")
 			inertia_version = page_data.get("version")
-		except Exception:
+		except json.JSONDecodeError:
 			yield scrapy.Request("https://tender.2merkato.com/tenders?status=open", callback=self.parse_tenders_list)
 			return
 
@@ -122,7 +132,7 @@ class MerkatoSpider(scrapy.Spider):
 
 		try:
 			page_data = json.loads(html.unescape(data_page_raw))
-		except Exception: return
+		except json.JSONDecodeError: return
 
 		props = page_data.get("props", {})
 		tenders_data = props.get("tenders", {})
@@ -179,7 +189,7 @@ class MerkatoSpider(scrapy.Spider):
 			try:
 				page_data = json.loads(html.unescape(data_page_raw))
 				tender_details = page_data.get("props", {}).get("tender", {}) 
-			except Exception: pass
+			except json.JSONDecodeError: pass
 
 		# --- RE-VERIFY OPEN STATUS ---
 		# Check JSON flags
@@ -190,12 +200,12 @@ class MerkatoSpider(scrapy.Spider):
 			print(f"--- Skipping closed tender (JSON flag: is_open={is_open}, status={status_str}): {response.url} ---")
 			return
 
-		original_title = (tender_details.get("title") or list_data.get("title", "N/A")).strip()
+		original_title = self._get_fallback("title", tender_details, list_data) or "N/A"
+		original_title = original_title.strip()
 		truncated_title = original_title[:140].strip()
 		
 		# Category
-		category_data = tender_details.get("categories") or tender_details.get("category") or \
-						list_data.get("categories") or list_data.get("category")
+		category_data = self._get_fallback("categories", tender_details, list_data, alt_key="category")
 		
 		tender_cats_list = []
 		if isinstance(category_data, list) and category_data:
@@ -226,7 +236,7 @@ class MerkatoSpider(scrapy.Spider):
 			if not match: return
 
 		# Region
-		region_data = tender_details.get("region") or list_data.get("region")
+		region_data = self._get_fallback("region", tender_details, list_data)
 		region = "N/A"
 		if isinstance(region_data, dict):
 			region = region_data.get("name_en") or region_data.get("name") or "N/A"
@@ -237,15 +247,15 @@ class MerkatoSpider(scrapy.Spider):
 			region = region_sel.strip() if region_sel else "N/A"
 
 		# Metadata
-		closing_date_str = tender_details.get("bid_closing_date") or list_data.get("bid_closing_date")
+		closing_date_str = self._get_fallback("bid_closing_date", tender_details, list_data)
 		try:
 			closing_date = get_datetime(closing_date_str) if closing_date_str else None
-		except Exception:
+		except ValueError:
 			closing_date = None
 
-		closing_date_text = tender_details.get("bid_closing_date_text") or list_data.get("bid_closing_date_text")
+		closing_date_text = self._get_fallback("bid_closing_date_text", tender_details, list_data)
 		
-		posted_date_raw = tender_details.get("created_at") or list_data.get("created_at")
+		posted_date_raw = self._get_fallback("created_at", tender_details, list_data)
 		if posted_date_raw and "T" in posted_date_raw:
 			posted_date = posted_date_raw.split("T")[0] + " " + posted_date_raw.split("T")[1][:8]
 		else:
@@ -258,10 +268,10 @@ class MerkatoSpider(scrapy.Spider):
 			diff = closing_date - now_datetime()
 			days_remaining = max(0, diff.days)
 
-		doc_price = tender_details.get("bid_document_price") or list_data.get("bid_document_price")
-		bid_bond = tender_details.get("bid_bond") or list_data.get("bid_bond")
+		doc_price = self._get_fallback("bid_document_price", tender_details, list_data)
+		bid_bond = self._get_fallback("bid_bond", tender_details, list_data)
 
-		sources = tender_details.get("sources") or list_data.get("sources")
+		sources = self._get_fallback("sources", tender_details, list_data)
 		published_on = "N/A"
 		if isinstance(sources, list) and sources:
 			source_list = []
@@ -272,15 +282,20 @@ class MerkatoSpider(scrapy.Spider):
 					source_list.append(f"{name} ({date})" if date else name)
 			published_on = ", ".join(source_list) if source_list else "N/A"
 
-		description = tender_details.get("description") or tender_details.get("content")
+		description = self._get_fallback("description", tender_details, list_data, alt_key="content")
 		if not description:
 			description_html = response.css('div.overflow-x-auto').get()
 			description = description_html if description_html else "No description provided."
 
-		ai_summary = tender_details.get("ai_summary")
+		description = frappe.utils.sanitize_html(description)
+
+		ai_summary = self._get_fallback("ai_summary", tender_details, list_data)
 		if not ai_summary:
 			ai_summary_parts = response.xpath('//h4[contains(text(), "AI Summary")]/following-sibling::div//text()').getall()
 			ai_summary = " ".join([p.strip() for p in ai_summary_parts if p.strip()]) if ai_summary_parts else None
+
+		if ai_summary:
+			ai_summary = frappe.utils.sanitize_html(ai_summary)
 
 		documents_list = []
 		doc_links = response.css('div.bg-blue-50 a[href*="/documents/"]::attr(href)').getall()
@@ -289,7 +304,7 @@ class MerkatoSpider(scrapy.Spider):
 		documents_str = "\n".join(documents_list) if documents_list else None
 		
 		# Company
-		company_data = tender_details.get("company") or list_data.get("company")
+		company_data = self._get_fallback("company", tender_details, list_data)
 		company_name = "N/A"
 		if isinstance(company_data, dict):
 			company_name = company_data.get("name_en") or company_data.get("name") or "N/A"
@@ -316,8 +331,8 @@ class MerkatoSpider(scrapy.Spider):
 				doc.description = description
 				doc.ai_summary = ai_summary
 				doc.documents = documents_str
-				doc.insert(ignore_permissions=True)
+				doc.insert()
 				frappe.db.commit() 
 				print(f"--- Created tender: {truncated_title[:30]}... ---")
-			except Exception as e:
+			except frappe.exceptions.FrappeException as e:
 				print(f"--- Error creating tender: {e} ---")

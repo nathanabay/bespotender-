@@ -6,43 +6,6 @@ app_email = "nathanamare@bespo.et"
 app_license = "mit"
 
 import frappe
-import frappe.utils.pdf
-import frappe.core.doctype.file.file
-
-# Monkey patch pdf_contains_js to be more resilient
-# This handles cases where pypdf fails to parse a file (e.g. truncated or malformed)
-original_pdf_contains_js = frappe.utils.pdf.pdf_contains_js
-
-def patched_pdf_contains_js(file_content):
-    try:
-        return original_pdf_contains_js(file_content)
-    except Exception:
-        # If it's malformed or truncated, we assume it's safe or handle it elsewhere
-        # This prevents 500 errors during upload
-        return False
-
-# Patch in both locations to be sure
-frappe.utils.pdf.pdf_contains_js = patched_pdf_contains_js
-frappe.core.doctype.file.file.pdf_contains_js = patched_pdf_contains_js
-
-# Monkey patch File DocType to handle long filenames
-from frappe.core.doctype.file.file import File
-original_file_validate = File.validate
-
-def patched_file_validate(self):
-    if self.file_name and len(self.file_name) > 255:
-        # Keep extension if possible
-        ext = ""
-        if "." in self.file_name:
-            parts = self.file_name.split(".")
-            ext = "." + parts[-1]
-            base = ".".join(parts[:-1])
-            self.file_name = base[:255-len(ext)] + ext
-        else:
-            self.file_name = self.file_name[:255]
-    return original_file_validate(self)
-
-File.validate = patched_file_validate
 
 # Apps
 # ------------------
@@ -185,6 +148,9 @@ after_migrate = "tender_management.tender_management.setup.after_migrate"
 # Hook on document methods and events
 
 doc_events = {
+	"File": {
+		"validate": "tender_management.utils.docx_converter.truncate_file_name"
+	},
 	"Tender Opportunity": {
 		"before_save": "tender_management.utils.tender_doc_gen.extract_financial_document",
 		"on_update": "tender_management.utils.notification_dispatcher.handle_tender_update",

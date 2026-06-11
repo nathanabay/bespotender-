@@ -6,7 +6,6 @@ import os
 import subprocess
 
 def append_document(writer, file_doc, get_pdf_with_letterhead):
-    frappe.msgprint(f"DEBUG: Entering append_document for {file_doc.file_name}")
     """
     Appends a document to the PdfWriter. Handles PDF and DOCX/DOC conversion.
     """
@@ -23,8 +22,10 @@ def append_document(writer, file_doc, get_pdf_with_letterhead):
     
     elif file_name.lower().endswith((".docx", ".doc")):
         with tempfile.TemporaryDirectory() as temp_dir:
-            original_filename = os.path.splitext(file_name)[0]
-            doc_path = os.path.join(temp_dir, file_name)
+            # Sanitize filename to prevent path traversal attacks
+            safe_file_name = os.path.basename(file_name.strip())
+            original_filename = os.path.splitext(safe_file_name)[0]
+            doc_path = os.path.join(temp_dir, safe_file_name)
             pdf_path = os.path.join(temp_dir, f"{original_filename}.pdf")
 
             with open(doc_path, "wb") as f:
@@ -32,11 +33,13 @@ def append_document(writer, file_doc, get_pdf_with_letterhead):
 
             try:
                 # Run unoconv to convert the document to pdf
+                # timeout=120 prevents indefinitely blocking a worker thread
                 subprocess.run(
                     ["unoconv", "-f", "pdf", "-o", pdf_path, doc_path],
                     check=True,
                     capture_output=True,
-                    text=True
+                    text=True,
+                    timeout=120
                 )
                 
                 with open(pdf_path, "rb") as f:

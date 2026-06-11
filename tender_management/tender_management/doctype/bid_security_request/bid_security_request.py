@@ -10,7 +10,7 @@ class BidSecurityRequest(Document):
 		if self.status == "Issued" and not self.security_number:
 			frappe.throw("Security Number is required when status is Issued")
 			
-	def on_submit(self):
+	def before_submit(self):
 		if self.status == "Issued" and not self.journal_entry:
 			self.create_journal_entry()
 
@@ -39,7 +39,7 @@ class BidSecurityRequest(Document):
 		je.append("accounts", {
 			"account": bid_bond_account,
 			"debit_in_account_currency": self.amount,
-			"party_type": "Data", # If linked to Customer/Supplier, change this
+			"party_type": "Supplier", # If linked to Customer/Supplier, change this
 			"party": self.tender, # Linking to Tender Opp if possible, or keeping empty
 			"reference_type": "Bid Security Request",
 			"reference_name": self.name
@@ -56,5 +56,5 @@ class BidSecurityRequest(Document):
 		je.save()
 		je.submit()
 		
-		self.db_set("journal_entry", je.name)
+		self.journal_entry = je.name
 		frappe.msgprint(f"Journal Entry {je.name} created automatically.")

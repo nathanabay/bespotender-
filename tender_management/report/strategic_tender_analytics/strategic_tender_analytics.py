@@ -44,7 +44,7 @@ def get_data(filters):
             SUM(final_bid_price) as total_value,
             AVG(final_bid_price - estimated_cost) as avg_margin
         FROM `tabTender Opportunity`
-        WHERE {where}
+        WHERE docstatus < 2 AND {where}
         GROUP BY sector
     """.format(where=where_clause), values, as_dict=True)
 
