@@ -57,8 +57,16 @@ class TenderOpportunity(Document):
 			{"title": "Final Quality Review", "priority": "Medium", "days": 10, "description": "Final quality review."},
 			{"title": "Submission Confirmation", "priority": "High", "days": 12, "description": "Submit the proposal."}
 		]
+		# Pre-fetch all existing task titles in one query to avoid N+1 db.exists calls
+		existing_titles = set(
+			frappe.get_all(
+				"Tender Task",
+				filters={"tender": self.name},
+				pluck="title"
+			)
+		)
 		for task_data in tasks:
-			if not frappe.db.exists("Tender Task", {"tender": self.name, "title": task_data["title"]}):
+			if task_data["title"] not in existing_titles:
 				task = frappe.new_doc("Tender Task")
 				task.tender = self.name
 				task.title = task_data["title"]
@@ -67,7 +75,7 @@ class TenderOpportunity(Document):
 				task.status = "Open"
 				task.due_date = frappe.utils.add_days(frappe.utils.nowdate(), task_data["days"])
 				task.assigned_to = self.owner or frappe.session.user
-				task.insert(ignore_permissions=True)
+				task.insert()
 
 	def validate_state_requirements(self):
 		state = self.workflow_state
@@ -99,7 +107,8 @@ class TenderOpportunity(Document):
 			bsr.status = "Draft"
 			bsr.required_date = self.submission_deadline or frappe.utils.nowdate()
 			bsr.insert(ignore_permissions=True)
-			self.db_set('bid_security_request', bsr.name, update_modified=False)
+			# Assign to self directly — db_set inside validate() gets overwritten by save()
+			self.bid_security_request = bsr.name
 		except Exception as e:
 			frappe.log_error(f"BSR Auto-Creation Error: {str(e)}", "BSR Auto-Creation")
 

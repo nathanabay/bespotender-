@@ -75,7 +75,8 @@
    "fieldname": "closing_date",
    "fieldtype": "Datetime",
    "in_list_view": 1,
-   "label": "Closing Date"
+   "label": "Closing Date",
+   "search_index": 1
   },
   {
    "fieldname": "days_remaining",
@@ -110,7 +111,8 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "New\nProcessed\nError"
+   "options": "New\nProcessed\nError",
+   "search_index": 1
   },
   {
    "fieldname": "section_break_1",
@@ -174,7 +176,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "All",
+   "role": "Tender User",
    "share": 0,
    "write": 0
   }

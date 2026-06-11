@@ -5,8 +5,6 @@ app_description = "tender"
 app_email = "nathanamare@bespo.et"
 app_license = "mit"
 
-import frappe
-
 # Apps
 # ------------------
 
@@ -149,7 +147,7 @@ after_migrate = "tender_management.tender_management.setup.after_migrate"
 
 doc_events = {
 	"File": {
-		"validate": "tender_management.utils.docx_converter.truncate_file_name"
+		"validate": "tender_management.utils.file_utils.truncate_file_name"
 	},
 	"Tender Opportunity": {
 		"before_save": "tender_management.utils.tender_doc_gen.extract_financial_document",

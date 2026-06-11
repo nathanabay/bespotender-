@@ -250,7 +250,8 @@
   {
    "fieldname": "publication_date",
    "fieldtype": "Date",
-   "label": "Publication Date"
+   "label": "Publication Date",
+   "search_index": 1
   },
   {
    "fieldname": "submission_deadline",

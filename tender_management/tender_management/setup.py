@@ -3,11 +3,15 @@ import frappe
 import json
 
 def after_install():
-    frappe.print("--- Tender Management Post-Install ---")
-    frappe.print("This app requires the 'unoconv' system package for converting DOCX files.")
-    frappe.print("To install it, please run the following command from your bench directory:")
-    frappe.print("bash apps/tender_management/install_dependencies.sh")
-    frappe.print("-----------------------------------------")
+    print("--- Tender Management Post-Install ---")
+    frappe.msgprint(
+        msg="This app requires the <b>unoconv</b> system package for converting DOCX files to PDF.<br><br>"
+            "Run on your server: <code>sudo apt-get install -y unoconv</code><br><br>"
+            "Then run: <code>bench restart</code>",
+        title="System Dependency Required",
+        indicator="orange"
+    )
+    print("-----------------------------------------")
     
     setup_module()
     create_default_document_templates()
