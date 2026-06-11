@@ -2,6 +2,14 @@
 // For license information, please see license.txt
 
 frappe.listview_settings['Scraped Tender'] = {
+	formatters: {
+		days_remaining: function(val) {
+			if (val !== undefined && val !== null) {
+				return `<span style="font-weight: bold;">${val} days</span>`;
+			}
+			return "";
+		}
+	},
 	onload: function(listview) {
 		// Inject custom CSS to wrap ALL text including ID
 		const style = `

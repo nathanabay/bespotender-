@@ -35,11 +35,16 @@ def run_scraper_job(pages=None):
 		with open(log_path, "a") as f:
 			f.write(f"\n--- Starting scraper job for {pages} pages ---\n")
 		
+		# Ensure python output is not buffered so we get real-time logs
+		env = os.environ.copy()
+		env["PYTHONUNBUFFERED"] = "1"
+		
 		subprocess.Popen(
 			cmd, 
 			stdout=open(log_path, "a"), 
 			stderr=subprocess.STDOUT, 
-			start_new_session=True
+			start_new_session=True,
+			env=env
 		)
 		
 		return {"status": "success", "message": "Scraping job started in the background. Please wait a few minutes for results to appear."}
@@ -156,17 +161,31 @@ def check_scraper_status():
 		
 		is_running = bool(result.stdout.strip())
 		
-		# Get last 20 lines of logs using system tail (more reliable and efficient)
+		# Get last 20 lines of logs using system tail
 		logs = ""
 		log_path = "/tmp/tender_scraper.log"
 		if os.path.exists(log_path):
 			try:
-				tail_result = subprocess.run(["tail", "-n", "20", log_path], capture_output=True, text=True)
-				logs = tail_result.stdout
-			except Exception:
-				logs = "Could not read log file via tail."
+				# Check if readable
+				if not os.access(log_path, os.R_OK):
+					logs = "Error: Log file exists but is NOT READABLE by the web server."
+				else:
+					# Use tail with forced encoding handling
+					tail_result = subprocess.run(["tail", "-n", "20", log_path], capture_output=True, text=True, errors='ignore')
+					logs = tail_result.stdout.strip()
+					
+					if not logs:
+						# Fallback to direct read if tail returned nothing
+						with open(log_path, "r", errors='ignore') as f:
+							all_lines = f.readlines()
+							logs = "".join(all_lines[-20:]).strip()
+					
+					if not logs:
+						logs = "Log file found but it appears to be EMPTY."
+			except Exception as e:
+				logs = f"Error reading log file: {str(e)}"
 		else:
-			logs = "Log file not found."
+			logs = f"Log file NOT FOUND at {log_path}."
 		
 		status_msg = "RUNNING" if is_running else "STOPPED"
 		
