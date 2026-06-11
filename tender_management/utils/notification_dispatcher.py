@@ -83,7 +83,7 @@ def dispatch(doc, category, subject=None, message=None):
                 message=message or _("Notification for {0} {1}").format(doc.doctype, doc.name),
                 now=False
             )
-        except (frappe.ValidationError, frappe.OutgoingEmailError) as e:
+        except (frappe.ValidationError, Exception) as e:
             frappe.log_error(f"Email dispatch failed for {user_id}: {str(e)}", "Notification Dispatcher")
 
 def handle_workflow_notification(doc, method=None):
@@ -102,7 +102,7 @@ def handle_tender_update(doc, method=None):
     """
     Handle notifications triggered by document updates.
     """
-    if doc.flags.is_new_doc:
+    if not frappe.db.exists("Tender Opportunity", doc.name):
         dispatch(
             doc=doc,
             category="workflow_state",

@@ -27,7 +27,7 @@ def generate_proposal_document(template_name, tender_name):
         "final_bid_price": frappe.utils.fmt_money(tender.final_bid_price) if tender.final_bid_price else "",
         "sector": tender.sector or "",
         "tender_type": tender.tender_type or "",
-        "company_name": frappe.defaults.get_defaults().get("company") or "BES"
+        "company_name": frappe.defaults.get_defaults().get("company") or frappe.db.get_value("Company", {}, "name") or ""
     }
     safe_content = frappe.utils.sanitize_html(content)
     return frappe.render_template(safe_content, placeholders)

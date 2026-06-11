@@ -90,8 +90,8 @@ app_license = "mit"
 # ------------
 
 # before_install = "tender_management.install.before_install"
-after_install = "tender_management.tender_management.setup.after_install"
-after_migrate = "tender_management.tender_management.setup.after_migrate"
+after_install = "tender_management.setup.after_install"
+after_migrate = "tender_management.setup.after_migrate"
 
 # Uninstallation
 # ------------

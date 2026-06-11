@@ -52,7 +52,7 @@ class TestDocumentGeneration(unittest.TestCase):
         self.assertIn(self.tender.title, generated_content)
         self.assertIn(self.tender.client, generated_content)
         self.assertIn(self.tender.tender_number, generated_content)
-        self.assertIn("50,000", generated_content)
+        self.assertRegex(generated_content, r"50[,.]000")
         
         print("\nSUCCESS: Document Generation Test Passed!")
         print(f"Template: {self.template.name}")

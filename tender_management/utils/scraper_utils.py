@@ -12,65 +12,40 @@ def _get_bench_path():
 	return shutil.which("bench") or "/usr/local/bin/bench"
 
 def _get_log_path():
-	"""Return a site-specific log path instead of a shared /tmp file."""
+	"""Return a site-specific log path instead of a shared /tmp file.
+	This is the standard pattern for app-specific logs in this app."""
 	site_path = frappe.get_site_path()
 	return os.path.join(site_path, "logs", "tender_scraper.log")
 
-@frappe.whitelist()
 def run_scraper_job(pages=None):
 	"""
-	Enqueues the scraper to run in the background.
-	Uses a fully detached subprocess to bypass all Frappe/RQ timeouts.
-	Checks for an already-running instance before starting a new one.
+	Enqueues the scraper to run in the background (scheduled version, no permission check).
 	"""
-	if not frappe.has_permission("Tender Scraper Settings", "write"):
-		frappe.throw(frappe._("Not permitted to launch scraper jobs"), frappe.PermissionError)
-
-	# Prevent overlapping runs
-	try:
-		check = subprocess.run(
-			["pgrep", "-f", "start_crawling_direct"],
-			capture_output=True, text=True, timeout=5
-		)
-		if check.returncode == 0:
-			return {"status": "already_running", "message": "A scraper job is already running. Please wait for it to finish."}
-	except (subprocess.TimeoutExpired, FileNotFoundError):
-		pass  # pgrep not available or timed out; proceed cautiously
-
 	if pages is None:
 		settings = frappe.get_single("Tender Scraper Settings")
 		pages = settings.page_limit or 80
 
 	frappe.logger().info(f"Scraper job requested for {pages} pages")
 	try:
-		bench_path = _get_bench_path()
-		cmd = [
-			bench_path,
-			"--site", frappe.local.site,
-			"execute", "tender_management.utils.scraper_utils.start_crawling_direct",
-			"--kwargs", json.dumps({"pages": int(pages)})
-		]
-
-		log_path = _get_log_path()
-		os.makedirs(os.path.dirname(log_path), exist_ok=True)
-		with open(log_path, "a") as f:
-			f.write(f"\n--- Starting scraper job for {pages} pages ---\n")
-
-		env = os.environ.copy()
-		env["PYTHONUNBUFFERED"] = "1"
-
-		subprocess.Popen(
-			cmd,
-			stdout=open(log_path, "a"),
-			stderr=subprocess.STDOUT,
-			start_new_session=True,
-			env=env
+		frappe.enqueue(
+			"tender_management.utils.scraper_utils.start_crawling_direct",
+			queue="long",
+			timeout=7200,
+			pages=int(pages)
 		)
-
-		return {"status": "success", "message": "Scraping job started in the background. Please wait a few minutes for results to appear."}
-	except (OSError, ValueError) as e:
+	except Exception as e:
 		frappe.log_error(frappe.get_traceback(), "Scraper Job Launcher Error")
-		return {"status": "error", "message": str(e)}
+
+@frappe.whitelist()
+def trigger_scraper_job(pages=None):
+	"""
+	UI-facing version of the scraper job launcher.
+	"""
+	if not frappe.has_permission("Tender Scraper Settings", "write"):
+		frappe.throw(frappe._("Not permitted to launch scraper jobs"), frappe.PermissionError)
+	
+	run_scraper_job(pages)
+	return {"status": "success", "message": "Scraping job started in the background. Please wait a few minutes for results to appear."}
 
 @frappe.whitelist()
 def start_crawling_direct(pages=80):
@@ -94,8 +69,22 @@ def start_crawling_direct(pages=80):
 		settings.set('AUTOTHROTTLE_ENABLED', True)
 		
 		process = CrawlerProcess(settings)
-		process.crawl(MerkatoSpider, page_limit=int(pages))
-		process.start() 
+		
+		settings_doc = frappe.get_single("Tender Scraper Settings")
+		existing_titles = []
+		try:
+			existing_titles = frappe.get_all("Scraped Tender", pluck="name")
+		except Exception:
+			pass
+		
+		process.crawl(MerkatoSpider,
+			page_limit=int(pages),
+			username=settings_doc.merkato_username,
+			password=settings_doc.get_password("merkato_password"),
+			enabled_categories=[c.category_name.strip().lower() for c in settings_doc.categories if str(c.enabled) == "1"],
+			existing_titles=existing_titles
+		)
+		process.start()
 	except Exception:
 		frappe.log_error(frappe.get_traceback(), "Scraper Execution Error")
 
@@ -138,7 +127,7 @@ def _sync_categories_background():
 
 		if not tree_nodes:
 			# Fallback: use a local cache file relative to the app path
-			local_file = os.path.join(frappe.get_app_path("tender_management"), "..", "tenderdesc.html")
+			local_file = os.path.join(frappe.get_app_path("tender_management"), "data", "tenderdesc.html")
 			local_file = os.path.normpath(local_file)
 			if os.path.exists(local_file):
 				with open(local_file, "r") as f:

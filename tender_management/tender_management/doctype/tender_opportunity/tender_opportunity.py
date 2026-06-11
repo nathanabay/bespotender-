@@ -43,7 +43,6 @@ class TenderOpportunity(Document):
 	def after_insert(self):
 		self.create_standard_tasks()
 
-	@frappe.whitelist()
 	def create_standard_tasks(self):
 		"""Create standard tasks for new tender opportunity"""
 		self.check_permission("write")
@@ -137,3 +136,9 @@ def generate_compiled_tender_document_final(tender_name):
         frappe.throw(frappe._("Not permitted to compile documents for this Tender Opportunity"), frappe.PermissionError)
     from tender_management.utils.tender_doc_gen import generate_compiled_tender_document_v5
     return generate_compiled_tender_document_v5(tender_name)
+
+@frappe.whitelist()
+def create_standard_tasks_for(tender_name):
+    doc = frappe.get_doc("Tender Opportunity", tender_name)
+    doc.check_permission("write")
+    doc.create_standard_tasks()

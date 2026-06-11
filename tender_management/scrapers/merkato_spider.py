@@ -11,41 +11,24 @@ class MerkatoSpider(scrapy.Spider):
 	handle_httpstatus_list = [422, 409]
 	page_count = 0
 
-	def __init__(self, page_limit=None, *args, **kwargs):
+	def __init__(self, page_limit=None, username=None, password=None, enabled_categories=None, existing_titles=None, *args, **kwargs):
 		super(MerkatoSpider, self).__init__(*args, **kwargs)
 		
-		# Load settings from Frappe
-		self.settings_doc = frappe.get_single("Tender Scraper Settings")
-		
 		# Set page limit
-		if page_limit:
-			self.page_limit = int(page_limit)
-		else:
-			self.page_limit = int(self.settings_doc.page_limit or 80)
-			
-		# Load enabled categories
-		self.enabled_categories = []
-		for c in self.settings_doc.categories:
-			# Explicitly check for integer 1 or string '1' to prevent loose truthy checks
-			if str(c.enabled) == "1":
-				self.enabled_categories.append(c.category_name.strip().lower())
+		self.page_limit = int(page_limit) if page_limit else 80
+		self.username = username
+		self.password = password
+		self.enabled_categories = enabled_categories or []
 		
-		# Optimization: Fetch all existing titles once at the start for lightning-fast lookup
-		print("--- Pre-fetching existing tender titles from database... ---")
-		try:
-			self.existing_titles = set(frappe.get_all("Scraped Tender", pluck="name"))
-			print(f"--- Found {len(self.existing_titles)} existing tenders in cache ---")
-		except frappe.exceptions.FrappeException:
-			self.existing_titles = set()
+		self.existing_titles = set(existing_titles or [])
 		
-		print(f"--- MerkatoSpider initialized ---")
-
-		print(f"--- Page Limit: {self.page_limit} ---")
-		print(f"--- Filter: OPEN Tenders Only ---")
+		self.logger.info(f"MerkatoSpider initialized — Page Limit: {self.page_limit}")
+		self.logger.info(f"Found {len(self.existing_titles)} existing tenders in cache")
+		self.logger.info("Filter: OPEN Tenders Only")
 		if self.enabled_categories:
-			print(f"--- Filter Categories: {', '.join(self.enabled_categories)} ---")
+			self.logger.info(f"Filter Categories: {', '.join(self.enabled_categories)}")
 		else:
-			print(f"--- Filter Categories: ALL ---")
+			self.logger.info("Filter Categories: ALL")
 
 	def _get_fallback(self, key, primary_dict, fallback_dict, alt_key=None):
 		val = primary_dict.get(key)
@@ -61,7 +44,7 @@ class MerkatoSpider(scrapy.Spider):
 		"""
 		Entry point: handle login.
 		"""
-		print(f"--- Entry point: {response.url} ---")
+		self.logger.info(f"--- Entry point: {response.url} ---")
 		
 		if "/tenders" in response.url:
 			return self.parse_tenders_list(response)
@@ -81,11 +64,11 @@ class MerkatoSpider(scrapy.Spider):
 			yield scrapy.Request("https://tender.2merkato.com/tenders?status=open", callback=self.parse_tenders_list)
 			return
 
-		username = self.settings_doc.merkato_username
-		password = self.settings_doc.get_password("merkato_password")
+		username = self.username
+		password = self.password
 		
 		if not username or not password:
-			print("--- Error: Credentials missing. Proceeding without login. ---")
+			self.logger.info("--- Error: Credentials missing. Proceeding without login. ---")
 			yield scrapy.Request("https://tender.2merkato.com/tenders?status=open", callback=self.parse_tenders_list)
 			return
 
@@ -125,7 +108,7 @@ class MerkatoSpider(scrapy.Spider):
 		Extracts OPEN tenders from the JSON payload.
 		"""
 		self.page_count += 1
-		print(f"--- Parsing tenders page {self.page_count}: {response.url} ---")
+		self.logger.info(f"--- Parsing tenders page {self.page_count}: {response.url} ---")
 
 		data_page_raw = response.css("div#app::attr(data-page)").get()
 		if not data_page_raw: return
@@ -139,7 +122,7 @@ class MerkatoSpider(scrapy.Spider):
 		tenders_list = tenders_data.get("data", [])
 		
 		if not tenders_list:
-			print("--- No tenders found on this page. Stopping. ---")
+			self.logger.info("--- No tenders found on this page. Stopping. ---")
 			return
 
 		new_tenders_found = 0
@@ -169,7 +152,7 @@ class MerkatoSpider(scrapy.Spider):
 		# AUTO-STOP LOGIC: If we found ZERO new tenders on this entire page, 
 		# it means we have reached the point where we've already scraped everything.
 		if new_tenders_found == 0 and len(tenders_list) > 0:
-			print(f"--- Page {self.page_count} had 0 new tenders. Stopping spider early to save time. ---")
+			self.logger.info(f"--- Page {self.page_count} had 0 new tenders. Stopping spider early to save time. ---")
 			return
 
 		# Pagination
@@ -197,7 +180,7 @@ class MerkatoSpider(scrapy.Spider):
 		status_str = tender_details.get("status", list_data.get("status", "")).lower()
 		
 		if is_open is False or status_str == "closed":
-			print(f"--- Skipping closed tender (JSON flag: is_open={is_open}, status={status_str}): {response.url} ---")
+			self.logger.info(f"--- Skipping closed tender (JSON flag: is_open={is_open}, status={status_str}): {response.url} ---")
 			return
 
 		original_title = self._get_fallback("title", tender_details, list_data) or "N/A"
@@ -219,7 +202,7 @@ class MerkatoSpider(scrapy.Spider):
 
 		category = ", ".join(tender_cats_list) if tender_cats_list else "N/A"
 		
-		print(f"DEBUG: Tender '{truncated_title[:30]}' Cats: {tender_cats_list}")
+		self.logger.info(f"DEBUG: Tender '{truncated_title[:30]}' Cats: {tender_cats_list}")
 
 		# Category Filtering
 		if self.enabled_categories:
@@ -333,6 +316,6 @@ class MerkatoSpider(scrapy.Spider):
 				doc.documents = documents_str
 				doc.insert()
 				frappe.db.commit() 
-				print(f"--- Created tender: {truncated_title[:30]}... ---")
+				self.logger.info(f"--- Created tender: {truncated_title[:30]}... ---")
 			except frappe.exceptions.FrappeException as e:
-				print(f"--- Error creating tender: {e} ---")
+				self.logger.error(f"--- Error creating tender: {e} ---")
