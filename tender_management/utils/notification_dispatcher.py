@@ -66,13 +66,12 @@ def dispatch(doc, category, subject=None, message=None):
             except Exception as e:
                 frappe.log_error(f"Bespo Notification Log creation failed: {str(e)}", "Notification Dispatcher")
 
-        # 4. Fallback/Standard Email dispatch via notify_email
+        # 4. Fallback/Standard Email dispatch via frappe.sendmail
         try:
-            from tender_management.tender_management.utils.notifications import notify_email
-            notify_email(
+            frappe.sendmail(
+                recipients=[user_info.email],
                 subject=subject or _("Tender Notification: {0}").format(doc.name),
-                message=message or _("Notification for {0} {1}").format(doc.doctype, doc.name),
-                recipients=[user_info.email]
+                message=message or _("Notification for {0} {1}").format(doc.doctype, doc.name)
             )
         except Exception as e:
             frappe.log_error(f"Email dispatch failed for {user_id}: {str(e)}", "Notification Dispatcher")

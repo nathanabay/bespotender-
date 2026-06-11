@@ -35,7 +35,7 @@ def get_calendar_events(start, end, filters=None):
 	tenders = frappe.get_all(
 		"Tender Opportunity",
 		filters=query_filters,
-		fields=["name", "title", "organization", "submission_deadline", "publication_date", 
+		fields=["name", "title", "client", "submission_deadline", "publication_date", 
 		        "site_visit_date", "pre_bid_meeting_date", "workflow_state", "sector"]
 	)
 	

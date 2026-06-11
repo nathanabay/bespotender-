@@ -46,6 +46,7 @@ class TenderOpportunity(Document):
 	@frappe.whitelist()
 	def create_standard_tasks(self):
 		"""Create standard tasks for new tender opportunity"""
+		self.check_permission("write")
 		import frappe.utils
 		tasks = [
 			{"title": "Review Tender Requirements", "priority": "High", "days": 2, "description": "Review the tender document."},
@@ -123,5 +124,7 @@ class TenderOpportunity(Document):
 
 @frappe.whitelist()
 def generate_compiled_tender_document_final(tender_name):
-    from tender_management.tender_management.utils.tender_doc_gen import generate_compiled_tender_document_v3
-    return generate_compiled_tender_document_v3(tender_name)
+    if not frappe.has_permission("Tender Opportunity", "read", doc=tender_name):
+        frappe.throw(frappe._("Not permitted to compile documents for this Tender Opportunity"), frappe.PermissionError)
+    from tender_management.utils.tender_doc_gen import generate_compiled_tender_document_v5
+    return generate_compiled_tender_document_v5(tender_name)

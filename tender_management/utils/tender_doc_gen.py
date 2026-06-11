@@ -11,6 +11,8 @@ from io import BytesIO
 @frappe.whitelist()
 def generate_proposal_document(template_name, tender_name):
     # No docstring here to shift line numbers
+    if not frappe.has_permission("Tender Opportunity", "read", doc=tender_name):
+        frappe.throw(frappe._("Not permitted to view this Tender Opportunity"), frappe.PermissionError)
     template = frappe.get_doc("Document Template", template_name)
     tender = frappe.get_doc("Tender Opportunity", tender_name)
     content = template.content or ""
@@ -20,15 +22,16 @@ def generate_proposal_document(template_name, tender_name):
         "organization": tender.client or "",
         "tender_number": tender.tender_number or "",
         "submission_deadline": str(tender.submission_deadline) if tender.submission_deadline else "",
-        "final_bid_price": str(tender.final_bid_price) if tender.final_bid_price else "",
+        "final_bid_price": frappe.utils.fmt_money(tender.final_bid_price) if tender.final_bid_price else "",
         "sector": tender.sector or "",
         "tender_type": tender.tender_type or "",
         "company_name": frappe.defaults.get_defaults().get("company") or "BES"
     }
     for key, value in placeholders.items():
-        content = re.sub(r'\{\{' + key + r'\}\}', str(value), content, flags=re.IGNORECASE)
-        content = re.sub(r'\{' + key + r'\}', str(value), content, flags=re.IGNORECASE)
+        content = re.sub(r'\{\{\s*' + key + r'\s*\}\}', str(value), content, flags=re.IGNORECASE)
+        content = re.sub(r'\{\s*' + key + r'\s*\}', str(value), content, flags=re.IGNORECASE)
     return content
+
 
 @frappe.whitelist()
 def download_pdf(html, tender_name, template_name, filename="document.pdf"):
@@ -74,6 +77,8 @@ def extract_financial_document(doc, method):
 
 @frappe.whitelist()
 def generate_compiled_tender_document_v5(tender_name):
+    if not frappe.has_permission("Tender Opportunity", "read", doc=tender_name):
+        frappe.throw(frappe._("Not permitted to compile documents for this Tender Opportunity"), frappe.PermissionError)
     frappe.msgprint("Starting Compiled Bid Generation v5...")
     
     tender = frappe.get_doc("Tender Opportunity", tender_name)
@@ -229,7 +234,10 @@ def generate_compiled_tender_document_v5(tender_name):
                         try:
                             # Prioritize using the pre-converted PDF.
                             file_to_use = row.converted_pdf or row.file
-                            file_doc = frappe.get_doc("File", {"file_url": file_to_use})
+                            file_name = frappe.db.get_value("File", {"file_url": file_to_use})
+                            if not file_name:
+                                raise frappe.DoesNotExistError
+                            file_doc = frappe.get_doc("File", file_name)
 
                             if file_doc.file_name.lower().endswith('.pdf'):
                                 writer.append_pages_from_reader(PdfReader(BytesIO(file_doc.get_content())))
@@ -245,7 +253,10 @@ def generate_compiled_tender_document_v5(tender_name):
             file_url = section['file']
             if file_url:
                 try:
-                    file_doc = frappe.get_doc("File", {"file_url": file_url})
+                    file_name = frappe.db.get_value("File", {"file_url": file_url})
+                    if not file_name:
+                        raise frappe.DoesNotExistError
+                    file_doc = frappe.get_doc("File", file_name)
                     sep_body = f"<div style='padding-top: 400px; text-align: center;'><h1>{section['title']}</h1></div>"
                     writer.append_pages_from_reader(PdfReader(BytesIO(get_pdf_with_letterhead(sep_body))))
                     if file_doc.file_name.lower().endswith('.pdf'):

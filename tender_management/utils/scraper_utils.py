@@ -12,6 +12,8 @@ def run_scraper_job(pages=None):
 	Enqueues the scraper to run in the background.
 	Uses a fully detached subprocess to bypass all Frappe/RQ timeouts.
 	"""
+	if not frappe.has_permission("Tender Scraper Settings", "write"):
+		frappe.throw(frappe._("Not permitted to launch scraper jobs"), frappe.PermissionError)
 	# Get default from settings if not provided
 	if pages is None:
 		settings = frappe.get_single("Tender Scraper Settings")
@@ -58,6 +60,8 @@ def start_crawling_direct(pages=80):
 	Initializes and runs the Scrapy spider directly.
 	This is called by the background bench process.
 	"""
+	if not frappe.has_permission("Tender Scraper Settings", "write"):
+		frappe.throw(frappe._("Not permitted to execute crawler directly"), frappe.PermissionError)
 	try:
 		from scrapy.crawler import CrawlerProcess
 		from scrapy.settings import Settings
@@ -83,17 +87,26 @@ def sync_categories():
 	Fetches categories and subcategories from 2merkato.
 	Reconstructs the hierarchy based on indentation levels.
 	"""
+	if not frappe.has_permission("Tender Scraper Settings", "write"):
+		frappe.throw(frappe._("Not permitted to sync categories"), frappe.PermissionError)
 	import requests
 	
 	try:
-		# Attempt live scrape first
-		url = "https://tender.2merkato.com/tenders"
-		headers = {
-			"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-		}
-		r = requests.get(url, headers=headers, timeout=30)
-		soup = BeautifulSoup(r.text, "html.parser")
-		tree_nodes = soup.find_all("div", class_="ant-tree-treenode")
+		soup = None
+		try:
+			# Attempt live scrape first
+			url = "https://tender.2merkato.com/tenders"
+			headers = {
+				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+			}
+			r = requests.get(url, headers=headers, timeout=5)
+			soup = BeautifulSoup(r.text, "html.parser")
+		except Exception as e:
+			frappe.logger().warning(f"Category Sync: Live fetch failed, using fallback: {str(e)}")
+
+		tree_nodes = None
+		if soup:
+			tree_nodes = soup.find_all("div", class_="ant-tree-treenode")
 		
 		if not tree_nodes:
 			# Fallback: Check for local tenderdesc.html file
@@ -155,6 +168,8 @@ def check_scraper_status():
 	"""
 	Checks if the scraper background process is currently running and returns the last few logs.
 	"""
+	if not frappe.has_permission("Tender Scraper Settings", "read"):
+		frappe.throw(frappe._("Not permitted to check scraper status"), frappe.PermissionError)
 	try:
 		# Check for running processes that match the scraper's execution signature
 		result = subprocess.run("ps aux | grep 'start_crawling_direct' | grep -v grep", shell=True, capture_output=True, text=True)
@@ -204,6 +219,8 @@ def stop_scraper_job():
 	"""
 	Kills any running Scrapy processes.
 	"""
+	if not frappe.has_permission("Tender Scraper Settings", "write"):
+		frappe.throw(frappe._("Not permitted to stop scraper jobs"), frappe.PermissionError)
 	try:
 		# Use pkill to terminate start_crawling_direct and scrapy bots
 		subprocess.run("pkill -9 -f 'start_crawling_direct'", shell=True)

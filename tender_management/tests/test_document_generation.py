@@ -5,7 +5,7 @@ import frappe
 import unittest
 from frappe.utils import random_string
 
-from tender_management.tender_management.utils.tender_doc_gen import generate_proposal_document
+from tender_management.utils.tender_doc_gen import generate_proposal_document
 
 class TestDocumentGeneration(unittest.TestCase):
     def setUp(self):
@@ -22,7 +22,9 @@ class TestDocumentGeneration(unittest.TestCase):
             "client": "ACME Corporation",
             "tender_number": f"TND-{random_string(3)}",
             "final_bid_price": 50000,
-            "submission_deadline": "2026-12-01 12:00:00"
+            "submission_deadline": "2026-12-01 12:00:00",
+            "sector": "Construction",
+            "tender_type": "Request for Proposal (RFP)"
         })
         tender.insert()
         return tender
@@ -52,12 +54,10 @@ class TestDocumentGeneration(unittest.TestCase):
         self.assertIn(self.tender.tender_number, generated_content)
         self.assertIn("50,000", generated_content)
         
-        print("
-SUCCESS: Document Generation Test Passed!")
+        print("\nSUCCESS: Document Generation Test Passed!")
         print(f"Template: {self.template.name}")
         print(f"Tender: {self.tender.name}")
-        print("
---- Generated Content ---")
+        print("\n--- Generated Content ---")
         print(generated_content)
-        print("
--------------------------")
+        print("\n-------------------------")
+
