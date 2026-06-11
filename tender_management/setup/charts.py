@@ -23,7 +23,7 @@ def setup_dashboard_charts():
 		"group_by_based_on": "workflow_state",
 		"aggregate_function": "Count", "based_on": "creation",
 		"timeseries": 0,
-		"filters_json": json.dumps([["Tender Opportunity", "workflow_state", "in", ["Approved", "Rejected"]]]),
+		"filters_json": json.dumps([["Tender Opportunity", "workflow_state", "in", ["Won", "Lost"]]]),
 		"type": "Donut", "is_public": 1, "module": "Tender Management",
 	})
 	upsert_dashboard_chart("Tenders by Sector", {
@@ -101,9 +101,9 @@ def setup_number_cards():
 		"function": "Count", "is_public": 1,
 		"show_percentage_stats": 1, "stats_time_interval": "Monthly",
 		"filters_json": json.dumps([
-			["Tender Task", "status", "in", ["Open", "In Progress"]],
-			["Tender Task", "assigned_to", "=", "frappe.session.user"],
+			["Tender Task", "status", "in", ["Open", "In Progress"]]
 		]),
+		"dynamic_filters_json": json.dumps({"assigned_to": "frappe.session.user"}),
 		"module": "Tender Management",
 	})
 
@@ -113,4 +113,7 @@ def _ensure_card(name, doct):
 		frappe.get_doc(doct).insert(ignore_permissions=True)
 		print(f"  ✔ Created Number Card: {name}")
 	else:
-		print(f"  ✔ Number Card already exists: {name}")
+		doc = frappe.get_doc("Number Card", name)
+		doc.update(doct)
+		doc.save(ignore_permissions=True)
+		print(f"  ✔ Updated Number Card: {name}")
