@@ -30,6 +30,14 @@ class MerkatoSpider(scrapy.Spider):
 			if str(c.enabled) == "1":
 				self.enabled_categories.append(c.category_name.strip().lower())
 		
+		# Optimization: Fetch all existing titles once at the start for lightning-fast lookup
+		print("--- Pre-fetching existing tender titles from database... ---")
+		try:
+			self.existing_titles = set(frappe.get_all("Scraped Tender", pluck="name"))
+			print(f"--- Found {len(self.existing_titles)} existing tenders in cache ---")
+		except Exception:
+			self.existing_titles = set()
+		
 		print(f"--- MerkatoSpider initialized ---")
 
 		print(f"--- Page Limit: {self.page_limit} ---")
@@ -119,12 +127,26 @@ class MerkatoSpider(scrapy.Spider):
 		props = page_data.get("props", {})
 		tenders_data = props.get("tenders", {})
 		tenders_list = tenders_data.get("data", [])
+		
+		if not tenders_list:
+			print("--- No tenders found on this page. Stopping. ---")
+			return
 
+		new_tenders_found = 0
 		for tender in tenders_list:
 			# --- HARD FILTER: MUST BE OPEN ---
 			if not tender.get("is_open"):
 				continue
 
+			original_title = (tender.get("title") or "N/A").strip()
+			truncated_title = original_title[:140].strip()
+
+			# Lightning-fast cache check
+			if truncated_title in self.existing_titles:
+				self.logger.debug(f"Skipping already scraped tender (cached): {truncated_title[:30]}...")
+				continue
+			
+			new_tenders_found += 1
 			tender_id = tender.get("id")
 			if tender_id:
 				detail_url = f"https://tender.2merkato.com/tenders/{tender_id}"
@@ -133,6 +155,12 @@ class MerkatoSpider(scrapy.Spider):
 					self.parse_tender_details, 
 					cb_kwargs={"list_data": tender}
 				)
+
+		# AUTO-STOP LOGIC: If we found ZERO new tenders on this entire page, 
+		# it means we have reached the point where we've already scraped everything.
+		if new_tenders_found == 0 and len(tenders_list) > 0:
+			print(f"--- Page {self.page_count} had 0 new tenders. Stopping spider early to save time. ---")
+			return
 
 		# Pagination
 		if self.page_count < self.page_limit:
